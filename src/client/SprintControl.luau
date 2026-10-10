@@ -15,9 +15,9 @@ local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
+-- Distance of the button to the bottom and right screen edge. The touch jump button that used
+-- to sit here is hidden (see CoreGuiSetup), since jumping is off in this game.
 local BUTTON_MARGIN = 24
--- Lifts the button above the default mobile jump button area.
-local BUTTON_LIFT = 140
 local BAR_WIDTH = 0.3
 local BAR_HEIGHT = 14
 local BAR_BOTTOM_MARGIN = 16
@@ -79,7 +79,7 @@ function SprintControl.start()
 		local scale = UiMetrics.scale()
 		local size = UiMetrics.buttonSize()
 		button.Size = UDim2.fromOffset(size, size)
-		button.Position = UDim2.new(1, -BUTTON_MARGIN * scale, 1, -BUTTON_LIFT * scale)
+		button.Position = UDim2.new(1, -BUTTON_MARGIN * scale, 1, -BUTTON_MARGIN * scale)
 		bar.Size = UDim2.new(BAR_WIDTH, 0, 0, math.floor(BAR_HEIGHT * scale))
 		bar.Position = UDim2.new(0.5, 0, 1, -BAR_BOTTOM_MARGIN * scale)
 	end)
