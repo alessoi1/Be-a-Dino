@@ -125,6 +125,12 @@ Ergänzt nach dem ersten Studio-Test (10. Oktober 2026):
 
 - **Arena größer:** 500 × 500 Studs statt 400 × 400 (für 12 bis 24 Spieler), dazu 450 statt 300 Futterstücke, damit die Futterdichte gleich bleibt. Beides ist ein Startwert und wird mit mehreren Spielern und auf einem echten Handy noch angepasst (mehr Futterteile kosten Leistung).
 
+Ergänzt: Oase in der Mitte (10. Oktober 2026):
+
+- **Treffpunkt:** In der Mitte der Arena liegt die „Oase“ (Radius 60 Studs, 80 der 450 Futterstücke) mit dichterem und besserem Futter (Gewichte klein 40, mittel 40, groß 20, außen 85 / 12 / 3). Eine blaue Fläche und eine Leuchtsäule zeigen, wo sie liegt. Dort treffen sich die Spieler, und größere fressen kleinere.
+- **Spawn:** Niemand erscheint in der Oase oder bis 20 Studs daneben.
+- Alle Werte sind Startwerte und werden mit mehreren Spielern abgestimmt (`Config/Food`, Block `zones.center`).
+
 ## Weiterhin offen
 
 - Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.

@@ -22,6 +22,9 @@ type Pending = { id: number, readyAt: number }
 
 -- Height of the food center above the floor, on top of half its size.
 local FLOAT_HEIGHT = 1
+-- Tries to place an outer piece outside the oasis before it is accepted anyway (a bad config
+-- must not hang the server).
+local OUTSIDE_TRIES = 10
 
 local log = Log.new("FoodService")
 local random = Random.new()
@@ -29,6 +32,9 @@ local random = Random.new()
 local field = FoodField.new()
 local parts: { [number]: Part } = {}
 local pending: { Pending } = {}
+-- Pieces that belong to the oasis in the middle; they always grow back there.
+local inOasis: { [number]: boolean } = {}
+local oasis = FoodConfig.zones.center
 local folder: Folder? = nil
 
 local FoodService = {}
@@ -46,12 +52,22 @@ local function createPart(): Part
 	return part
 end
 
+local function roll(): number
+	return random:NextNumber()
+end
+
 local function placeFood(id: number)
-	local kindIndex = FoodKinds.pick(FoodConfig.kinds, random:NextNumber())
+	local kindIndex: number
+	local x: number
+	local z: number
+	if inOasis[id] then
+		kindIndex = FoodKinds.pickWeighted(FoodConfig.kinds, oasis.weights, roll())
+		x, z = FoodSpawn.pickPositionInDisc(0, 0, oasis.radius, roll)
+	else
+		kindIndex = FoodKinds.pick(FoodConfig.kinds, roll())
+		x, z = FoodSpawn.pickPositionOutsideDisc(Arena.size, FoodConfig.margin, 0, 0, oasis.radius, roll, OUTSIDE_TRIES)
+	end
 	local kind = FoodConfig.kinds[kindIndex]
-	local x, z = FoodSpawn.pickPosition(Arena.size, FoodConfig.margin, function()
-		return random:NextNumber()
-	end)
 	if not FoodField.place(field, id, x, z, kindIndex) then
 		log.warn("food id already in use", { id = id })
 		return
@@ -114,6 +130,11 @@ end
 
 function FoodService.start()
 	local problems = FoodKinds.validate(FoodConfig.kinds)
+	for _, problem in
+		FoodKinds.validateZones(FoodConfig.kinds, FoodConfig.zones, Arena.size, FoodConfig.count, FoodConfig.margin)
+	do
+		table.insert(problems, problem)
+	end
 	if #problems > 0 then
 		log.error("food config invalid, service not started", { problems = table.concat(problems, "; ") })
 		return
@@ -125,10 +146,11 @@ function FoodService.start()
 	folder = newFolder
 
 	for id = 1, FoodConfig.count do
+		inOasis[id] = id <= oasis.count
 		parts[id] = createPart()
 		placeFood(id)
 	end
-	log.info("food placed", { count = FoodField.count(field) })
+	log.info("food placed", { count = FoodField.count(field), oasis = oasis.count })
 
 	local lastTick = ServerClock.now()
 	RunService.Heartbeat:Connect(function()
