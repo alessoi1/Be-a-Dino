@@ -6,4 +6,7 @@ return {
 	storeName = "BeDinoProfiles",
 	-- Most entries a profile may hold in the reached-stages list (guards against junk data).
 	maxReachedStages = 64,
+	-- Most bought skins and most chosen skins (one per dino) a profile may hold.
+	maxOwnedSkins = 64,
+	maxEquippedSkins = 16,
 }

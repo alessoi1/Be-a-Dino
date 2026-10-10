@@ -61,6 +61,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/CollectionView.spec")
 	end,
+	function()
+		require("./specs/Skins.spec")
+	end,
+	function()
+		require("./specs/SkinView.spec")
+	end,
 }
 
 local passed = 0

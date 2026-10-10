@@ -116,3 +116,53 @@ test("ProfileData: a failing or missing migration stops the load", function()
 	}
 	assertEquals((ProfileData.migrate({ version = 1 }, wrongVersion, 2)), nil, "step must set the next version")
 end)
+
+test("ProfileData: a new profile has empty skin lists", function()
+	local data = ProfileData.new(1)
+	assertEquals(next(data.ownedSkins), nil)
+	assertEquals(next(data.equippedSkins), nil)
+end)
+
+test("ProfileData: validate rejects broken skin fields", function()
+	local function rejects(change: (data: any) -> (), label: string)
+		local data: any = ProfileData.new(1000)
+		change(data)
+		assertTrue(not ProfileData.validate(data, Profile), label)
+	end
+	rejects(function(data)
+		data.ownedSkins = "none"
+	end, "ownedSkins type")
+	rejects(function(data)
+		data.ownedSkins = { compy_berry = "yes" }
+	end, "ownedSkins value")
+	rejects(function(data)
+		data.equippedSkins = { compy = 5 }
+	end, "equippedSkins value")
+	rejects(function(data)
+		data.equippedSkins = { [1] = "compy_mint" }
+	end, "equippedSkins key")
+	rejects(function(data)
+		for index = 1, Profile.maxOwnedSkins + 1 do
+			data.ownedSkins["skin" .. index] = true
+		end
+	end, "too many owned skins")
+	rejects(function(data)
+		for index = 1, Profile.maxEquippedSkins + 1 do
+			data.equippedSkins["dino" .. index] = "skin"
+		end
+	end, "too many equipped skins")
+end)
+
+test("ProfileData: a version 1 profile is migrated to the current version", function()
+	local raw: any = { version = 1, createdAt = 50, reachedStages = { compy = true, raptor = true }, bestPoints = 7 }
+	local migrated = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	local data: any = migrated
+	assertEquals(data.version, ProfileData.VERSION)
+	assertEquals(data.bestPoints, 7)
+	assertTrue(data.reachedStages.raptor)
+	assertTrue(data.ownedSkins ~= nil and data.equippedSkins ~= nil)
+	assertTrue((ProfileData.validate(data, Profile)))
+	assertEquals(raw.version, 1, "input stays untouched")
+	assertEquals(raw.ownedSkins, nil)
+end)

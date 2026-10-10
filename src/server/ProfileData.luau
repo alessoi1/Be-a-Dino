@@ -11,9 +11,17 @@ export type Data = {
 	reachedStages: { [string]: boolean },
 	-- Most points of a single round.
 	bestPoints: number,
+	-- Ids of the bought skins (free and earned skins are derived, not stored).
+	ownedSkins: { [string]: boolean },
+	-- The chosen skin id per dino id.
+	equippedSkins: { [string]: string },
 }
 
-export type Limits = { maxReachedStages: number }
+export type Limits = {
+	maxReachedStages: number,
+	maxOwnedSkins: number,
+	maxEquippedSkins: number,
+}
 
 -- Turns data of version n into data of version n + 1 (and sets `version`).
 -- Gets a copy it may change.
@@ -21,7 +29,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 1
+ProfileData.VERSION = 2
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -44,6 +52,8 @@ function ProfileData.new(now: number): Data
 		createdAt = now,
 		reachedStages = {},
 		bestPoints = 0,
+		ownedSkins = {},
+		equippedSkins = {},
 	}
 end
 
@@ -73,6 +83,34 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 	end
 	if count > limits.maxReachedStages then
 		return false, "too many reached stages"
+	end
+
+	if type(data.ownedSkins) ~= "table" then
+		return false, "ownedSkins must be a table"
+	end
+	local owned = 0
+	for key, value in data.ownedSkins do
+		if type(key) ~= "string" or value ~= true then
+			return false, "ownedSkins holds only skin ids set to true"
+		end
+		owned += 1
+	end
+	if owned > limits.maxOwnedSkins then
+		return false, "too many owned skins"
+	end
+
+	if type(data.equippedSkins) ~= "table" then
+		return false, "equippedSkins must be a table"
+	end
+	local equipped = 0
+	for key, value in data.equippedSkins do
+		if type(key) ~= "string" or type(value) ~= "string" then
+			return false, "equippedSkins holds only dino ids with skin ids"
+		end
+		equipped += 1
+	end
+	if equipped > limits.maxEquippedSkins then
+		return false, "too many equipped skins"
 	end
 	return true, nil
 end

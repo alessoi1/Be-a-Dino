@@ -15,6 +15,7 @@ local function part(name: string): DinoLooks.PartSpec
 		size = { x = 1, y = 1, z = 1 },
 		offset = { x = 0, y = 0, z = 0 },
 		color = { r = 10, g = 20, b = 30 },
+		role = "body",
 	}
 end
 
@@ -85,5 +86,24 @@ test("DinoLook: the lowest point of a look stays near the floor", function()
 	for id, look in DinoLooks.looks do
 		local lowest = DinoLook.lowestPoint(look)
 		assertTrue(math.abs(lowest - DinoLook.FLOOR_OFFSET) < 0.2, id .. " lowest point " .. lowest)
+	end
+end)
+
+test("DinoLook: a part needs a known role", function()
+	local bad: any = part("Body")
+	bad.role = "shiny"
+	assertTrue(contains(DinoLook.validate(stages, { a = { parts = { bad } } }, 12), "role"))
+	local accent = part("Claw")
+	accent.role = "accent"
+	assertEquals(#DinoLook.validate(stages, { a = { parts = { part("Body"), accent } } }, 12), 0)
+end)
+
+test("DinoLook: every real look has a body part and an accent part to recolor", function()
+	for id, look in DinoLooks.looks do
+		local roles: { [string]: boolean } = {}
+		for _, spec in look.parts do
+			roles[spec.role] = true
+		end
+		assertTrue(roles.body and roles.accent, id .. " needs both roles")
 	end
 end)
