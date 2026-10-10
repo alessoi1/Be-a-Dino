@@ -16,6 +16,7 @@ local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Pending = { id: number, readyAt: number }
 
@@ -101,7 +102,7 @@ local function collectFor(player: Player, now: number)
 end
 
 local function tick()
-	local now = os.clock()
+	local now = ServerClock.now()
 	respawnDue(now)
 	for _, player in Players:GetPlayers() do
 		local ok, err = pcall(collectFor, player, now)
@@ -129,12 +130,12 @@ function FoodService.start()
 	end
 	log.info("food placed", { count = FoodField.count(field) })
 
-	local lastTick = os.clock()
+	local lastTick = ServerClock.now()
 	RunService.Heartbeat:Connect(function()
-		if os.clock() - lastTick < FoodConfig.checkInterval then
+		if ServerClock.now() - lastTick < FoodConfig.checkInterval then
 			return
 		end
-		lastTick = os.clock()
+		lastTick = ServerClock.now()
 		local ok, err = pcall(tick)
 		if not ok then
 			log.error("food tick failed", { error = tostring(err) })

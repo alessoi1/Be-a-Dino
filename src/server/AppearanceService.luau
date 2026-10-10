@@ -15,6 +15,7 @@ local Log = require(Shared:WaitForChild("Log"))
 local DinoLook = require(Shared:WaitForChild("DinoLook"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
+local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 
@@ -28,6 +29,9 @@ local CLOUD_LIFETIME_MAX = 1.2
 local CLOUD_SPEED_MIN = 8
 local CLOUD_SPEED_MAX = 14
 local CLOUD_SIZE = 1.5
+-- Look of the glow while a player is protected after a respawn.
+local PROTECTION_FILL_TRANSPARENCY = 0.7
+local PROTECTION_OUTLINE_TRANSPARENCY = 0.3
 
 local log = Log.new("AppearanceService")
 
@@ -154,7 +158,28 @@ local function attachLook(player: Player, character: Model, stageId: string)
 	log.debug("look attached", { userId = player.UserId, stage = stageId })
 end
 
-local function playCloud(character: Model)
+-- Removes the dino look at once (used when a player is eaten).
+function AppearanceService.removeLook(character: Model)
+	local look = character:FindFirstChild(LOOK_NAME)
+	if look ~= nil then
+		look:Destroy()
+	end
+end
+
+-- White glow around the character while the spawn protection lasts.
+local function showProtection(character: Model)
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "SpawnProtection"
+	highlight.Adornee = character
+	highlight.FillColor = Color3.fromRGB(255, 255, 255)
+	highlight.FillTransparency = PROTECTION_FILL_TRANSPARENCY
+	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	highlight.OutlineTransparency = PROTECTION_OUTLINE_TRANSPARENCY
+	highlight.Parent = character
+	Debris:AddItem(highlight, Arena.spawnProtectionSeconds)
+end
+
+function AppearanceService.playCloud(character: Model)
 	local root = character:FindFirstChild("HumanoidRootPart")
 	if root == nil or not root:IsA("BasePart") then
 		return
@@ -195,7 +220,9 @@ local function onStage(player: Player, stageId: string, reason: "reset" | "grow"
 			return
 		end
 		if reason == "grow" then
-			playCloud(character)
+			AppearanceService.playCloud(character)
+		else
+			showProtection(character)
 		end
 	end)
 end

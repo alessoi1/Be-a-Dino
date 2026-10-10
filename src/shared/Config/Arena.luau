@@ -18,4 +18,10 @@ return {
 	eatPointsShare = 0.5,
 	-- Seconds after a respawn in which a player cannot be eaten.
 	spawnProtectionSeconds = 4,
+	-- Seconds between being eaten and the respawn.
+	respawnSeconds = 3,
+	-- Random spots tried at a spawn; the one farthest from other players is used.
+	spawnCandidates = 8,
+	-- Seconds between two server checks for eating.
+	eatCheckInterval = 0.1,
 }

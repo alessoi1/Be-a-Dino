@@ -15,6 +15,8 @@ local Remotes = {
 		sprint = "Sprint",
 		-- client -> server event: (no arguments), Studio only: adds debug points (see Config/Debug)
 		debugGrow = "DebugGrow",
+		-- server -> client event: (kind: "ate" | "eaten", otherName: string, points: number), display only
+		notice = "Notice",
 	},
 }
 

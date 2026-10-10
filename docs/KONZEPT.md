@@ -17,7 +17,7 @@ Eine kleine Arena: Du bist ein winziger Dino, frisst Futter, wächst, wirst bei 
 
 ## Dino-Stufen (Platzhalter, in `Config/Dinos`)
 
-| Stufe | Dino | ab Punkten | Größe | Tempo |
+| Stufe | Dino | ab Punkten | Größe (zu Beginn der Stufe) | Tempo |
 | --- | --- | --- | --- | --- |
 | 1 | Compy | 0 | 1 | 20 |
 | 2 | Raptor | 50 | 1,8 | 22 |
@@ -96,6 +96,13 @@ Ergänzt am selben Tag:
 - **Sprint:** Ausdauerleiste (Halten-Button auf Mobile), Tempofaktor circa 1,5 (Platzhalter in `Config`). Server verwaltet Ausdauer und plausibilisiert Tempo.
 - **Monetarisierung:** Skins plus Futter-Booster. Booster dürfen nur das Futter-Wachstum betreffen, nie Tempo oder Fressen. Laut CLAUDE.md erst nach Rückfrage und Prüfung der aktuellen Roblox-Richtlinien umsetzen. Zeitlich nach Schritt 7.
 - **Look:** Niedlich Low-Poly, Arbeitstitel „Be a Dino“ bleibt vorerst.
+
+Ergänzt zu Schritt 5 (Fressen):
+
+- **Größe wächst fließend:** Zwischen den Stufenwerten in `Config/Dinos` wächst die Größe mit den Punkten (Spalte „Größe“ ist die Größe zu Beginn der Stufe). Auf der letzten Stufe bleibt sie gleich. Dadurch kann man auch innerhalb einer Stufe gefressen werden.
+- **Keine Kollision zwischen Spielern:** Spieler laufen durcheinander hindurch, damit ein großer Dino einen kleinen erreicht. Boden und Wände bleiben fest.
+- **Respawn:** 3 Sekunden nach dem Gefressenwerden, dann vier Sekunden Schutz. Der Spawnpunkt ist von mehreren Zufallsorten der, der am weitesten von anderen Spielern entfernt liegt.
+- **Gefressenwerden:** Der Dino verschwindet mit einer Wolke (keine Leiche). Beide Beteiligten sehen kurz eine Meldung.
 
 ## Weiterhin offen
 

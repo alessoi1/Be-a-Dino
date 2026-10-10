@@ -16,6 +16,7 @@ local MoveCheck = require(Shared:WaitForChild("MoveCheck"))
 local Movement = require(Shared:WaitForChild("Config"):WaitForChild("Movement"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Point = { x: number, z: number }
 type StaminaState = { value: number, idle: number, sprinting: boolean }
@@ -71,7 +72,7 @@ local function rubberband(player: Player, data: PlayerData, root: BasePart, curr
 	root.AssemblyLinearVelocity = Vector3.zero
 	root.CFrame = CFrame.new(last.x, root.Position.Y, last.z) * (root.CFrame - root.CFrame.Position)
 
-	local now = os.clock()
+	local now = ServerClock.now()
 	if now - data.lastRubberbandLog >= Movement.rejectLogIntervalSeconds then
 		data.lastRubberbandLog = now
 		log.warn("movement rejected", {
@@ -145,7 +146,7 @@ function MovementService.start(limiter: Limiter)
 		end
 		-- Setting a boolean is cheap, so a too fast call is still applied (a dropped
 		-- release would leave the sprint stuck), but it is logged as rejected.
-		local now = os.clock()
+		local now = ServerClock.now()
 		if now - data.lastSprintCall < Movement.sprintRemoteMinInterval then
 			limiter.reject(userId, "Sprint", "rate_limited")
 		end
@@ -162,9 +163,9 @@ function MovementService.start(limiter: Limiter)
 		limiter.forget(player.UserId)
 	end)
 
-	local lastTick = os.clock()
+	local lastTick = ServerClock.now()
 	RunService.Heartbeat:Connect(function()
-		local now = os.clock()
+		local now = ServerClock.now()
 		local dt = now - lastTick
 		if dt < Movement.checkInterval then
 			return

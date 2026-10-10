@@ -10,6 +10,10 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
+local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
+local GrowthConfig = require(Shared:WaitForChild("Config"):WaitForChild("Growth"))
+
+local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type GrowthState = { points: number, stageIndex: number, highestStageIndex: number }
 
@@ -19,6 +23,10 @@ type StageHandler = (player: Player, stageId: string, reason: "reset" | "grow") 
 
 local states: { [number]: GrowthState } = {}
 local stageHandlers: { StageHandler } = {}
+-- Server time until which a player cannot be eaten (set at every respawn).
+local protectedUntil: { [number]: number } = {}
+-- The scale last applied to the character, to skip tiny rescales.
+local appliedScale: { [number]: number } = {}
 
 local PlayerState = {}
 
@@ -61,6 +69,19 @@ function PlayerState.get(player: Player): GrowthState?
 	return states[player.UserId]
 end
 
+function PlayerState.protectedUntil(player: Player): number
+	return protectedUntil[player.UserId] or 0
+end
+
+-- Current scale from the growth state (not from the character, which the client moves).
+function PlayerState.scaleOf(player: Player): number
+	local state = states[player.UserId]
+	if state == nil then
+		return Dinos[1].scale
+	end
+	return Growth.scaleFor(Dinos, state)
+end
+
 -- Speed of the current dino stage (without sprint).
 function PlayerState.speedFor(player: Player): number
 	local state = states[player.UserId]
@@ -80,8 +101,13 @@ function PlayerState.addPoints(player: Player, amount: number)
 	states[player.UserId] = newState
 	log.debug("points added", { userId = player.UserId, amount = amount, points = newState.points })
 	publish(player, newState)
-	if changed then
+	local scale = Growth.scaleFor(Dinos, newState)
+	local scaleStepped = math.abs(scale - (appliedScale[player.UserId] or 1)) >= GrowthConfig.scaleApplyStep
+	if changed or scaleStepped then
+		appliedScale[player.UserId] = scale
 		applyScale(player, newState)
+	end
+	if changed then
 		notifyStage(player, Dinos[newState.stageIndex].id, "grow")
 		log.info(
 			"stage changed",
@@ -93,6 +119,8 @@ end
 local function reset(player: Player)
 	local state = Growth.newState()
 	states[player.UserId] = state
+	appliedScale[player.UserId] = Growth.scaleFor(Dinos, state)
+	protectedUntil[player.UserId] = ServerClock.now() + Arena.spawnProtectionSeconds
 	publish(player, state)
 	notifyStage(player, Dinos[state.stageIndex].id, "reset")
 	log.info("state reset", { userId = player.UserId })
@@ -115,6 +143,8 @@ function PlayerState.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		log.info("player left", { userId = player.UserId })
 		states[player.UserId] = nil
+		protectedUntil[player.UserId] = nil
+		appliedScale[player.UserId] = nil
 	end)
 	log.info("started")
 end

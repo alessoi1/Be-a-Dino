@@ -13,7 +13,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] 2 Arena (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md), Spawn, Bewegung (Mobile-Joystick), Kamera.
 - [x] 3 Futter fressen und wachsen (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md).
 - [x] 4 Stufenwechsel mit Platzhalter-Modellen (Code fertig, Studio-Test offen, Pipeline in docs/MODELLE.md).
-- [ ] 5 Fressen zwischen Spielern, Schutzzeit, Respawn.
+- [x] 5 Fressen zwischen Spielern, Schutzzeit, Respawn (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md).
 - [ ] 6 Oberfläche und Handy-Test.
 - [ ] 7 Speichern, Skins, Monetarisierung (nach Rückfrage und Prüfung der Roblox-Regeln).
 

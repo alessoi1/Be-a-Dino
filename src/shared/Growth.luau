@@ -58,8 +58,15 @@ function Growth.progress(stages: { DinoStage }, state: State): number
 	return math.clamp((state.points - current.minPoints) / span, 0, 1)
 end
 
+-- Scale grows continuously from the scale of the current stage to the scale of the next
+-- one as the progress rises. On the last stage it stays at the stage scale.
 function Growth.scaleFor(stages: { DinoStage }, state: State): number
-	return stages[state.stageIndex].scale
+	local current = stages[state.stageIndex]
+	local nextStage = stages[state.stageIndex + 1]
+	if nextStage == nil then
+		return current.scale
+	end
+	return current.scale + (nextStage.scale - current.scale) * Growth.progress(stages, state)
 end
 
 function Growth.speedFor(stages: { DinoStage }, state: State): number
