@@ -27,7 +27,7 @@ Stand: noch nicht in Studio getestet.
 
 Stand: noch nicht in Studio getestet.
 
-- [ ] Output zeigt `food placed` mit `count = 300`, kein `food config invalid`.
+- [ ] Output zeigt `food placed` mit `count = 450`, kein `food config invalid`.
 - [ ] Futter liegt verteilt in der Arena, innerhalb der Wände, in drei Größen und Farben (viele kleine, wenige große).
 - [ ] Beim Drüberlaufen verschwindet das Futter, und die Anzeige oben zählt die Punkte hoch.
 - [ ] Nach etwa 8 Sekunden erscheint das Futter an einer neuen Stelle.
@@ -36,7 +36,7 @@ Stand: noch nicht in Studio getestet.
 - [ ] Nach Reset der Figur (`Humanoid.Health = 0`) zeigt die Anzeige wieder Compy mit 0 Punkten.
 - [ ] Mehrere Spieler (Test-Tab): jeder sammelt eigene Punkte, ein Stück bekommt nur einer.
 - [ ] Handy-Emulator: Anzeige oben lesbar, verdeckt nicht den Joystick oder Sprint-Button.
-- [ ] Performance: Bei 300 Teilen bleibt die Bildrate stabil (Studio Stats, `Shift+F3`). Auf einem echten Handy testen, falls möglich. Bei Rucklern `count` in `Config/Food` senken.
+- [ ] Performance: Bei 450 Teilen bleibt die Bildrate stabil (Studio Stats, `Shift+F3`). Auf einem echten Handy testen, falls möglich. Bei Rucklern `count` in `Config/Food` senken.
 - [ ] Taste `G` (nur Studio) funktioniert weiter.
 
 ## Schritt 4: Dino-Modelle und Stufenwechsel

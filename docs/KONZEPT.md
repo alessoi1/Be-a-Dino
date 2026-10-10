@@ -121,6 +121,10 @@ Ergänzt zu Schritt 7d (Shop):
 - **Nicht listen:** Die Produkte werden vorerst nur im Spiel verkauft, nicht in der Roblox-Store-Ansicht.
 - Details, Checkliste und offene Prüfungen stehen in `docs/MONETARISIERUNG.md`.
 
+Ergänzt nach dem ersten Studio-Test (10. Oktober 2026):
+
+- **Arena größer:** 500 × 500 Studs statt 400 × 400 (für 12 bis 24 Spieler), dazu 450 statt 300 Futterstücke, damit die Futterdichte gleich bleibt. Beides ist ein Startwert und wird mit mehreren Spielern und auf einem echten Handy noch angepasst (mehr Futterteile kosten Leistung).
+
 ## Weiterhin offen
 
 - Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.

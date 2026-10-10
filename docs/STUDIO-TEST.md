@@ -46,7 +46,7 @@ Server:
 [BeDino][Receipts] handler registered name=skins
 [BeDino][SkinService] started
 [BeDino][MovementService] started
-[BeDino][FoodService] food placed count=300
+[BeDino][FoodService] food placed count=450
 [BeDino][FoodService] started
 [BeDino][PlayerCollision] started
 [BeDino][EatingService] started
@@ -163,7 +163,7 @@ Das sind Stellen, an denen ich mir nicht sicher bin, ob Roblox sich so verhält.
 7. **Layout bei 360 Pixel Breite:** Status links und Bestenliste rechts überlappen sich knapp nicht?
 8. **Speichern:** Wird beim zweiten Start wirklich geladen (`status = loaded`)? Und ein Profil aus Schritt 7a wird beim Laden auf Version 2 migriert (`status = migrated`).
 9. **Kaufdialog:** `PromptProductPurchase` ist auf der Roblox-Seite als veraltet markiert. Funktioniert der Dialog? Wird ein Beleg bestätigt (`receipt processed`)?
-10. **Leistung:** Läuft es mit 300 Futterteilen flüssig (Stats mit Shift+F3)?
+10. **Leistung:** Läuft es mit 450 Futterteilen flüssig (Stats mit Shift+F3)?
 11. **Kamera:** Der Zoom folgt der Größe, ohne zu ruckeln oder zu springen.
 
 ## 10. Nach dem Test
