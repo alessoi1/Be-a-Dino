@@ -37,6 +37,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/FoodField.spec")
 	end,
+	function()
+		require("./specs/DinoLook.spec")
+	end,
 }
 
 local passed = 0

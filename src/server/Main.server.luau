@@ -12,6 +12,7 @@ local RejectLimiter = require(script.Parent:WaitForChild("RejectLimiter"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ArenaService = require(script.Parent:WaitForChild("ArenaService"))
 local MovementService = require(script.Parent:WaitForChild("MovementService"))
+local AppearanceService = require(script.Parent:WaitForChild("AppearanceService"))
 local FoodService = require(script.Parent:WaitForChild("FoodService"))
 local DebugService = require(script.Parent:WaitForChild("DebugService"))
 
@@ -23,6 +24,7 @@ local limiter = RejectLimiter.new(Log.new("Remotes"), Movement.rejectLogInterval
 -- PlayerState first: it must know a player before the other services react to them.
 PlayerState.start()
 ArenaService.start()
+AppearanceService.start()
 MovementService.start(limiter)
 FoodService.start()
 DebugService.start(limiter)
