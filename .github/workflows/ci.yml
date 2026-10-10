@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Developed on Mac and Windows; Linux is case-sensitive.
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Installs Rokit and every tool pinned in rokit.toml.
+      - uses: CompeyDev/setup-rokit@v0.1.2
+
+      - name: Format (StyLua)
+        run: stylua --check src tests
+
+      - name: Generate Roblox standard library for Selene
+        run: selene generate-roblox-std
+
+      - name: Lint (Selene)
+        run: selene src tests
+
+      - name: Tests (Lune)
+        run: lune run tests/run
+
+      # Rojo does not create the output folder, and build/ is not in Git.
+      - name: Create build folder
+        run: mkdir build
+
+      - name: Build place file (Rojo)
+        run: rojo build -o build/BeDino.rbxl
