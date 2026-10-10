@@ -63,7 +63,7 @@ Stand: noch nicht in Studio getestet. Zum Testen mindestens 2 Spieler im Test-Ta
 - [ ] Die Figur wächst beim Fressen sichtbar mit den Punkten (nicht nur beim Stufenwechsel), ohne Ruckeln und ohne im Boden zu versinken. Kamera und Futter-Aufnahmeradius wachsen mit.
 - [ ] Gleiche Größe: kein Fressen. Ab etwa 20 % mehr Größe frisst der größere Dino den kleineren, wenn er nah genug ist (Log `player eaten` mit beiden Größen und dem Abstand).
 - [ ] Beim Gefressenwerden verschwindet der Dino sofort mit einer Wolke, keine Leiche bleibt liegen, und der Fresser bekommt die halben Opferpunkte.
-- [ ] Beide sehen die Meldung („Du hast … gefressen (+N)“ und „… hat dich gefressen“), nur eine zur selben Zeit.
+- [ ] Beide sehen die Meldung („You ate … (+N)“ und „… ate you“), nur eine zur selben Zeit.
 - [ ] Nach etwa 3 Sekunden erscheint das Opfer als Compy mit 0 Punkten an einem Ort, der möglichst weit von den anderen liegt.
 - [ ] Während der 4 Sekunden Schutzzeit leuchtet der Dino weiß, und er kann nicht gefressen werden. Danach nicht mehr.
 - [ ] Wer im selben Moment von zwei Größeren erreicht wird, wird nur einmal gefressen (kein doppelter Punkteabzug oder Fehler im Log).
@@ -81,11 +81,11 @@ Allgemein:
 - [ ] Nichts liegt unter dem Roblox-Menüband oben, unter einer Notch oder der Gesten-Leiste (Geräte mit Notch im Emulator wählen).
 
 Inhalte:
-- [ ] **Status links oben:** Dino-Name und Punkte, darunter „Noch N bis Raptor · ×1,0“ und eine Leiste. Beim Fressen und Wachsen aktualisiert sich alles. Auf der letzten Stufe steht „Größter Dino!“.
+- [ ] **Status links oben:** Dino-Name und Punkte, darunter „N points to Raptor · ×1.0“ und eine Leiste. Beim Fressen und Wachsen aktualisiert sich alles. Auf der letzten Stufe steht „Biggest dino!“.
 - [ ] **Bestenliste rechts oben:** Zeigt höchstens 5 Spieler nach Punkten, mit Rang und Name. Die eigene Zeile ist farbig. Liegt man nicht in den Top 5, steht die eigene Zeile unten mit dem echten Rang. Aktualisiert sich etwa alle 0,5 Sekunden.
 - [ ] **Stufen-Meldung:** Beim Aufstieg erscheint „Du bist jetzt ein Raptor!“ in der oberen Mitte, nicht beim Neustart nach dem Gefressenwerden.
 - [ ] **Fress-Meldung:** wie in Schritt 5, nur eine Meldung zur selben Zeit.
-- [ ] **Neustart-Countdown:** Nach dem Gefressenwerden steht „Neustart in 3“, dann 2, 1 in der Bildmitte und verschwindet beim Respawn.
+- [ ] **Neustart-Countdown:** Nach dem Gefressenwerden steht „Respawn in 3“, dann 2, 1 in der Bildmitte und verschwindet beim Respawn.
 
 Geräte (Emulator, jeweils Hoch- und Querformat):
 - [ ] Kleines Android 360 × 640
@@ -111,7 +111,7 @@ Stand: noch nicht in Studio getestet. Voraussetzungen, die du selbst einstellen 
 
 Ablauf:
 - [ ] Output zeigt `Data started`, dann beim Betreten `loading profile` und `profile loaded` mit `status = new`.
-- [ ] Ohne die oben genannten Einstellungen: `player plays as guest, nothing is saved` im Log, die Meldung „Dein Fortschritt wird gerade nicht gespeichert.“ erscheint, das Spiel läuft normal weiter.
+- [ ] Ohne die oben genannten Einstellungen: `player plays as guest, nothing is saved` im Log, die Meldung „Your progress is not being saved right now.“ erscheint, das Spiel läuft normal weiter.
 - [ ] Eine Stufe erreichen (Taste `G`): Log `dino reached`. Spiel beenden, wieder starten: `profile loaded` mit `status = loaded`.
 - [ ] Der Bestwert bleibt nach dem Neustart erhalten und sinkt nicht, wenn man eine schlechtere Runde spielt (im Profil prüfen, etwa mit einem Test in der Befehlsleiste, bis das Collection-Menü da ist).
 - [ ] Gefressenwerden löscht die erreichten Dinos nicht (nur die laufende Runde ist weg).
@@ -124,13 +124,13 @@ Ablauf:
 Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen aus Schritt 7a (veröffentlichtes Place, Studio-API-Zugriff).
 
 - [ ] Links unter dem Statusfeld sitzt ein runder Button „Dinos“, mindestens 52 Pixel groß und nicht über dem Statusfeld oder der Bestenliste.
-- [ ] Tippen öffnet das Fenster „Sammlung“ in der Bildmitte, erneutes Tippen oder die X-Taste schließt es. Das Spiel läuft weiter.
-- [ ] Am Anfang ist nur der Compy farbig, die anderen drei sind grau mit „???“ und „Ab 50 / 200 / 600 Punkten“. Oben steht „1 von 4 Dinos“.
+- [ ] Tippen öffnet das Fenster „Collection“ in der Bildmitte, erneutes Tippen oder die X-Taste schließt es. Das Spiel läuft weiter.
+- [ ] Am Anfang ist nur der Compy farbig, die anderen drei sind grau mit „???“ und „Reach 50 / 200 / 600 points“. Oben steht „1 of 4 dinos“.
 - [ ] Mit Taste `G` auf Raptor wachsen: Die Karte wird sofort farbig, „2 von 4 Dinos“. Das Fenster aktualisiert sich auch, wenn es offen ist.
 - [ ] Der Bestwert steigt beim Sammeln und bleibt nach dem Gefressenwerden stehen.
 - [ ] Nach dem Gefressenwerden bleiben die erreichten Dinos in der Sammlung.
 - [ ] Spiel beenden und neu starten: Sammlung und Bestwert sind wieder da (nur mit Speichern, siehe 7a).
-- [ ] Gastmodus (zum Beispiel ohne Studio-API-Zugriff): Das Fenster zeigt „Wird nicht gespeichert“, der Fortschritt der laufenden Sitzung ist trotzdem sichtbar.
+- [ ] Gastmodus (zum Beispiel ohne Studio-API-Zugriff): Das Fenster zeigt „Not saved“, der Fortschritt der laufenden Sitzung ist trotzdem sichtbar.
 - [ ] Die Karten sind lesbar, der Bereich scrollt bei kleinen Bildschirmen. Geräte wie in Schritt 6 (360 × 640, 375 × 667, 390 × 844, Tablet, jeweils Hoch- und Querformat).
 - [ ] Das Fenster verdeckt nicht den Joystick und den Sprint-Button zu sehr (kann man mit dem Daumen am Rand weiterspielen).
 
@@ -140,15 +140,15 @@ Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen a
 
 - [ ] Output zeigt `SkinService started`, kein `skin config invalid`.
 - [ ] Sammlung öffnen und auf eine erreichte Dino-Karte tippen: Es erscheint die Skin-Liste mit dem Dino-Namen als Titel und einer Zurück-Taste (`<`). Nicht erreichte Karten reagieren nicht.
-- [ ] Beim Compy: „Standard“ (Ausgerüstet) und „Minze“ (Gesperrt: Erreiche den Raptor). Bezahlte Skins (Beerenrot, Nachtblau, Vulkan, Frost) sind nicht zu sehen.
-- [ ] Raptor erreichen (Taste `G`): „Minze“ wird zu „Ausrüsten“. Tippen wechselt zu Minze, der Compy-Platzhalter ändert die Farbe (wenn man gerade Compy ist, sofort sichtbar), die Zeile zeigt „Ausgerüstet“, und „Standard“ wieder „Ausrüsten“.
+- [ ] Beim Compy: „Default“ (Equipped) und „Mint“ (Locked: reach the Raptor). Bezahlte Skins (Berry, Midnight, Volcano, Frost) sind nicht zu sehen.
+- [ ] Raptor erreichen (Taste `G`): „Mint“ wird zu „Equip“. Tippen wechselt zu Mint, der Compy-Platzhalter ändert die Farbe (wenn man gerade Compy ist, sofort sichtbar), die Zeile zeigt „Equipped“, und „Default“ wieder „Equip“.
 - [ ] Als Raptor: Der Compy-Skin ist weiterhin wählbar, ändert aber nicht den aktuellen Raptor. Beim nächsten Neustart als Compy erscheint der gewählte Compy-Skin.
 - [ ] Nach einem Stufenwechsel hat der neue Dino den dort gewählten Skin.
 - [ ] Die anderen Spieler sehen den gewählten Skin (Test-Tab mit 2 Spielern).
-- [ ] „Abendrot“ (Stego erreichen), „Moosgrün“ (T-Rex erreichen) und „Gold“ (Bestwert 1000 Punkte) bleiben bis dahin gesperrt, mit der passenden Bedingung als Text.
+- [ ] „Sunset“ (Stego erreichen), „Moss“ (T-Rex erreichen) und „Gold“ (Bestwert 1000 Punkte) bleiben bis dahin gesperrt, mit der passenden Bedingung als Text.
 - [ ] Skins ändern kein Tempo, keine Größe und kein Fressverhalten.
 - [ ] Spiel beenden und neu starten: Der gewählte Skin ist wieder da (nur mit Speichern, siehe 7a). Als Gast gilt die Wahl nur für die Sitzung.
-- [ ] Schnelles Tippen auf „Ausrüsten“ erzeugt keine Fehler. Im Log erscheinen höchstens `remote call rejected`-Zeilen mit `rate_limited`, höchstens alle 5 Sekunden pro Grund.
+- [ ] Schnelles Tippen auf „Equip“ erzeugt keine Fehler. Im Log erscheinen höchstens `remote call rejected`-Zeilen mit `rate_limited`, höchstens alle 5 Sekunden pro Grund.
 - [ ] Skin-Liste auf kleinen Geräten (360 × 640, Querformat): Zeilen lesbar, Status-Text bricht um, die Liste scrollt, die Zeilen sind gut zu treffen.
 
 ## Schritt 7d: Shop
@@ -160,12 +160,12 @@ Vorbereitung:
 - [ ] Output zeigt `Receipts started` und `handler registered skins`, kein `skin config invalid`.
 
 Test (nimm zuerst ein Konto, bei dem 1 Robux nichts ausmacht, und sieh dir im Dialog den Preis an):
-- [ ] In der Sammlung bei einem erreichten Dino erscheint der bezahlte Skin mit „Angebot ansehen“. Bezahlte Skins mit ID 0 sind nicht zu sehen.
+- [ ] In der Sammlung bei einem erreichten Dino erscheint der bezahlte Skin mit „View offer“. Bezahlte Skins mit ID 0 sind nicht zu sehen.
 - [ ] Tippen öffnet den Roblox-Kaufdialog mit dem richtigen Namen und Preis. Der Dialog öffnet sich nicht von selbst, und schnelles Doppeltippen öffnet ihn nur einmal.
-- [ ] Abbrechen: nichts passiert, kein Fehler, der Skin bleibt „Angebot ansehen“.
-- [ ] Kaufen: Im Log `receipt processed` (Spieler, Produkt, Beleg, `outcome = granted`), danach erscheint „Neuer Skin: …“, die Zeile zeigt „Ausrüsten“ und der Skin lässt sich ausrüsten.
+- [ ] Abbrechen: nichts passiert, kein Fehler, der Skin bleibt „View offer“.
+- [ ] Kaufen: Im Log `receipt processed` (Spieler, Produkt, Beleg, `outcome = granted`), danach erscheint „New skin: …“, die Zeile zeigt „Equip“ und der Skin lässt sich ausrüsten.
 - [ ] Spiel beenden und neu starten: Der Skin ist noch da (nur mit Speichern).
-- [ ] Kein Kaufknopf als Gast: Ohne Speichern steht „Nur mit Speichern verfügbar“, und es öffnet sich kein Dialog.
+- [ ] Kein Kaufknopf als Gast: Ohne Speichern steht „Not available without saving“, und es öffnet sich kein Dialog.
 - [ ] Kurz nach dem Betreten (Profil lädt noch) ist der Kaufknopf gesperrt und wird mit dem Laden freigeschaltet.
 - [ ] Beleg bleibt offen, wenn der Spieler vor dem Vergeben geht (`receipt for an absent player`), und wird beim nächsten Betreten vergeben.
 - [ ] Zweiter Beleg für denselben Skin vergibt nicht doppelt (`outcome = duplicate`), wird aber bestätigt.

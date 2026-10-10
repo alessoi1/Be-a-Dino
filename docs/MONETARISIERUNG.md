@@ -4,17 +4,17 @@ Stand: Oktober 2026. Die Regeln von Roblox ändern sich. Vor dem Start gegen die
 
 ## Was verkauft wird
 
-- **Bezahlte Skins**, einer pro Dino (Beerenrot, Nachtblau, Vulkan, Frost). Sie ändern nur Farben, nie Größe, Tempo oder Fressen.
+- **Bezahlte Skins**, einer pro Dino (Berry, Midnight, Volcano, Frost). Sie ändern nur Farben, nie Größe, Tempo oder Fressen.
 - Verkauft als **Developer Products** über `MarketplaceService`. Kein Game Pass, keine Abos.
 - **Nicht** verkauft: Booster oder andere Werte-Vorteile, bezahlte Zufallsobjekte (Eier, Lootboxen). Beides ist bewusst ausgeschlossen (siehe `CLAUDE.md` und `docs/KONZEPT.md`).
 
 ## Wie ein Kauf abläuft
 
-1. In der Sammlung steht bei einem bezahlten Skin „Angebot ansehen“. Der Preis steht nicht im Spiel, er steht im Dialog von Roblox.
-2. Tippen öffnet den Dialog (`SkinList.luau`). Das geht nur, wenn das Profil geladen ist (Attribut `DataReady`), und höchstens alle 2 Sekunden. Gäste sehen „Nur mit Speichern verfügbar“.
+1. In der Sammlung steht bei einem bezahlten Skin „View offer“. Der Preis steht nicht im Spiel, er steht im Dialog von Roblox.
+2. Tippen öffnet den Dialog (`SkinList.luau`). Das geht nur, wenn das Profil geladen ist (Attribut `DataReady`), und höchstens alle 2 Sekunden. Gäste sehen „Not available without saving“.
 3. Nach dem Bezahlen ruft Roblox `ProcessReceipt` auf dem Server auf (`ReceiptService.luau`). Der Server nimmt das Profil des Spielers, vergibt den Skin über `Purchases.grant` (im Profil: `ownedSkins`) und speichert sofort.
 4. **Erst danach** bestätigt der Server den Beleg (`PurchaseGranted`). Schlägt etwas fehl oder ist der Spieler weg, bleibt der Beleg offen (`NotProcessedYet`), und Roblox stellt ihn später wieder zu.
-5. Der Spieler sieht „Neuer Skin: …“ und kann ihn ausrüsten.
+5. Der Spieler sieht „New skin: …“ und kann ihn ausrüsten.
 
 **Idempotent:** Ein zweiter Beleg für dasselbe Produkt ändert nichts, `ownedSkins` ist eine Menge. Wird der Beleg nach dem Speichern, aber vor der Bestätigung unterbrochen, bestätigt der nächste Aufruf ohne zweites Vergeben.
 
@@ -35,7 +35,7 @@ Die Produkte werden vorerst **nicht** in der Roblox-Store-Ansicht gelistet (Mone
 
 ## Regeln im Spiel (aus `CLAUDE.md`)
 
-- Kauftexte neutral („Angebot ansehen“), nie drängend („Letzte Chance“), keine Zähler und keine Zeitlimits.
+- Kauftexte neutral („View offer“), nie drängend („Last chance“), keine Zähler und keine Zeitlimits.
 - Der Kaufdialog öffnet sich nur nach bewusstem Tippen, nie automatisch.
 - Kein Vorteil im PvP gegen Robux. Skins ändern keine Werte (der Code, der Werte berechnet, liest keine Skin-Daten).
 - Keine bezahlten Zufallsobjekte. Falls es sie je gibt: alle Chancen als Prozent anzeigen (Summe 100 %) und für eingeschränkte Konten per `PolicyService` (`ArePaidRandomItemsRestricted`) ausblenden oder einen kostenlosen Weg anbieten.

@@ -5,7 +5,7 @@ Das ausführliche Konzept steht in `docs/KONZEPT.md`. Bei Widersprüchen zwische
 
 ## Zusammenarbeit
 
-- Antworte auf Deutsch. Code, Kommentare, Variablennamen und Commit-Messages sind Englisch. Texte, die Spieler sehen, stehen in `src/shared/Strings.luau` (Deutsch).
+- Antworte auf Deutsch. Code, Kommentare, Variablennamen und Commit-Messages sind Englisch. Texte, die Spieler sehen, stehen in `src/shared/Strings.luau` (Englisch, damit das Spiel international verständlich ist).
 - Arbeite in kleinen Schritten: erst kurzer Plan mit Dateiliste, dann Umsetzung. Eine Funktion pro Branch.
 - Schreibe Tests zuerst für Wachstum, Stufenwechsel, Fressregeln (wer wen fressen darf), Futter-Nachwuchs und Respawn (später Käufe).
 - Frage nach, bevor du Werte (Größen, Tempo, Schwellen), Datenformate oder Monetarisierung änderst.
@@ -90,7 +90,7 @@ Alles wird mit Logs versehen, damit Fehler leicht nachvollziehbar sind.
 - Zufallsobjekte gegen Robux (zum Beispiel Eier mit zufälligem Dino): alle Chancen als Prozent anzeigen, für eingeschränkte Spieler per `PolicyService` (`ArePaidRandomItemsRestricted`) ausblenden. Im Zweifel gar keine bezahlten Zufallsobjekte.
 - Skins sind frei kaufbar und ändern keine Werte. Kein Vorteil im PvP gegen Robux (kein bezahltes Größen- oder Tempo-Plus, das das Fressen beeinflusst), ohne vorherige Rückfrage und Prüfung der aktuellen Richtlinien.
 - PvP-Darstellung altersgerecht: kein Blut, keine realistische Gewalt (Dino „verschwindet“ mit Effekt).
-- Kauftexte neutral („Angebot ansehen“), nie drängend („Letzte Chance“).
+- Kauftexte neutral („View offer“), nie drängend („Last chance“).
 - Die Regeln ändern sich. Vor Launch gegen die aktuelle Roblox-Dokumentation prüfen (Abschnitt Roblox-Regeln in `docs/KONZEPT.md`).
 
 ## Mobile zuerst
