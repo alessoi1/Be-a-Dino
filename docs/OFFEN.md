@@ -4,8 +4,14 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 ## Zuerst
 
-- [ ] Offene Fragen in `docs/KONZEPT.md` beantworten und unter „Entscheidungen“ eintragen.
-- [ ] Neues GitHub-Repo anlegen, Startpaket hineinkopieren, CI grün bekommen, Branch-Schutz für `main` einschalten (`docs/SETUP.md`).
+- [x] Offene Fragen in `docs/KONZEPT.md` beantwortet und unter „Entscheidungen“ eingetragen.
+- [x] Repo auf GitHub, CI grün auf Ubuntu, Windows und macOS.
+- [ ] Branch-Schutz für `main` einschalten und prüfen (GitHub, Settings, Branches: Pull Request und grüne CI verlangen, `docs/SETUP.md`).
+- [ ] **Studio-Testrunde** nach `docs/STUDIO-TEST.md`: Schnelltest, dann alle Abschnitte in `docs/TESTLISTE.md`, Fehler als `fix/...`-Branches beheben.
+- [ ] Echter Handy-Test (Leistung, Touch, Layout).
+- [ ] Developer Products anlegen und Kauf testen (`docs/MONETARISIERUNG.md`).
+- [ ] Balance mit mehreren Spielern (Futter, Punkte pro Stufe, Fressen, Sprint, Arena-Größe).
+- [ ] Richtlinienprüfung vor dem Start (`docs/MONETARISIERUNG.md`, Abschnitt Checkliste).
 
 ## Roadmap (siehe Konzept)
 
