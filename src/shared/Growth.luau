@@ -44,6 +44,18 @@ function Growth.addPoints(stages: { Dinos.DinoStage }, state: State, amount: num
 	return newState, stageIndex ~= state.stageIndex
 end
 
+-- Progress within the current stage toward the next one, between 0 and 1.
+-- On the last stage it is 1.
+function Growth.progress(stages: { Dinos.DinoStage }, state: State): number
+	local current = stages[state.stageIndex]
+	local nextStage = stages[state.stageIndex + 1]
+	if nextStage == nil then
+		return 1
+	end
+	local span = nextStage.minPoints - current.minPoints
+	return math.clamp((state.points - current.minPoints) / span, 0, 1)
+end
+
 function Growth.scaleFor(stages: { Dinos.DinoStage }, state: State): number
 	return stages[state.stageIndex].scale
 end

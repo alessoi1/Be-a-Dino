@@ -31,6 +31,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/CameraRig.spec")
 	end,
+	function()
+		require("./specs/FoodKinds.spec")
+	end,
+	function()
+		require("./specs/FoodField.spec")
+	end,
 }
 
 local passed = 0

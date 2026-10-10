@@ -10,11 +10,6 @@ return {
 	wallThickness = 4,
 	-- Distance to the walls in which nobody spawns (studs).
 	spawnMargin = 10,
-	-- Food: how many pieces exist at most, how much one piece is worth (growth points),
-	-- seconds until an eaten piece comes back.
-	foodCount = 300,
-	foodValue = 1,
-	foodRespawnSeconds = 8,
 	-- Eating another player needs this much more size than the victim (1.2 = 20 % more).
 	eatRatio = 1.2,
 	-- Maximum eating distance in studs per unit of the eater's scale.
