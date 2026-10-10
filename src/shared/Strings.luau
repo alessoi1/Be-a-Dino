@@ -9,6 +9,22 @@ local dinos: { [string]: string } = {
 	trex = "T-Rex",
 }
 
+-- Skin names by skin id (see Config/Skins).
+local skinNames: { [string]: string } = {
+	compy_default = "Standard",
+	compy_mint = "Minze",
+	compy_berry = "Beerenrot",
+	raptor_default = "Standard",
+	raptor_sunset = "Abendrot",
+	raptor_midnight = "Nachtblau",
+	stego_default = "Standard",
+	stego_moss = "Moosgrün",
+	stego_volcano = "Vulkan",
+	trex_default = "Standard",
+	trex_gold = "Gold",
+	trex_frost = "Frost",
+}
+
 return {
 	game = {
 		title = "Be a Dino",
@@ -40,7 +56,18 @@ return {
 		hint = "Ab %d Punkten",
 		guest = "Wird nicht gespeichert",
 		close = "X",
+		back = "<",
+		-- Shown below the best round while the progress is saved.
+		skinsHint = "Tippe auf einen Dino für seine Skins",
+		skinEquipped = "Ausgerüstet",
+		skinEquip = "Ausrüsten",
+		-- %s = dino name
+		lockedReach = "Gesperrt: Erreiche den %s",
+		-- %d = points
+		lockedBest = "Gesperrt: Bestwert %d Punkte",
+		lockedOther = "Gesperrt",
 	},
+	skins = skinNames,
 	-- Messages when eating or being eaten (%s = name, %d = points).
 	notice = {
 		ate = "Du hast %s gefressen (+%d)",

@@ -23,7 +23,10 @@ type Published = { reached: string, best: number }
 
 local log = Log.new("CollectionService")
 
+type ChangedHandler = (player: Player) -> ()
+
 local session: { [Player]: CollectionData } = {}
+local changedHandlers: { ChangedHandler } = {}
 local published: { [Player]: Published } = {}
 
 local CollectionService = {}
@@ -46,6 +49,12 @@ local function publish(player: Player, source: CollectionData)
 	published[player] = { reached = reached, best = source.bestPoints }
 	player:SetAttribute("Reached", reached)
 	player:SetAttribute("BestPoints", source.bestPoints)
+	for _, handler in changedHandlers do
+		local ok, err = pcall(handler, player)
+		if not ok then
+			log.error("changed handler failed", { userId = player.UserId, error = tostring(err) })
+		end
+	end
 end
 
 -- Records the state in the session and, when there is one, in the live profile.
@@ -81,6 +90,21 @@ local function onPlayerAdded(player: Player)
 	if state ~= nil then
 		record(player, state)
 	end
+end
+
+-- The live profile of the player, or the session collection for guests and while loading.
+function CollectionService.get(player: Player): CollectionData?
+	local data = DataService.getData(player)
+	if data ~= nil then
+		return data
+	end
+	return session[player]
+end
+
+-- Registers a handler that runs after the collection of a player changed (reached dino or
+-- best round). Runs rarely, except for the best round during a record round.
+function CollectionService.onChanged(handler: ChangedHandler)
+	table.insert(changedHandlers, handler)
 end
 
 function CollectionService.start()

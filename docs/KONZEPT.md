@@ -112,6 +112,7 @@ Ergänzt zu Schritt 7 (Speichern, Skins, Shop):
 - **Futter-Booster:** Weggelassen. Erst nach Spieltests und neuer Richtlinienprüfung entscheiden (indirekter PvP-Vorteil gegen Robux).
 - **Skins:** Pro Dino ein kostenloser Skin (durch Erreichen einer Stufe) und ein bezahlter (Developer Product). Skins ändern keine Werte. Namen und Farben werden von mir vorgeschlagen und von dir geändert.
 - **Keine bezahlten Zufallsobjekte.**
+- **Skins (7c):** Standard, ein freispielbarer und ein bezahlter Skin pro Dino. Freigespielt wird durch Erreichen der nächsten Stufe (Compy: Raptor, Raptor: Stego, Stego: T-Rex) und beim T-Rex durch einen Bestwert von 1000 Punkten (Platzhalter). Gewählt wird pro Dino und gilt für jede erreichte Karte. Der Wechsel passiert sofort ohne Bestätigung. Bezahlte Skins bleiben bis 7d unsichtbar (`productId = 0`).
 
 ## Weiterhin offen
 

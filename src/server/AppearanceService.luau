@@ -35,9 +35,21 @@ local PROTECTION_OUTLINE_TRANSPARENCY = 0.3
 
 local log = Log.new("AppearanceService")
 
+type Color = { r: number, g: number, b: number }
+type SkinColors = { body: Color, accent: Color }
+-- Gives the skin colors for a player and a dino stage (nil keeps the original colors).
+type SkinProvider = (player: Player, stageId: string) -> SkinColors?
+
+local skinProvider: SkinProvider? = nil
+
 local AppearanceService = {}
 
-local function buildPlaceholder(stageId: string): Model?
+-- Registers where the skin colors come from (set by the SkinService at the start).
+function AppearanceService.setSkinProvider(provider: SkinProvider)
+	skinProvider = provider
+end
+
+local function buildPlaceholder(stageId: string, colors: SkinColors?): Model?
 	local look = DinoLooks.looks[stageId]
 	if look == nil then
 		return nil
@@ -49,7 +61,11 @@ local function buildPlaceholder(stageId: string): Model?
 		part.Name = spec.name
 		part.Shape = if spec.shape == "Ball" then Enum.PartType.Ball else Enum.PartType.Block
 		part.Size = Vector3.new(spec.size.x, spec.size.y, spec.size.z)
-		part.Color = Color3.fromRGB(spec.color.r, spec.color.g, spec.color.b)
+		local color = spec.color
+		if colors ~= nil then
+			color = if spec.role == "accent" then colors.accent else colors.body
+		end
+		part.Color = Color3.fromRGB(color.r, color.g, color.b)
 		part.Material = Enum.Material.SmoothPlastic
 		part.CFrame = CFrame.new(spec.offset.x, spec.offset.y, spec.offset.z)
 		part.Parent = model
@@ -83,7 +99,7 @@ local function checkModel(stageId: string, model: Model): boolean
 	return true
 end
 
-local function loadLook(stageId: string): Model?
+local function loadLook(stageId: string, colors: SkinColors?): Model?
 	local models = ServerStorage:FindFirstChild(MODELS_FOLDER)
 	local template = models and models:FindFirstChild(stageId)
 	if template ~= nil and template:IsA("Model") and checkModel(stageId, template) then
@@ -94,7 +110,7 @@ local function loadLook(stageId: string): Model?
 	if template ~= nil and not template:IsA("Model") then
 		log.error("model rejected", { stage = stageId, reason = "not_a_model", class = template.ClassName })
 	end
-	return buildPlaceholder(stageId)
+	return buildPlaceholder(stageId, colors)
 end
 
 -- Makes the avatar invisible; the dino look is skipped.
@@ -140,7 +156,16 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		old:Destroy()
 	end
 
-	local look = loadLook(stageId)
+	local colors = nil
+	if skinProvider ~= nil then
+		local provided, result = pcall(skinProvider, player, stageId)
+		if provided then
+			colors = result
+		else
+			log.error("skin provider failed", { userId = player.UserId, stage = stageId, error = tostring(result) })
+		end
+	end
+	local look = loadLook(stageId, colors)
 	if look == nil then
 		log.error("no look for stage", { userId = player.UserId, stage = stageId })
 		return
@@ -223,6 +248,20 @@ local function onStage(player: Player, stageId: string, reason: "reset" | "grow"
 			AppearanceService.playCloud(character)
 		else
 			showProtection(character)
+		end
+	end)
+end
+
+-- Builds the look of the current dino again (for example after another skin was chosen).
+function AppearanceService.refresh(player: Player, stageId: string)
+	local character = player.Character
+	if character == nil then
+		return
+	end
+	task.spawn(function()
+		local ok, err = pcall(attachLook, player, character, stageId)
+		if not ok then
+			log.error("refresh failed", { userId = player.UserId, stage = stageId, error = tostring(err) })
 		end
 	end)
 end

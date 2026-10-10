@@ -131,3 +131,20 @@ Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen a
 - [ ] Gastmodus (zum Beispiel ohne Studio-API-Zugriff): Das Fenster zeigt „Wird nicht gespeichert“, der Fortschritt der laufenden Sitzung ist trotzdem sichtbar.
 - [ ] Die Karten sind lesbar, der Bereich scrollt bei kleinen Bildschirmen. Geräte wie in Schritt 6 (360 × 640, 375 × 667, 390 × 844, Tablet, jeweils Hoch- und Querformat).
 - [ ] Das Fenster verdeckt nicht den Joystick und den Sprint-Button zu sehr (kann man mit dem Daumen am Rand weiterspielen).
+
+## Schritt 7c: Skins
+
+Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen aus Schritt 7a. Das Profil wird mit diesem Schritt auf Version 2 migriert: Ein bereits gespeichertes Profil aus 7a sollte beim nächsten Laden `status = migrated` im Log zeigen und danach normal funktionieren.
+
+- [ ] Output zeigt `SkinService started`, kein `skin config invalid`.
+- [ ] Sammlung öffnen und auf eine erreichte Dino-Karte tippen: Es erscheint die Skin-Liste mit dem Dino-Namen als Titel und einer Zurück-Taste (`<`). Nicht erreichte Karten reagieren nicht.
+- [ ] Beim Compy: „Standard“ (Ausgerüstet) und „Minze“ (Gesperrt: Erreiche den Raptor). Bezahlte Skins (Beerenrot, Nachtblau, Vulkan, Frost) sind nicht zu sehen.
+- [ ] Raptor erreichen (Taste `G`): „Minze“ wird zu „Ausrüsten“. Tippen wechselt zu Minze, der Compy-Platzhalter ändert die Farbe (wenn man gerade Compy ist, sofort sichtbar), die Zeile zeigt „Ausgerüstet“, und „Standard“ wieder „Ausrüsten“.
+- [ ] Als Raptor: Der Compy-Skin ist weiterhin wählbar, ändert aber nicht den aktuellen Raptor. Beim nächsten Neustart als Compy erscheint der gewählte Compy-Skin.
+- [ ] Nach einem Stufenwechsel hat der neue Dino den dort gewählten Skin.
+- [ ] Die anderen Spieler sehen den gewählten Skin (Test-Tab mit 2 Spielern).
+- [ ] „Abendrot“ (Stego erreichen), „Moosgrün“ (T-Rex erreichen) und „Gold“ (Bestwert 1000 Punkte) bleiben bis dahin gesperrt, mit der passenden Bedingung als Text.
+- [ ] Skins ändern kein Tempo, keine Größe und kein Fressverhalten.
+- [ ] Spiel beenden und neu starten: Der gewählte Skin ist wieder da (nur mit Speichern, siehe 7a). Als Gast gilt die Wahl nur für die Sitzung.
+- [ ] Schnelles Tippen auf „Ausrüsten“ erzeugt keine Fehler. Im Log erscheinen höchstens `remote call rejected`-Zeilen mit `rate_limited`, höchstens alle 5 Sekunden pro Grund.
+- [ ] Skin-Liste auf kleinen Geräten (360 × 640, Querformat): Zeilen lesbar, Status-Text bricht um, die Liste scrollt, die Zeilen sind gut zu treffen.
