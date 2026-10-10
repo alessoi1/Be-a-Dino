@@ -15,6 +15,11 @@ local Remotes = {
 		sprint = "Sprint",
 		-- client -> server event: (no arguments), Studio only: adds debug points (see Config/Debug)
 		debugGrow = "DebugGrow",
+		-- client -> server event: (no arguments), Studio only: puts a bounty on the other players
+		debugBounty = "DebugBounty",
+		-- client -> server event: (choice: string), what the player chose in the window after being
+		-- eaten ("lobby" today; "revive" and "bounty" come with the paid step); checked by the server
+		deathChoice = "DeathChoice",
 		-- client -> server event: (no arguments), Studio only: jumps to the next dino
 		debugNextStage = "DebugNextStage",
 		-- client -> server event: (skinId: string), the player chooses a skin (checked by the server)
@@ -22,7 +27,8 @@ local Remotes = {
 		-- client -> server event: (active: boolean), the player asks to go back to the lobby (true)
 		-- or cancels the wait (false); the server checks mode and time
 		leaveArena = "LeaveArena",
-		-- server -> client event: (kind: "ate" | "eaten", otherName: string, points: number), display only
+		-- server -> client event: (kind: "ate" | "eaten" | "skin", otherName: string, points: number,
+		-- coins: number?, bounty: boolean?), display only
 		notice = "Notice",
 	},
 }

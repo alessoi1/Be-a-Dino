@@ -262,3 +262,25 @@ Dinodex:
 - [ ] Beim Erreichen eines Dinos wird die Karte freigeschaltet (nach `H` sofort sichtbar).
 - [ ] Ein Tipp auf einen Dino ohne Skins zeigt „No skins for this dino yet“. Compy, Raptor, Stego und T-Rex zeigen ihre Skins wie vorher.
 - [ ] Alte Spielstände mit den Dinos `compy`, `raptor`, `stego`, `trex` bleiben erhalten.
+
+## Ausbau L4: Todes-Bildschirm, Kopfgeld, Münzen fürs Fressen
+
+Stand: noch nicht in Studio getestet. Am besten mit zwei Spielern (Test-Tab, Players: 2). Mit `H` oder `G` wächst ein Spieler schnell, bis er den anderen fressen kann.
+
+Todes-Bildschirm:
+- [ ] Wer gefressen wird, sieht ein Fenster „You were eaten by Anna“ mit „Closing in 15“, das herunterzählt. Es erscheint sofort und bleibt über den Neustart in der Lobby hinweg stehen (auch während „Respawn in 3“).
+- [ ] Drei Zeilen: „Revive at your size (soon)“ und „Bounty on Anna (soon)“ sind ausgegraut und tun nichts, „Back to lobby“ (grün) schließt das Fenster sofort.
+- [ ] Nach 15 Sekunden verschwindet das Fenster von selbst. Das Fenster erscheint nicht, wenn man nicht gefressen wurde (zum Beispiel beim „Lobby“-Knopf).
+- [ ] Betritt man die Arena wieder (Play-Kreis), ist das Fenster weg.
+- [ ] Das Fenster ist auf dem Handy-Emulator (360 × 640) gut lesbar, der grüne Knopf ist gut zu treffen und verdeckt nicht den Joystick.
+
+Münzen fürs Fressen:
+- [ ] Wer einen Spieler frisst, bekommt die Meldung „You ate Anna (+1.5K size, +30 coins)“ und der Münzzähler steigt um die Stufennummer des Opfers (Stufe 30 gibt 30 Münzen). Log `player eaten` zeigt `coins`.
+- [ ] Die Münzen bleiben nach dem Neustart erhalten (nur mit Speichern, siehe 7a).
+
+Kopfgeld (zum Testen mit der Taste `B` in der Arena, im echten Spiel kommt das Setzen mit Robux in L8):
+- [ ] Taste `B` setzt ein Kopfgeld auf alle anderen Spieler in der Arena. Über ihnen erscheint ein Schild „BOUNTY ×3“ (leuchtend gelb), das alle sehen, auch durch Wände und aus der Ferne (bis etwa 400 Studs). Das Schild sitzt über dem Kopf und wächst bei größeren Dinos mit.
+- [ ] Wer den Markierten frisst, sieht „Bounty! You ate Anna (+1.5K size, +90 coins)“ (dreifach) und bekommt 3-mal so viele Münzen. Das Schild ist weg.
+- [ ] Ein zweites `B` auf denselben Spieler verlängert nur die Zeit und verdoppelt nichts.
+- [ ] Das Kopfgeld endet nach 120 Sekunden (Schild verschwindet, Log `bounty ended`), wenn der Markierte in die Lobby geht, die Runde verlässt oder gefressen wird.
+- [ ] Der Markierte wird nicht gewarnt: Das ist offen (eine Meldung „Anna put a bounty on you“ kommt mit dem Setzen in L8).

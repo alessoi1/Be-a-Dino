@@ -122,6 +122,9 @@ return {
 	-- Messages when eating or being eaten (%s = name, then the size gained as a short number).
 	notice = {
 		ate = "You ate %s (+%s)",
+		-- %s = name, size gained, coins gained (short numbers)
+		ateCoins = "You ate %s (+%s size, +%s coins)",
+		ateBounty = "Bounty! You ate %s (+%s size, +%s coins)",
 		eaten = "%s ate you",
 		-- %s = dino name
 		evolved = "You are now a %s!",
@@ -157,6 +160,20 @@ return {
 	coins = {
 		-- %s = amount (short number)
 		label = "Coins %s",
+	},
+	bounty = {
+		-- The sign above a marked player; %d = the multiplier for the coins.
+		marker = "BOUNTY ×%d",
+	},
+	death = {
+		-- %s = name of the one who ate you
+		title = "You were eaten by %s",
+		-- %d = seconds until the window closes
+		closing = "Closing in %d",
+		reviveSoon = "Revive at your size (soon)",
+		-- %s = name of the one who ate you
+		bountySoon = "Bounty on %s (soon)",
+		lobby = "Back to lobby",
 	},
 	respawn = {
 		-- %d = seconds

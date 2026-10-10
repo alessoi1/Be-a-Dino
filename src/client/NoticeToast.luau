@@ -54,12 +54,17 @@ function NoticeToast.start()
 		end)
 	end
 
-	remote.OnClientEvent:Connect(function(kind: any, otherName: any, points: any)
+	remote.OnClientEvent:Connect(function(kind: any, otherName: any, points: any, coins: any, bounty: any)
 		if typeof(kind) ~= "string" or typeof(otherName) ~= "string" or typeof(points) ~= "number" then
 			return
 		end
 		if kind == "ate" then
-			show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)))
+			if typeof(coins) == "number" and coins > 0 then
+				local text = if bounty == true then Strings.notice.ateBounty else Strings.notice.ateCoins
+				show(string.format(text, otherName, NumberFormat.compact(points), NumberFormat.compact(coins)))
+			else
+				show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)))
+			end
 		elseif kind == "eaten" then
 			show(string.format(Strings.notice.eaten, otherName))
 		elseif kind == "skin" then

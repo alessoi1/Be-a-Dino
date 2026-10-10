@@ -3,6 +3,7 @@
 -- Does nothing on live servers, the remote is not even created there.
 -- Only checkable in Roblox Studio.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -14,6 +15,7 @@ local Progression = require(Shared:WaitForChild("Progression"))
 local DebugConfig = require(Shared:WaitForChild("Config"):WaitForChild("Debug"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 
+local BountyService = require(script.Parent:WaitForChild("BountyService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
@@ -64,6 +66,25 @@ function DebugService.start(limiter: Limiter)
 	connect(Remotes.names.debugNextStage, "DebugNextStage", function(state: any): number
 		local _, missing = Growth.pointsToNext(Dinos, state)
 		return missing
+	end)
+
+	-- B: puts a bounty on every other player in the arena (to test the bounty without Robux).
+	Remotes.event(Remotes.names.debugBounty).OnServerEvent:Connect(function(player: Player)
+		local now = ServerClock.now()
+		local previous = lastCall[player.UserId]
+		if previous ~= nil and now - previous < MIN_INTERVAL then
+			limiter.reject(player.UserId, "DebugBounty", "rate_limited")
+			return
+		end
+		lastCall[player.UserId] = now
+		if PlayerState.getMode(player) ~= "playing" then
+			return
+		end
+		for _, other in Players:GetPlayers() do
+			if other ~= player and PlayerState.getMode(other) == "playing" then
+				BountyService.place(other)
+			end
+		end
 	end)
 	log.warn("studio debug helper is active")
 end

@@ -76,7 +76,7 @@ Mit einem Spieler. Ziel: Läuft das Grundspiel überhaupt?
 2. In den **PLAY-Kreis** stellen und 2 Sekunden warten. Du landest als kleiner grüner Compy mit weißem Schutz in der grünen Arena. Futter liegt verteilt, oben links das Statusfeld, oben rechts die Bestenliste.
 3. Laufen mit WASD, mit Shift sprinten. Die Ausdauerleiste unten sinkt und lädt wieder auf.
 4. Futter einsammeln: Punkte steigen, das Futter kommt nach etwa 8 Sekunden an anderer Stelle wieder.
-5. Taste `H` drücken (nur in Studio und nur in der Arena): Du springst sofort zum nächsten Dino, mit einer Wolke. Taste `G` bringt nur 25 % der Strecke bis zur nächsten Stufe.
+5. Taste `H` drücken (nur in Studio und nur in der Arena): Du springst sofort zum nächsten Dino, mit einer Wolke. Taste `G` bringt nur 25 % der Strecke bis zur nächsten Stufe, Taste `B` setzt ein Kopfgeld auf die anderen Spieler in der Arena.
 6. Unten auf „Lobby“ tippen und 5 Sekunden warten: Du bist wieder in der Lobby, klein und mit 0 Punkten.
 7. In den **DINODEX-Kreis** stellen: Die Sammlung öffnet sich, der Raptor ist freigeschaltet.
 
