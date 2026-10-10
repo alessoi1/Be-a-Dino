@@ -126,6 +126,7 @@ function Skins.validate(skins: { Skin }, stages: { Stage }, maxIdLength: number)
 	end
 
 	local seen: { [string]: boolean } = {}
+	local productIds: { [number]: boolean } = {}
 	local defaults: { [string]: number } = {}
 	for _, skin in skins do
 		local where = "skin " .. skin.id
@@ -155,6 +156,12 @@ function Skins.validate(skins: { Skin }, stages: { Stage }, maxIdLength: number)
 			local productId = unlock.productId
 			if not isFiniteNumber(productId) or (productId :: number) < 0 or (productId :: number) % 1 ~= 0 then
 				table.insert(errors, where .. ": product needs a product id of 0 or more")
+			elseif (productId :: number) > 0 then
+				-- Several skins may wait with id 0, but a real id belongs to one skin only.
+				if productIds[productId :: number] then
+					table.insert(errors, where .. ": product id " .. tostring(productId) .. " is used twice")
+				end
+				productIds[productId :: number] = true
 			end
 		else
 			table.insert(errors, where .. ": unknown unlock kind " .. tostring(unlock.kind))

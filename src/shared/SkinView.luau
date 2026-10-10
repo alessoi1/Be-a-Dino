@@ -10,7 +10,7 @@ export type Skin = {
 	colors: { body: { r: number, g: number, b: number }, accent: { r: number, g: number, b: number } }?,
 }
 
-export type Status = "equipped" | "available" | "locked"
+export type Status = "equipped" | "available" | "locked" | "offer"
 
 export type Row = { skin: Skin, status: Status }
 
@@ -64,7 +64,8 @@ function SkinView.encodeUnlocked(ids: { string }): string
 end
 
 -- The rows for one dino in config order. Skins that are for sale but have no product id yet
--- are hidden. `equippedId` is the skin shown now (nil means the default one).
+-- are hidden; skins for sale that are not owned yet are an "offer". `equippedId` is the
+-- skin shown now (nil means the default one).
 function SkinView.rows(skins: { Skin }, dinoId: string, unlocked: { [string]: boolean }, equippedId: string?): { Row }
 	local rows: { Row } = {}
 	local shown: { Skin } = {}
@@ -93,6 +94,8 @@ function SkinView.rows(skins: { Skin }, dinoId: string, unlocked: { [string]: bo
 			status = "equipped"
 		elseif unlocked[skin.id] == true then
 			status = "available"
+		elseif skin.unlock.kind == "product" then
+			status = "offer"
 		else
 			status = "locked"
 		end
