@@ -3,6 +3,8 @@
 Von Hand pflegen. Alles hier ist nur in Roblox Studio prüfbar (`rojo serve`, im Plugin „Connect“, dann Play).
 Zum Prüfen auf dem Handy: Studio Test-Tab, Geräte-Emulator.
 
+Vorbereitung, Reihenfolge und Fehlerberichte stehen in `docs/STUDIO-TEST.md`.
+
 ## Schritt 2: Arena, Bewegung, Sprint, Kamera
 
 Stand: noch nicht in Studio getestet.
