@@ -17,12 +17,26 @@ return {
 		button = "Sprint",
 	},
 	status = {
+		-- %d = points, then the dino name.
 		points = "Punkte",
+		toNext = "Noch %d bis %s",
+		maxStage = "Größter Dino!",
+		-- %s = size with a decimal comma, for example 1,4.
+		size = "×%s",
+	},
+	leaderboard = {
+		title = "Bestenliste",
 	},
 	-- Messages when eating or being eaten (%s = name, %d = points).
 	notice = {
 		ate = "Du hast %s gefressen (+%d)",
 		eaten = "%s hat dich gefressen",
+		-- %s = dino name
+		evolved = "Du bist jetzt ein %s!",
+	},
+	respawn = {
+		-- %d = seconds
+		countdown = "Neustart in %d",
 	},
 	dinos = dinos,
 }

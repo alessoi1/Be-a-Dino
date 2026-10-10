@@ -84,6 +84,8 @@ local function execute(eat: Eat, byId: { [number]: Player })
 	-- Joints stay intact (see prepareCharacter), so the invisible body just stops;
 	-- the character comes back as the smallest dino after Players.RespawnTime.
 	humanoid.Health = 0
+	-- Display only: the client counts down to this server time.
+	victim:SetAttribute("RespawnAt", ServerClock.now() + Arena.respawnSeconds)
 
 	PlayerState.addPoints(eater, gained)
 	notice(eater, "ate", victim.DisplayName, gained)
