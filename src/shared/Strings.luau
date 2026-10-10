@@ -5,4 +5,7 @@ return {
 	game = {
 		title = "Be a Dino",
 	},
+	sprint = {
+		button = "Sprint",
+	},
 }
