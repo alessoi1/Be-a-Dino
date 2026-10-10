@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local FoodSpawn = require(Shared:WaitForChild("FoodSpawn"))
+local SpawnPick = require(Shared:WaitForChild("SpawnPick"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 
 local log = Log.new("ArenaService")
@@ -66,15 +67,33 @@ local function build()
 	log.info("arena built", { size = size, wallHeight = height })
 end
 
-function ArenaService.randomSpawnPosition(): Vector3
+local function randomPoint(): { x: number, z: number }
 	local x, z = FoodSpawn.pickPosition(Arena.size, Arena.spawnMargin, function()
 		return random:NextNumber()
 	end)
-	return Vector3.new(x, SPAWN_HEIGHT, z)
+	return { x = x, z = z }
+end
+
+-- Of a few random spots, the one farthest from every other living player.
+function ArenaService.spawnPosition(spawning: Player): Vector3
+	local others: { { x: number, z: number } } = {}
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if player ~= spawning and root ~= nil and root:IsA("BasePart") then
+			table.insert(others, { x = root.Position.X, z = root.Position.Z })
+		end
+	end
+	local candidates = {}
+	for _ = 1, Arena.spawnCandidates do
+		table.insert(candidates, randomPoint())
+	end
+	local best = SpawnPick.best(candidates, others) or randomPoint()
+	return Vector3.new(best.x, SPAWN_HEIGHT, best.z)
 end
 
 local function placeCharacter(player: Player, character: Model)
-	local position = ArenaService.randomSpawnPosition()
+	local position = ArenaService.spawnPosition(player)
 	local ok, err = pcall(function()
 		character:PivotTo(CFrame.new(position))
 	end)

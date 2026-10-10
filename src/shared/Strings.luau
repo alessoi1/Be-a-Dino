@@ -19,5 +19,10 @@ return {
 	status = {
 		points = "Punkte",
 	},
+	-- Messages when eating or being eaten (%s = name, %d = points).
+	notice = {
+		ate = "Du hast %s gefressen (+%d)",
+		eaten = "%s hat dich gefressen",
+	},
 	dinos = dinos,
 }
