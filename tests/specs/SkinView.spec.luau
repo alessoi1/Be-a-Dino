@@ -78,5 +78,22 @@ test("SkinView: a product skin with a product id is shown", function()
 	}
 	local rows = SkinView.rows(withProduct, "x", { x_default = true }, nil)
 	assertEquals(#rows, 2)
+	assertEquals(rows[2].status, "offer")
+end)
+
+test("SkinView: a bought product skin is available, a chosen one equipped", function()
+	local withProduct: { SkinView.Skin } = {
+		{ id = "x_default", dinoId = "x", unlock = { kind = "free" } },
+		{ id = "x_paid", dinoId = "x", unlock = { kind = "product", productId = 123 } },
+	}
+	local owned = SkinView.rows(withProduct, "x", { x_default = true, x_paid = true }, nil)
+	assertEquals(owned[2].status, "available")
+	local chosen = SkinView.rows(withProduct, "x", { x_default = true, x_paid = true }, "x_paid")
+	assertEquals(chosen[1].status, "available")
+	assertEquals(chosen[2].status, "equipped")
+end)
+
+test("SkinView: earned skins stay locked, never an offer", function()
+	local rows = SkinView.rows(skins, "raptor", { raptor_default = true }, nil)
 	assertEquals(rows[2].status, "locked")
 end)

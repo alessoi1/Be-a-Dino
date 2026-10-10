@@ -8,6 +8,8 @@ return {
 	leaderboardRefreshSeconds = 0.5,
 	-- Seconds a message stays on the screen.
 	noticeSeconds = 3,
+	-- Seconds before the purchase dialog can be opened again (against double taps).
+	purchasePromptCooldown = 2,
 	-- Layout scale = shorter screen side / referenceShortSide, kept between scaleMin and scaleMax.
 	referenceShortSide = 390,
 	scaleMin = 0.8,

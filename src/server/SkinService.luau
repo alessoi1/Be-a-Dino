@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
+local Purchases = require(Shared:WaitForChild("Purchases"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local SkinView = require(Shared:WaitForChild("SkinView"))
 local Skins = require(Shared:WaitForChild("Skins"))
@@ -20,6 +21,7 @@ local AppearanceService = require(script.Parent:WaitForChild("AppearanceService"
 local CollectionService = require(script.Parent:WaitForChild("CollectionService"))
 local DataService = require(script.Parent:WaitForChild("DataService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local ReceiptService = require(script.Parent:WaitForChild("ReceiptService"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Color = { r: number, g: number, b: number }
@@ -137,6 +139,28 @@ local function onEquip(player: Player, skinId: any, limiter: Limiter)
 	end
 end
 
+-- Bought skins: the receipt handler marks the skin as owned (idempotent) and the player is told.
+local function registerReceipts()
+	ReceiptService.register({
+		name = "skins",
+		handle = function(_player: Player, data: any, info: any): string?
+			local skin = Purchases.skinForProduct(skins, info.productId)
+			if skin == nil then
+				return nil
+			end
+			return Purchases.grant(data.ownedSkins, skin)
+		end,
+		onGranted = function(player: Player, _data: any, info: any)
+			publish(player)
+			local skin = Purchases.skinForProduct(skins, info.productId)
+			if skin ~= nil then
+				-- Display only: the client shows "new skin" with the name of this id.
+				Remotes.event(Remotes.names.notice):FireClient(player, "skin", skin.id, 0)
+			end
+		end,
+	})
+end
+
 function SkinService.start(limiter: Limiter)
 	local problems = Skins.validate(skins, Dinos, SkinConfig.maxIdLength)
 	if #problems > 0 then
@@ -144,6 +168,7 @@ function SkinService.start(limiter: Limiter)
 	end
 
 	AppearanceService.setSkinProvider(colorsFor)
+	registerReceipts()
 
 	Remotes.event(Remotes.names.equipSkin).OnServerEvent:Connect(function(player: Player, skinId: any)
 		onEquip(player, skinId, limiter)

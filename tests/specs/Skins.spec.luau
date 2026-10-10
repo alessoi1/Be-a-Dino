@@ -155,6 +155,16 @@ test("Skins: validate reports broken configs", function()
 	table.insert(badProduct, skin("p1", "compy", { kind = "product", productId = -1 }))
 	assertTrue(contains(Skins.validate(badProduct, Dinos, 32), "product"))
 
+	local sameProduct = table.clone(full)
+	table.insert(sameProduct, skin("p2", "compy", { kind = "product", productId = 55 }))
+	table.insert(sameProduct, skin("p3", "raptor", { kind = "product", productId = 55 }))
+	assertTrue(contains(Skins.validate(sameProduct, Dinos, 32), "product id"))
+
+	local unlisted = table.clone(full)
+	table.insert(unlisted, skin("p4", "compy", { kind = "product", productId = 0 }))
+	table.insert(unlisted, skin("p5", "raptor", { kind = "product", productId = 0 }))
+	assertEquals(#Skins.validate(unlisted, Dinos, 32), 0, "several skins may wait with id 0")
+
 	local badKind = table.clone(full)
 	table.insert(badKind, skin("k1", "compy", { kind = "magic" }))
 	assertTrue(contains(Skins.validate(badKind, Dinos, 32), "unlock kind"))

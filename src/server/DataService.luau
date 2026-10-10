@@ -107,6 +107,7 @@ local function loadPlayer(player: Player)
 
 	profile.OnSessionEnd:Connect(function()
 		profiles[player] = nil
+		player:SetAttribute("DataReady", false)
 		log.warn("profile session ended", { userId = userId })
 		if player.Parent == Players then
 			player:Kick(Strings.data.sessionEnded)
@@ -114,6 +115,8 @@ local function loadPlayer(player: Player)
 	end)
 
 	profiles[player] = profile
+	-- The client shows purchase offers only while the profile is ready (display only).
+	player:SetAttribute("DataReady", true)
 	log.info("profile loaded", { userId = userId, status = outcome.status, version = profile.Data.version })
 	notifyLoaded(player, profile.Data)
 end

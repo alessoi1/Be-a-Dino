@@ -148,3 +148,24 @@ Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen a
 - [ ] Spiel beenden und neu starten: Der gewählte Skin ist wieder da (nur mit Speichern, siehe 7a). Als Gast gilt die Wahl nur für die Sitzung.
 - [ ] Schnelles Tippen auf „Ausrüsten“ erzeugt keine Fehler. Im Log erscheinen höchstens `remote call rejected`-Zeilen mit `rate_limited`, höchstens alle 5 Sekunden pro Grund.
 - [ ] Skin-Liste auf kleinen Geräten (360 × 640, Querformat): Zeilen lesbar, Status-Text bricht um, die Liste scrollt, die Zeilen sind gut zu treffen.
+
+## Schritt 7d: Shop
+
+Stand: noch nicht in Studio getestet. Voraussetzungen und Ablauf der Produktanlage stehen in `docs/MONETARISIERUNG.md`. Ohne Produkt-IDs in `Config/Skins.luau` (alle `0`) bleiben die bezahlten Skins unsichtbar, dann gibt es nichts zu kaufen.
+
+Vorbereitung:
+- [ ] Place veröffentlicht, Studio-API-Zugriff an (siehe 7a), vier Developer Products mit 1 Robux angelegt, die IDs in `Config/Skins.luau` eingetragen.
+- [ ] Output zeigt `Receipts started` und `handler registered skins`, kein `skin config invalid`.
+
+Test (nimm zuerst ein Konto, bei dem 1 Robux nichts ausmacht, und sieh dir im Dialog den Preis an):
+- [ ] In der Sammlung bei einem erreichten Dino erscheint der bezahlte Skin mit „Angebot ansehen“. Bezahlte Skins mit ID 0 sind nicht zu sehen.
+- [ ] Tippen öffnet den Roblox-Kaufdialog mit dem richtigen Namen und Preis. Der Dialog öffnet sich nicht von selbst, und schnelles Doppeltippen öffnet ihn nur einmal.
+- [ ] Abbrechen: nichts passiert, kein Fehler, der Skin bleibt „Angebot ansehen“.
+- [ ] Kaufen: Im Log `receipt processed` (Spieler, Produkt, Beleg, `outcome = granted`), danach erscheint „Neuer Skin: …“, die Zeile zeigt „Ausrüsten“ und der Skin lässt sich ausrüsten.
+- [ ] Spiel beenden und neu starten: Der Skin ist noch da (nur mit Speichern).
+- [ ] Kein Kaufknopf als Gast: Ohne Speichern steht „Nur mit Speichern verfügbar“, und es öffnet sich kein Dialog.
+- [ ] Kurz nach dem Betreten (Profil lädt noch) ist der Kaufknopf gesperrt und wird mit dem Laden freigeschaltet.
+- [ ] Beleg bleibt offen, wenn der Spieler vor dem Vergeben geht (`receipt for an absent player`), und wird beim nächsten Betreten vergeben.
+- [ ] Zweiter Beleg für denselben Skin vergibt nicht doppelt (`outcome = duplicate`), wird aber bestätigt.
+- [ ] Skins ändern kein Tempo, keine Größe und kein Fressverhalten (Werte vor und nach dem Kauf vergleichen).
+- [ ] Kaufdialog und Texte sind auf kleinen Geräten gut zu bedienen (360 × 640, Querformat).
