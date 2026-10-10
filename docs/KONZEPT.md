@@ -81,4 +81,23 @@ Reine Logik zuerst mit Tests: `Growth` (Punkte zu Größe und Stufe), `EatRules`
 
 ## Entscheidungen
 
-(Noch keine. Hier eintragen, was bestätigt ist, mit Datum.)
+Stand 10. Oktober 2026:
+
+- **Fortschritt bei Tod:** Neustart als kleinster Dino (Compy). Die Punkte-Beteiligung des Fressers bleibt wie oben.
+- **Modelle:** Eigene Blender-Modelle (`assets/models/`, `.rbxm`) von Anfang an. Folge: Für Roadmap-Schritt 2 bis 3 reichen Platzhalter-Parts, die Logik hängt nicht vom Modell ab. Die Modell-Pipeline (Größe, Polygonzahl für Mobile) muss vor Schritt 4 stehen.
+- **Steuerung:** Bewegung plus Sprint. Sprint braucht Ausdauer oder Cooldown (Werte in `Config`), und der Server plausibilisiert Tempo inklusive Sprint.
+- **Spielerzahl:** 12 bis 24 pro Server.
+- **Persistenz:** Freigeschaltete Dinos werden gespeichert (DataService mit ProfileStore, Profil mit `version`). Das zieht Paket-Setup (`wally.toml`) nach vorn, nur nach Rückfrage.
+
+Ergänzt am selben Tag:
+
+- **Neustart ausnahmslos:** Wer gefressen wird, startet immer als Compy, egal welche Stufe vorher erreicht war. Freigeschaltete Dinos geben keinen Start-Vorteil.
+- **Freischalten:** Ein Dino gilt als freigeschaltet, sobald er einmal erreicht wurde. Nutzen: eine Collection-Ansicht, in der Spieler sehen, welche Dinos sie bereits erreicht haben (bestätigt). Skins und Skin-Auswahl sind ebenfalls geplant, ohne Werte. Beides wird bei Schritt 7 nochmals geprüft.
+- **Sprint:** Ausdauerleiste (Halten-Button auf Mobile), Tempofaktor circa 1,5 (Platzhalter in `Config`). Server verwaltet Ausdauer und plausibilisiert Tempo.
+- **Monetarisierung:** Skins plus Futter-Booster. Booster dürfen nur das Futter-Wachstum betreffen, nie Tempo oder Fressen. Laut CLAUDE.md erst nach Rückfrage und Prüfung der aktuellen Roblox-Richtlinien umsetzen. Zeitlich nach Schritt 7.
+- **Look:** Niedlich Low-Poly, Arbeitstitel „Be a Dino“ bleibt vorerst.
+
+## Weiterhin offen
+
+- Futter-Booster und Skins: bei Schritt 7 nochmals prüfen (bestätigt). Ein Wachstums-Plus hilft auch im PvP indirekt, daher Umfang (Dauer, Stärke, Begrenzung) und Richtlinien dort klären.
+- Sprint: Verbrauch, Aufladerate, ob man beim Sprinten fressen darf (Werte beim Testen).
