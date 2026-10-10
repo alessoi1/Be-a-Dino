@@ -116,3 +116,18 @@ Ablauf:
 - [ ] Zwei Studio-Sitzungen mit demselben Konto: die ältere meldet `profile session ended` und wird mit der Meldung abgemeldet.
 - [ ] Beim Verlassen: `saving and releasing profile` im Log, kein Fehler.
 - [ ] `ProfileStore error` oder `overwritten by foreign data` im Log bedeutet ein Problem und ist zu melden.
+
+## Schritt 7b: Collection-Menü
+
+Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen aus Schritt 7a (veröffentlichtes Place, Studio-API-Zugriff).
+
+- [ ] Links unter dem Statusfeld sitzt ein runder Button „Dinos“, mindestens 52 Pixel groß und nicht über dem Statusfeld oder der Bestenliste.
+- [ ] Tippen öffnet das Fenster „Sammlung“ in der Bildmitte, erneutes Tippen oder die X-Taste schließt es. Das Spiel läuft weiter.
+- [ ] Am Anfang ist nur der Compy farbig, die anderen drei sind grau mit „???“ und „Ab 50 / 200 / 600 Punkten“. Oben steht „1 von 4 Dinos“.
+- [ ] Mit Taste `G` auf Raptor wachsen: Die Karte wird sofort farbig, „2 von 4 Dinos“. Das Fenster aktualisiert sich auch, wenn es offen ist.
+- [ ] Der Bestwert steigt beim Sammeln und bleibt nach dem Gefressenwerden stehen.
+- [ ] Nach dem Gefressenwerden bleiben die erreichten Dinos in der Sammlung.
+- [ ] Spiel beenden und neu starten: Sammlung und Bestwert sind wieder da (nur mit Speichern, siehe 7a).
+- [ ] Gastmodus (zum Beispiel ohne Studio-API-Zugriff): Das Fenster zeigt „Wird nicht gespeichert“, der Fortschritt der laufenden Sitzung ist trotzdem sichtbar.
+- [ ] Die Karten sind lesbar, der Bereich scrollt bei kleinen Bildschirmen. Geräte wie in Schritt 6 (360 × 640, 375 × 667, 390 × 844, Tablet, jeweils Hoch- und Querformat).
+- [ ] Das Fenster verdeckt nicht den Joystick und den Sprint-Button zu sehr (kann man mit dem Daumen am Rand weiterspielen).

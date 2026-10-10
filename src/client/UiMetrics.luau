@@ -32,6 +32,11 @@ function UiMetrics.buttonSize(): number
 	return UiLayout.buttonSize(Ui, size.X, size.Y)
 end
 
+function UiMetrics.smallButtonSize(): number
+	local size = viewport()
+	return UiLayout.smallButtonSize(Ui, size.X, size.Y)
+end
+
 -- Calls `callback` now and whenever the screen size changes.
 function UiMetrics.watch(callback: () -> ())
 	callback()

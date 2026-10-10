@@ -16,6 +16,10 @@ return {
 	buttonFraction = 0.2,
 	buttonMin = 72,
 	buttonMax = 120,
+	-- Small round menu button: shorter screen side * smallButtonFraction, kept between the limits (pixels).
+	smallButtonFraction = 0.14,
+	smallButtonMin = 52,
+	smallButtonMax = 84,
 	-- No text may end up smaller than this (pixels, after scaling).
 	minTextSize = 14,
 }

@@ -33,7 +33,8 @@ function StatusDisplay.start()
 
 	local panel = UiKit.newPanel(gui)
 	panel.Position = UDim2.fromOffset(UiTheme.margin, UiTheme.margin)
-	panel.Size = UDim2.fromOffset(PANEL_WIDTH, PADDING * 2 + TITLE_HEIGHT + DETAIL_HEIGHT + BAR_GAP + BAR_HEIGHT)
+	-- The height is shared with the menu button below it (see UiTheme.statusPanelHeight).
+	panel.Size = UDim2.fromOffset(PANEL_WIDTH, UiTheme.statusPanelHeight)
 	UiKit.addScale(panel)
 
 	local title = UiKit.newLabel(panel, UiTheme.titleSize)
