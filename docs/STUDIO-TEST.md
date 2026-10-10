@@ -46,6 +46,8 @@ Server:
 [BeDino][Receipts] handler registered name=skins
 [BeDino][SkinService] started
 [BeDino][MovementService] started
+[BeDino][LobbyService] lobby built ...
+[BeDino][LobbyService] started
 [BeDino][FoodService] food placed count=450 oasis=80
 [BeDino][FoodService] started
 [BeDino][PlayerCollision] started
@@ -56,7 +58,7 @@ Dann für deinen Spieler:
 ```
 [BeDino][Data] loading profile ...
 [BeDino][Data] profile loaded status=new userId=... version=2
-[BeDino][ArenaService] spawned ...
+[BeDino][PlayerState] state started mode=lobby ...
 ```
 Client:
 ```
@@ -70,12 +72,13 @@ Client:
 
 Mit einem Spieler. Ziel: Läuft das Grundspiel überhaupt?
 
-1. Du siehst einen kleinen grünen Compy in einer grünen Arena mit Wänden, Futter liegt verteilt, oben links das Statusfeld, oben rechts die Bestenliste.
-2. Laufen mit WASD, mit Shift sprinten. Die Ausdauerleiste unten sinkt und lädt wieder auf.
-3. Futter einsammeln: Punkte steigen, das Futter kommt nach etwa 8 Sekunden an anderer Stelle wieder.
-4. Taste `G` drücken (nur in Studio): jedes Mal +25 Punkte. Bei 50 Punkten wird der Dino größer und zum orangen Raptor, mit einer Wolke.
-5. Auf den runden Button „Dinos“ tippen: Die Sammlung öffnet sich, der Raptor ist freigeschaltet.
-6. Die Figur zurücksetzen (siehe Befehle in Abschnitt 6): Du bist wieder Compy, der Raptor bleibt in der Sammlung.
+1. Du stehst in einer Lobby auf einer Plattform hoch über der Arena und blickst auf die Arena herab. Vier leuchtende Kreise: PLAY (grün, Mitte), SHOP, DINODEX, BOOSTERS.
+2. In den **PLAY-Kreis** stellen und 2 Sekunden warten. Du landest als kleiner grüner Compy mit weißem Schutz in der grünen Arena. Futter liegt verteilt, oben links das Statusfeld, oben rechts die Bestenliste.
+3. Laufen mit WASD, mit Shift sprinten. Die Ausdauerleiste unten sinkt und lädt wieder auf.
+4. Futter einsammeln: Punkte steigen, das Futter kommt nach etwa 8 Sekunden an anderer Stelle wieder.
+5. Taste `G` drücken (nur in Studio und nur in der Arena): jedes Mal +25 Punkte. Bei 50 Punkten wird der Dino größer und zum orangen Raptor, mit einer Wolke.
+6. Unten auf „Lobby“ tippen und 5 Sekunden warten: Du bist wieder in der Lobby, klein und mit 0 Punkten.
+7. In den **DINODEX-Kreis** stellen: Die Sammlung öffnet sich, der Raptor ist freigeschaltet.
 
 Wenn einer dieser Punkte nicht klappt: Das ist der erste Fehler, den du mir melden solltest (siehe Abschnitt 7). Danach lohnt es sich nicht, weiterzutesten.
 

@@ -28,10 +28,11 @@ end
 function StatusDisplay.start()
 	local player = Players.LocalPlayer
 	local gui = UiKit.newGui("StatusDisplay")
+	UiKit.showOnlyInMode(gui, "playing")
 
 	local panel = UiKit.newPanel(gui)
 	panel.Position = UDim2.fromOffset(UiTheme.margin, UiTheme.margin)
-	-- The height is shared with the menu button below it (see UiTheme.statusPanelHeight).
+	-- The height of the panel is a theme value (UiTheme.statusPanelHeight).
 	panel.Size = UDim2.fromOffset(PANEL_WIDTH, UiTheme.statusPanelHeight)
 	UiKit.addScale(panel)
 

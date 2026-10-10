@@ -14,16 +14,23 @@ local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local GrowthConfig = require(Shared:WaitForChild("Config"):WaitForChild("Growth"))
 
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
+local PlayMode = require(Shared:WaitForChild("PlayMode"))
 
 type GrowthState = { points: number, stageIndex: number, highestStageIndex: number }
 
 local log = Log.new("PlayerState")
 
-type StageHandler = (player: Player, stageId: string, reason: "reset" | "grow") -> ()
+type Mode = "lobby" | "playing"
+-- "grow": turned into a bigger dino. "round": started a round in the arena. "reset": the state
+-- starts over in the lobby (also without a character yet).
+type Reason = "reset" | "grow" | "round"
+type StageHandler = (player: Player, stageId: string, reason: Reason) -> ()
 type PointsHandler = (player: Player, state: GrowthState) -> ()
 
 local states: { [number]: GrowthState } = {}
 local stageHandlers: { StageHandler } = {}
+-- Lobby (safe) or playing in the arena; every new character starts in the lobby.
+local modes: { [number]: Mode } = {}
 local pointsHandlers: { PointsHandler } = {}
 -- Server time until which a player cannot be eaten (set at every respawn).
 local protectedUntil: { [number]: number } = {}
@@ -32,7 +39,7 @@ local appliedScale: { [number]: number } = {}
 
 local PlayerState = {}
 
-local function notifyStage(player: Player, stageId: string, reason: "reset" | "grow")
+local function notifyStage(player: Player, stageId: string, reason: Reason)
 	for _, handler in stageHandlers do
 		local ok, err = pcall(handler, player, stageId, reason)
 		if not ok then
@@ -67,7 +74,8 @@ local function publish(player: Player, state: GrowthState)
 end
 
 -- Registers a handler that is called with the new stage id when a player turns into
--- another dino ("grow") and when the state starts over ("reset", also without a character yet).
+-- another dino ("grow"), starts a round in the arena ("round") and when the state starts
+-- over in the lobby ("reset", also without a character yet).
 function PlayerState.onStage(handler: StageHandler)
 	table.insert(stageHandlers, handler)
 end
@@ -80,6 +88,15 @@ end
 
 function PlayerState.get(player: Player): GrowthState?
 	return states[player.UserId]
+end
+
+function PlayerState.getMode(player: Player): Mode
+	return modes[player.UserId] or "lobby"
+end
+
+-- How many players are in the arena right now.
+function PlayerState.countPlaying(): number
+	return PlayMode.countPlaying(modes)
 end
 
 function PlayerState.protectedUntil(player: Player): number
@@ -135,24 +152,42 @@ function PlayerState.addPoints(player: Player, amount: number)
 	end
 end
 
-local function reset(player: Player)
+-- Starts a fresh state (smallest dino, no points) in the given mode. A round in the arena
+-- starts with the spawn protection. `rescale` sets the character back to the smallest size.
+local function startState(player: Player, mode: Mode, reason: "reset" | "round", rescale: boolean)
 	local state = Growth.newState()
 	states[player.UserId] = state
+	modes[player.UserId] = mode
 	appliedScale[player.UserId] = Growth.scaleFor(Dinos, state)
-	protectedUntil[player.UserId] = ServerClock.now() + Arena.spawnProtectionSeconds
+	protectedUntil[player.UserId] = if mode == "playing" then ServerClock.now() + Arena.spawnProtectionSeconds else 0
+	player:SetAttribute("Mode", mode)
 	publish(player, state)
 	-- The respawn countdown (set when eaten) is over once the state starts over.
 	player:SetAttribute("RespawnAt", 0)
-	notifyStage(player, Dinos[state.stageIndex].id, "reset")
-	log.info("state reset", { userId = player.UserId })
+	if rescale then
+		applyScale(player, state)
+	end
+	notifyStage(player, Dinos[state.stageIndex].id, reason)
+	log.info("state started", { userId = player.UserId, mode = mode })
+end
+
+-- The player enters the arena: new round, protected for a few seconds.
+function PlayerState.beginRound(player: Player)
+	startState(player, "playing", "round", true)
+end
+
+-- The round ends (left the arena): back to the lobby as the smallest dino.
+function PlayerState.endRound(player: Player)
+	startState(player, "lobby", "reset", true)
 end
 
 local function onPlayerAdded(player: Player)
 	log.info("player joined", { userId = player.UserId })
-	reset(player)
+	startState(player, "lobby", "reset", false)
 	player.CharacterAdded:Connect(function()
-		-- A fresh character has scale 1 already, so only the state is reset.
-		reset(player)
+		-- A fresh character has scale 1 already, and it always starts in the lobby (also after
+		-- being eaten), so only the state is reset.
+		startState(player, "lobby", "reset", false)
 	end)
 end
 
@@ -164,6 +199,7 @@ function PlayerState.start()
 	Players.PlayerRemoving:Connect(function(player: Player)
 		log.info("player left", { userId = player.UserId })
 		states[player.UserId] = nil
+		modes[player.UserId] = nil
 		protectedUntil[player.UserId] = nil
 		appliedScale[player.UserId] = nil
 	end)

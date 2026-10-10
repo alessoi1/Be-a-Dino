@@ -44,6 +44,7 @@ end
 function LeaderboardDisplay.start()
 	local localPlayer = Players.LocalPlayer
 	local gui = UiKit.newGui("Leaderboard")
+	UiKit.showOnlyInMode(gui, "playing")
 
 	-- One row more than the list size, for the own row below the list.
 	local maxRows = Ui.leaderboardSize + 1
@@ -83,7 +84,10 @@ function LeaderboardDisplay.start()
 	local function render()
 		local entries: { Entry } = {}
 		for _, player in Players:GetPlayers() do
-			table.insert(entries, readEntry(player))
+			-- Only the players in the arena are ranked here (the lobby has its own lists later).
+			if player:GetAttribute("Mode") == "playing" then
+				table.insert(entries, readEntry(player))
+			end
 		end
 		local rows = Leaderboard.rank(entries, Ui.leaderboardSize, localPlayer.UserId)
 		for index, view in views do
@@ -108,6 +112,7 @@ function LeaderboardDisplay.start()
 	end
 	local function watch(player: Player)
 		player:GetAttributeChangedSignal("Points"):Connect(markDirty)
+		player:GetAttributeChangedSignal("Mode"):Connect(markDirty)
 		markDirty()
 	end
 	Players.PlayerAdded:Connect(watch)
