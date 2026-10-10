@@ -12,6 +12,7 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
+local DinoBody = require(Shared:WaitForChild("DinoBody"))
 local DinoLook = require(Shared:WaitForChild("DinoLook"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
@@ -49,8 +50,30 @@ function AppearanceService.setSkinProvider(provider: SkinProvider)
 	skinProvider = provider
 end
 
+-- Looks built from plans are made once and kept.
+local plannedLooks: { [string]: any } = {}
+
+-- The look of a dino: hand-written, or built from its plan (and kept).
+local function lookFor(stageId: string): { parts: { any } }?
+	local explicit = DinoLooks.looks[stageId]
+	if explicit ~= nil then
+		return explicit
+	end
+	local cached = plannedLooks[stageId]
+	if cached ~= nil then
+		return cached
+	end
+	local planned = DinoLooks.plans[stageId]
+	if planned == nil then
+		return nil
+	end
+	local built = DinoBody.build(planned)
+	plannedLooks[stageId] = built
+	return built
+end
+
 local function buildPlaceholder(stageId: string, colors: SkinColors?): Model?
-	local look = DinoLooks.looks[stageId]
+	local look = lookFor(stageId)
 	if look == nil then
 		return nil
 	end
@@ -267,7 +290,7 @@ function AppearanceService.refresh(player: Player, stageId: string)
 end
 
 function AppearanceService.start()
-	local problems = DinoLook.validate(Dinos, DinoLooks.looks, DinoLooks.maxParts)
+	local problems = DinoLook.validate(Dinos, DinoBody.resolveAll(DinoLooks.looks, DinoLooks.plans), DinoLooks.maxParts)
 	if #problems > 0 then
 		log.error("dino looks invalid", { problems = table.concat(problems, "; ") })
 	end

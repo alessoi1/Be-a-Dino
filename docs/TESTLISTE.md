@@ -238,3 +238,27 @@ Münzen:
 - [ ] Nach dem Zurücksetzen und erneutem Aufsteigen gibt es wieder Münzen. Münzen gehen beim Gefressenwerden nicht verloren.
 - [ ] Spiel beenden und neu starten: Die Münzen sind wieder da (nur mit Speichern, siehe 7a). Das Profil aus früheren Tests wird auf Version 3 migriert (Log `status = migrated`).
 - [ ] Gastmodus: Münzen zählen für die Sitzung und gehen danach verloren.
+
+## Ausbau L3: 50 Dinos
+
+Stand: noch nicht in Studio getestet. Zum schnellen Durchgehen: Taste `H` (nur Studio, nur Arena) springt zum nächsten Dino, `G` bringt 25 % der Strecke.
+
+Aussehen (am besten alle 50 einmal durchgehen):
+- [ ] Output zeigt keine Fehler wie `dino looks invalid` oder `no look for stage`.
+- [ ] Bei jedem Sprung (`H`) wechselt der Dino sein Aussehen (Wolke, neue Form oder Farbe). Die Formen: kleine Läufer, aufrechte Raubsaurier, Entenschnabel-Saurier mit Kamm, Gepanzerte mit Rückenplatten, Gehörnte mit Halskrause und Langhälse.
+- [ ] **Die Füße stehen bei jedem Dino auf dem Boden** (nicht darüber, nicht darin), auch bei den hohen Langhälsen und beim Gepanzerten (niedrige Beine).
+- [ ] Nachbarn sehen verschieden aus (Form, Größe oder Farbe), keiner sieht kaputt aus (schwebende Teile, Teile die ineinander verschwinden).
+- [ ] Die Figur wächst von Compy bis Titanosaur spürbar bis etwa 8-fach, die Kamera rückt weiter weg und der Dino bleibt im Bild.
+- [ ] Der Neustart nach dem Gefressenwerden bringt wieder den kleinen Compy.
+
+Zahlen und Tempo:
+- [ ] Die Namen sind kurz und passen in die Karten und in das Statusfeld (längster: „Patagotitan“, „Dreadnought“, „Titanosaur“).
+- [ ] Futter bringt auf jeder Stufe etwa gleich viele Stücke bis zur nächsten (Stichprobe bei den Stufen 5, 20 und 40).
+- [ ] Das Tempo sinkt spürbar von 22 auf 18, ohne dass sich große Dinos zu träge anfühlen. Sprint funktioniert weiter.
+- [ ] Fressen: Ein Dino frisst nur deutlich größere Opfer (etwa 4 bis 5 Stufen größer). Notiere, ob es zu selten oder zu oft passiert (`eatRatio` in `Config/Arena`).
+
+Dinodex:
+- [ ] Zeigt 50 Karten in zwei Spalten, oben „N of 50 dinos“, erreichte farbig mit Namen, die anderen als „???“ mit „Reach 1.54K size“ und so weiter. Scrollen geht flüssig (auch auf dem Handy-Emulator, 360 × 640).
+- [ ] Beim Erreichen eines Dinos wird die Karte freigeschaltet (nach `H` sofort sichtbar).
+- [ ] Ein Tipp auf einen Dino ohne Skins zeigt „No skins for this dino yet“. Compy, Raptor, Stego und T-Rex zeigen ihre Skins wie vorher.
+- [ ] Alte Spielstände mit den Dinos `compy`, `raptor`, `stego`, `trex` bleiben erhalten.

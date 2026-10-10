@@ -1,4 +1,5 @@
 --!strict
+local DinoBody = require("../../src/shared/DinoBody")
 local DinoLook = require("../../src/shared/DinoLook")
 local DinoLooks = require("../../src/shared/Config/DinoLooks")
 local Dinos = require("../../src/shared/Config/Dinos")
@@ -7,6 +8,8 @@ local Framework = require("../Framework")
 local test = Framework.test
 local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
+
+local allLooks = DinoBody.resolveAll(DinoLooks.looks, DinoLooks.plans)
 
 local function part(name: string): DinoLooks.PartSpec
 	return {
@@ -31,7 +34,7 @@ local function contains(errors: { string }, text: string): boolean
 end
 
 test("DinoLook: the real config is valid", function()
-	local errors = DinoLook.validate(Dinos, DinoLooks.looks, DinoLooks.maxParts)
+	local errors = DinoLook.validate(Dinos, allLooks, DinoLooks.maxParts)
 	assertEquals(table.concat(errors, "; "), "")
 end)
 
@@ -83,7 +86,7 @@ test("DinoLook: colors must be between 0 and 255", function()
 end)
 
 test("DinoLook: the lowest point of a look stays near the floor", function()
-	for id, look in DinoLooks.looks do
+	for id, look in allLooks do
 		local lowest = DinoLook.lowestPoint(look)
 		assertTrue(math.abs(lowest - DinoLook.FLOOR_OFFSET) < 0.2, id .. " lowest point " .. lowest)
 	end
@@ -99,7 +102,7 @@ test("DinoLook: a part needs a known role", function()
 end)
 
 test("DinoLook: every real look has a body part and an accent part to recolor", function()
-	for id, look in DinoLooks.looks do
+	for id, look in allLooks do
 		local roles: { [string]: boolean } = {}
 		for _, spec in look.parts do
 			roles[spec.role] = true

@@ -1,6 +1,8 @@
 --!strict
 -- Skins: other colors for a dino. They never change values (size, speed, eating).
--- Every dino has exactly one default skin (`free`). The names are in Strings.skins by id.
+-- A dino with skins has exactly one default skin (`free`); a dino without any skin keeps its
+-- normal colors. Only the first four dinos have skins for now; the variants of a later step
+-- (glowing, gold, shadow, rainbow) work on every dino. The names are in Strings.skins by id.
 -- Unlock kinds:
 --   free     always available
 --   reach    available once the dino `stageId` was reached

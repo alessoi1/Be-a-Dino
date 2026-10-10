@@ -10,6 +10,9 @@ local assertTrue = Framework.assertTrue
 
 local skins = SkinConfig.skins
 
+-- The four dinos the skin fixtures below are written for.
+local four = { { id = "compy" }, { id = "raptor" }, { id = "stego" }, { id = "trex" } }
+
 local function state(): Skins.State
 	return {
 		reachedStages = { compy = true },
@@ -123,52 +126,53 @@ test("Skins: validate reports broken configs", function()
 		skin("c_default", "stego", { kind = "free" }),
 		skin("d_default", "trex", { kind = "free" }),
 	}
-	assertEquals(#Skins.validate(full, Dinos, 32), 0)
+	assertEquals(#Skins.validate(full, four, 32), 0)
 
-	local noDefault = { skin("a_default", "compy", { kind = "free" }) }
-	assertTrue(contains(Skins.validate(noDefault, Dinos, 32), "default skin"))
+	-- Dinos without any skin are fine, they keep their normal colors.
+	local onlyOne = { skin("a_default", "compy", { kind = "free" }) }
+	assertEquals(#Skins.validate(onlyOne, four, 32), 0)
 
 	local twoDefaults = table.clone(full)
 	table.insert(twoDefaults, skin("a_other", "compy", { kind = "free" }))
-	assertTrue(contains(Skins.validate(twoDefaults, Dinos, 32), "default skin"))
+	assertTrue(contains(Skins.validate(twoDefaults, four, 32), "default skin"))
 
 	local duplicate = table.clone(full)
 	table.insert(duplicate, skin("a_default", "compy", { kind = "reach", stageId = "raptor" }))
-	assertTrue(contains(Skins.validate(duplicate, Dinos, 32), "duplicate"))
+	assertTrue(contains(Skins.validate(duplicate, four, 32), "duplicate"))
 
 	local unknownDino = table.clone(full)
 	table.insert(unknownDino, skin("x", "pterodactyl", { kind = "free" }))
-	assertTrue(contains(Skins.validate(unknownDino, Dinos, 32), "unknown dino"))
+	assertTrue(contains(Skins.validate(unknownDino, four, 32), "unknown dino"))
 
 	local badId = table.clone(full)
 	table.insert(badId, skin("Bad Id", "compy", { kind = "reach", stageId = "raptor" }))
-	assertTrue(contains(Skins.validate(badId, Dinos, 32), "id"))
+	assertTrue(contains(Skins.validate(badId, four, 32), "id"))
 
 	local badReach = table.clone(full)
 	table.insert(badReach, skin("r1", "compy", { kind = "reach", stageId = "pterodactyl" }))
-	assertTrue(contains(Skins.validate(badReach, Dinos, 32), "reach"))
+	assertTrue(contains(Skins.validate(badReach, four, 32), "reach"))
 
 	local badBest = table.clone(full)
 	table.insert(badBest, skin("b1", "compy", { kind = "best", points = 0 }))
-	assertTrue(contains(Skins.validate(badBest, Dinos, 32), "best"))
+	assertTrue(contains(Skins.validate(badBest, four, 32), "best"))
 
 	local badProduct = table.clone(full)
 	table.insert(badProduct, skin("p1", "compy", { kind = "product", productId = -1 }))
-	assertTrue(contains(Skins.validate(badProduct, Dinos, 32), "product"))
+	assertTrue(contains(Skins.validate(badProduct, four, 32), "product"))
 
 	local sameProduct = table.clone(full)
 	table.insert(sameProduct, skin("p2", "compy", { kind = "product", productId = 55 }))
 	table.insert(sameProduct, skin("p3", "raptor", { kind = "product", productId = 55 }))
-	assertTrue(contains(Skins.validate(sameProduct, Dinos, 32), "product id"))
+	assertTrue(contains(Skins.validate(sameProduct, four, 32), "product id"))
 
 	local unlisted = table.clone(full)
 	table.insert(unlisted, skin("p4", "compy", { kind = "product", productId = 0 }))
 	table.insert(unlisted, skin("p5", "raptor", { kind = "product", productId = 0 }))
-	assertEquals(#Skins.validate(unlisted, Dinos, 32), 0, "several skins may wait with id 0")
+	assertEquals(#Skins.validate(unlisted, four, 32), 0, "several skins may wait with id 0")
 
 	local badKind = table.clone(full)
 	table.insert(badKind, skin("k1", "compy", { kind = "magic" }))
-	assertTrue(contains(Skins.validate(badKind, Dinos, 32), "unlock kind"))
+	assertTrue(contains(Skins.validate(badKind, four, 32), "unlock kind"))
 
 	local badColor = table.clone(full)
 	table.insert(
@@ -180,5 +184,5 @@ test("Skins: validate reports broken configs", function()
 			{ body = { r = 300, g = 0, b = 0 }, accent = { r = 0, g = 0, b = 0 } }
 		)
 	)
-	assertTrue(contains(Skins.validate(badColor, Dinos, 32), "color"))
+	assertTrue(contains(Skins.validate(badColor, four, 32), "color"))
 end)

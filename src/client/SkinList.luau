@@ -123,7 +123,7 @@ function SkinList.create(parent: Instance, position: UDim2, size: UDim2)
 
 	local function refresh()
 		for _, child in list:GetChildren() do
-			if child:IsA("TextButton") then
+			if child:IsA("TextButton") or child:IsA("TextLabel") then
 				child:Destroy()
 			end
 		end
@@ -137,7 +137,16 @@ function SkinList.create(parent: Instance, position: UDim2, size: UDim2)
 		local unlocked = CollectionView.decodeReached(if typeof(unlockedText) == "string" then unlockedText else "")
 		local equipped = SkinView.decodeEquipped(if typeof(equippedText) == "string" then equippedText else "")
 
-		for index, row in SkinView.rows(SkinConfig.skins, dinoId, unlocked, equipped[dinoId]) do
+		local skinRows = SkinView.rows(SkinConfig.skins, dinoId, unlocked, equipped[dinoId])
+		if #skinRows == 0 then
+			local empty = UiKit.newLabel(list, UiTheme.bodySize)
+			empty.Size = UDim2.new(1, -PADDING, 0, ROW_HEIGHT)
+			empty.Text = Strings.collection.noSkins
+			empty.TextColor3 = UiTheme.lockedText
+			empty.TextWrapped = true
+			empty.TextTruncate = Enum.TextTruncate.None
+		end
+		for index, row in skinRows do
 			local button = Instance.new("TextButton")
 			button.LayoutOrder = index
 			button.Size = UDim2.new(1, -PADDING, 0, ROW_HEIGHT)

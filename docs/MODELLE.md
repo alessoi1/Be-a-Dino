@@ -6,7 +6,7 @@ Sobald in `assets/models/` ein passendes Modell liegt, wird es ohne Codeänderun
 ## So findet das Spiel ein Modell
 
 - Rojo legt den Inhalt von `assets/models/` nach `ServerStorage/Models`.
-- Der `AppearanceService` sucht dort ein **Model**, das genauso heißt wie die Stufen-ID aus `src/shared/Config/Dinos.luau`: `compy`, `raptor`, `stego`, `trex`. Beispiel: `assets/models/raptor.rbxm`.
+- Der `AppearanceService` sucht dort ein **Model**, das genauso heißt wie die Stufen-ID aus `src/shared/Config/Dinos.luau`: eine der **50 Dino-IDs** aus `src/shared/Config/Dinos.luau` (von klein nach groß: `compy`, `dromaeo`, `raptor`, `troodon`, `oviraptor`, `coelo`, `deino`, `gallimimus`, `pachy`, `dilopho`, `iguano`, `para`, `proto`, `ankylo`, `stego`, `allo`, `cerato`, `carno`, `trike`, `edmonto`, `theri`, `baryonyx`, `utah`, `alberto`, `styraco`, `kentro`, `euoplo`, `maia`, `lambeo`, `diplo`, `camara`, `apato`, `brachio`, `mamenchi`, `trex`, `spino`, `giganoto`, `carcharo`, `mapu`, `acro`, `toro`, `sauropelta`, `shantungo`, `super`, `sauropo`, `dreadnought`, `argentino`, `patagotitan`, `puerta`, `titanosaur`). Beispiel: `assets/models/raptor.rbxm`. Bis ein Modell da ist, baut der Server den Platzhalter aus dem Körperplan in `Config/DinoLooks` (sechs Formen, siehe `src/shared/DinoBody.luau`).
 - Besteht das Modell die Prüfung nicht (Fehler im Log `model rejected`), nimmt der Server den Platzhalter.
 
 ## Regeln für ein Modell

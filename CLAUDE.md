@@ -28,9 +28,10 @@ wally install                    # Pakete aus wally.toml (ServerPackages, nicht 
 rojo serve                       # Live-Sync nach Studio (im Rojo-Plugin "Connect")
 mkdir build                      # einmalig (Rojo legt den Ordner nicht an, er ist nicht im Git)
 rojo build -o build/BeDino.rbxl
-stylua src tests                 # formatieren (Prüfung: stylua --check src tests)
+stylua src tests tools           # formatieren (Prüfung: stylua --check src tests tools)
 selene generate-roblox-std       # einmalig, erzeugt roblox.yml (nicht im Git)
-selene src tests                 # Lint
+selene src tests tools           # Lint
+lune run tools/GenerateStages    # gibt die 50 Stufenzeilen für Config/Dinos aus (Balance neu rechnen)
 lune run tests/run               # Tests
 ```
 

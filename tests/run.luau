@@ -85,6 +85,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/Coins.spec")
 	end,
+	function()
+		require("./specs/DinoBody.spec")
+	end,
+	function()
+		require("./specs/Dinos.spec")
+	end,
 }
 
 local passed = 0

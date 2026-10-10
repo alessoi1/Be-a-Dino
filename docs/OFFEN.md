@@ -31,7 +31,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 - [x] L1 Lobby (Spielkreis, Kreise für Shop, Dinodex, Booster; Code fertig, Studio-Test offen)
 - [x] L2 Große Zahlen, neues Wachstum, Münzen (Code fertig, Studio-Test offen)
-- [ ] L3 50 Dinos (Platzhalter), Freischalten durch Größe
+- [x] L3 50 Dinos (Platzhalter), Freischalten durch Größe (Code fertig, Studio-Test offen)
 - [ ] L4 Todes-Bildschirm (Zur Lobby, Rache mit Kopfgeld)
 - [ ] L5 Autofarm
 - [ ] L6 Globale Ranglisten in der Lobby
