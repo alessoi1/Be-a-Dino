@@ -117,7 +117,7 @@ Ergänzt zu Schritt 7 (Speichern, Skins, Shop):
 Ergänzt zu Schritt 7d (Shop):
 
 - **Kaufweg:** Developer Products, `ProcessReceipt` (nur ein Beleg-Handler, bestätigt erst nach dem Speichern). Der Kaufdialog kommt direkt vom Client, es gibt keinen `BuySkin`-Remote. Die Vergabe ist von selbst idempotent (`ownedSkins` ist eine Menge), es gibt keinen Beleg-Verlauf im Profil.
-- **Texte:** „Angebot ansehen“, kein Preis im Spiel. Gäste und Spieler, deren Profil noch lädt, können nicht kaufen.
+- **Texte:** „View offer“, kein Preis im Spiel. Gäste und Spieler, deren Profil noch lädt, können nicht kaufen.
 - **Nicht listen:** Die Produkte werden vorerst nur im Spiel verkauft, nicht in der Roblox-Store-Ansicht.
 - Details, Checkliste und offene Prüfungen stehen in `docs/MONETARISIERUNG.md`.
 
@@ -130,6 +130,10 @@ Ergänzt: Oase in der Mitte (10. Oktober 2026):
 - **Treffpunkt:** In der Mitte der Arena liegt die „Oase“ (Radius 60 Studs, 80 der 450 Futterstücke) mit dichterem und besserem Futter (Gewichte klein 40, mittel 40, groß 20, außen 85 / 12 / 3). Eine blaue Fläche und eine Leuchtsäule zeigen, wo sie liegt. Dort treffen sich die Spieler, und größere fressen kleinere.
 - **Spawn:** Niemand erscheint in der Oase oder bis 20 Studs daneben.
 - Alle Werte sind Startwerte und werden mit mehreren Spielern abgestimmt (`Config/Food`, Block `zones.center`).
+
+Ergänzt: Sprache im Spiel (10. Oktober 2026):
+
+- **Englisch:** Alle Texte, die Spieler sehen, sind englisch (`src/shared/Strings.luau`), damit das Spiel international verständlich ist. Die Projektdokumentation und die Zusammenarbeit bleiben deutsch. Zahlen werden mit Punkt geschrieben (zum Beispiel ×1.4). Weitere Sprachen später über eine Übersetzungstabelle möglich.
 
 ## Weiterhin offen
 

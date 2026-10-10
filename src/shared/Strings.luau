@@ -1,5 +1,5 @@
 --!strict
--- All texts the player sees (German). No texts in the other files.
+-- All texts the player sees (English, for an international audience). No texts in the other files.
 
 -- Dino names by stage id (see Config/Dinos).
 local dinos: { [string]: string } = {
@@ -11,16 +11,16 @@ local dinos: { [string]: string } = {
 
 -- Skin names by skin id (see Config/Skins).
 local skinNames: { [string]: string } = {
-	compy_default = "Standard",
-	compy_mint = "Minze",
-	compy_berry = "Beerenrot",
-	raptor_default = "Standard",
-	raptor_sunset = "Abendrot",
-	raptor_midnight = "Nachtblau",
-	stego_default = "Standard",
-	stego_moss = "Moosgrün",
-	stego_volcano = "Vulkan",
-	trex_default = "Standard",
+	compy_default = "Default",
+	compy_mint = "Mint",
+	compy_berry = "Berry",
+	raptor_default = "Default",
+	raptor_sunset = "Sunset",
+	raptor_midnight = "Midnight",
+	stego_default = "Default",
+	stego_moss = "Moss",
+	stego_volcano = "Volcano",
+	trex_default = "Default",
 	trex_gold = "Gold",
 	trex_frost = "Frost",
 }
@@ -33,62 +33,63 @@ return {
 		button = "Sprint",
 	},
 	status = {
-		-- %d = points, then the dino name.
-		points = "Punkte",
-		toNext = "Noch %d bis %s",
-		maxStage = "Größter Dino!",
-		-- %s = size with a decimal comma, for example 1,4.
+		-- Shown as "Raptor · 120 points".
+		points = "points",
+		-- %d = points still missing, then the name of the next dino.
+		toNext = "%d points to %s",
+		maxStage = "Biggest dino!",
+		-- %s = size, for example 1.4.
 		size = "×%s",
 	},
 	leaderboard = {
-		title = "Bestenliste",
+		title = "Leaderboard",
 	},
 	collection = {
 		-- Button and window title.
 		button = "Dinos",
-		title = "Sammlung",
+		title = "Collection",
 		-- %d of %d dinos reached
-		count = "%d von %d Dinos",
+		count = "%d of %d dinos",
 		-- %d = points
-		best = "Bestwert: %d Punkte",
+		best = "Best round: %d points",
 		locked = "???",
 		-- %d = points needed
-		hint = "Ab %d Punkten",
-		guest = "Wird nicht gespeichert",
+		hint = "Reach %d points",
+		guest = "Not saved",
 		close = "X",
 		back = "<",
 		-- Shown below the best round while the progress is saved.
-		skinsHint = "Tippe auf einen Dino für seine Skins",
-		skinEquipped = "Ausgerüstet",
-		skinEquip = "Ausrüsten",
+		skinsHint = "Tap a dino to see its skins",
+		skinEquipped = "Equipped",
+		skinEquip = "Equip",
 		-- %s = dino name
-		lockedReach = "Gesperrt: Erreiche den %s",
+		lockedReach = "Locked: reach the %s",
 		-- %d = points
-		lockedBest = "Gesperrt: Bestwert %d Punkte",
-		lockedOther = "Gesperrt",
+		lockedBest = "Locked: best round %d points",
+		lockedOther = "Locked",
 		-- Neutral wording for a skin that can be bought (the Roblox dialog shows the price).
-		skinOffer = "Angebot ansehen",
-		skinOfferNeedsSaving = "Nur mit Speichern verfügbar",
+		skinOffer = "View offer",
+		skinOfferNeedsSaving = "Not available without saving",
 	},
 	skins = skinNames,
 	-- Messages when eating or being eaten (%s = name, %d = points).
 	notice = {
-		ate = "Du hast %s gefressen (+%d)",
-		eaten = "%s hat dich gefressen",
+		ate = "You ate %s (+%d)",
+		eaten = "%s ate you",
 		-- %s = dino name
-		evolved = "Du bist jetzt ein %s!",
+		evolved = "You are now a %s!",
 		-- %s = skin name
-		skinUnlocked = "Neuer Skin: %s",
+		skinUnlocked = "New skin: %s",
 	},
 	data = {
 		-- The profile could not be loaded; the player keeps playing without saving.
-		guest = "Dein Fortschritt wird gerade nicht gespeichert.",
+		guest = "Your progress is not being saved right now.",
 		-- Shown when the profile was opened on another server.
-		sessionEnded = "Du wurdest abgemeldet, weil dein Spielstand auf einem anderen Server geöffnet wurde.",
+		sessionEnded = "You were signed out because your data was opened on another server.",
 	},
 	respawn = {
 		-- %d = seconds
-		countdown = "Neustart in %d",
+		countdown = "Respawn in %d",
 	},
 	dinos = dinos,
 }

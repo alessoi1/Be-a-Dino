@@ -22,9 +22,7 @@ local BAR_GAP = 4
 local StatusDisplay = {}
 
 local function formatScale(scale: number): string
-	local text = string.format("%.1f", scale)
-	local withComma = string.gsub(text, "%.", ",")
-	return withComma
+	return string.format("%.1f", scale)
 end
 
 function StatusDisplay.start()
