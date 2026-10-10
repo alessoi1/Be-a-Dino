@@ -16,7 +16,7 @@ Stand: noch nicht in Studio getestet.
 - [ ] WASD und Joystick (Emulator Handy) bewegen die Figur flüssig.
 - [ ] Sprint-Button (halten) und Linke Umschalttaste: Tempo steigt, die Leiste sinkt, nach Loslassen und einer Sekunde Pause füllt sie sich wieder.
 - [ ] Bei leerer Leiste endet der Sprint, erneuter Start erst ab dem Mindestwert.
-- [ ] Sprint-Button gut erreichbar und nicht verdeckt vom Springen-Button des Handys (Position `BUTTON_LIFT` in `SprintControl` anpassen, falls nötig).
+- [ ] Sprint-Button sitzt unten rechts in der Ecke (Abstand `BUTTON_MARGIN` in `SprintControl`) und ist gut erreichbar. Im Handy-Emulator ist der Springen-Button von Roblox weg (Log `jump button hidden`). Steht stattdessen `jump button not found`, überlappen sich beide, dann bitte melden.
 - [ ] Tempo-Check: in der Konsole (Server) die Figur weit versetzen (`HumanoidRootPart.CFrame += Vector3.new(100, 0, 0)`). Sie wird zurückgesetzt, das Log zeigt `movement rejected` (höchstens alle 5 Sekunden).
 - [ ] Debug-Taste `G` (nur Studio) gibt Punkte: Bei 50 wird die Figur größer (Log `stage changed`), die Kamera rückt sanft weiter weg.
 - [ ] Nach dem Wachsen versinkt die Figur nicht im Boden und fällt nicht durch.
