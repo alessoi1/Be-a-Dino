@@ -12,6 +12,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local DebugConfig = require(Shared:WaitForChild("Config"):WaitForChild("Debug"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Limiter = { reject: (userId: number, remote: string, reason: string) -> (), forget: (userId: number) -> () }
 
@@ -29,7 +30,7 @@ function DebugService.start(limiter: Limiter)
 	local lastCall: { [number]: number } = {}
 	local remote = Remotes.event(Remotes.names.debugGrow)
 	remote.OnServerEvent:Connect(function(player: Player)
-		local now = os.clock()
+		local now = ServerClock.now()
 		local previous = lastCall[player.UserId]
 		if previous ~= nil and now - previous < MIN_INTERVAL then
 			limiter.reject(player.UserId, "DebugGrow", "rate_limited")
