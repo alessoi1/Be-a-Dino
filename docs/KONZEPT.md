@@ -114,6 +114,13 @@ Ergänzt zu Schritt 7 (Speichern, Skins, Shop):
 - **Keine bezahlten Zufallsobjekte.**
 - **Skins (7c):** Standard, ein freispielbarer und ein bezahlter Skin pro Dino. Freigespielt wird durch Erreichen der nächsten Stufe (Compy: Raptor, Raptor: Stego, Stego: T-Rex) und beim T-Rex durch einen Bestwert von 1000 Punkten (Platzhalter). Gewählt wird pro Dino und gilt für jede erreichte Karte. Der Wechsel passiert sofort ohne Bestätigung. Bezahlte Skins bleiben bis 7d unsichtbar (`productId = 0`).
 
+Ergänzt zu Schritt 7d (Shop):
+
+- **Kaufweg:** Developer Products, `ProcessReceipt` (nur ein Beleg-Handler, bestätigt erst nach dem Speichern). Der Kaufdialog kommt direkt vom Client, es gibt keinen `BuySkin`-Remote. Die Vergabe ist von selbst idempotent (`ownedSkins` ist eine Menge), es gibt keinen Beleg-Verlauf im Profil.
+- **Texte:** „Angebot ansehen“, kein Preis im Spiel. Gäste und Spieler, deren Profil noch lädt, können nicht kaufen.
+- **Nicht listen:** Die Produkte werden vorerst nur im Spiel verkauft, nicht in der Roblox-Store-Ansicht.
+- Details, Checkliste und offene Prüfungen stehen in `docs/MONETARISIERUNG.md`.
+
 ## Weiterhin offen
 
 - Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.

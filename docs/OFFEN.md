@@ -15,11 +15,11 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] 4 Stufenwechsel mit Platzhalter-Modellen (Code fertig, Studio-Test offen, Pipeline in docs/MODELLE.md).
 - [x] 5 Fressen zwischen Spielern, Schutzzeit, Respawn (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md).
 - [x] 6 Oberfläche und Handy-Test (Code fertig, Studio- und Gerätetest offen, siehe docs/TESTLISTE.md).
-- [ ] 7 Speichern, Skins, Monetarisierung (nach Rückfrage und Prüfung der Roblox-Regeln):
+- [x] 7 Speichern, Skins, Monetarisierung (nach Rückfrage und Prüfung der Roblox-Regeln):
   - [x] 7a Speichern: ProfileStore, Profilformat mit Migrationen, Collection und Bestwert (Code fertig, Studio-Test offen)
   - [x] 7b Collection-Menü (Code fertig, Studio-Test offen)
   - [x] 7c Skins (ein kostenloser pro Dino; Code fertig, Studio-Test offen)
-  - [ ] 7d Shop (bezahlte Skins, ProcessReceipt) nach Richtlinienprüfung
+  - [x] 7d Shop (bezahlte Skins, ProcessReceipt; Code fertig, Produkte und Studio-Test offen, siehe docs/MONETARISIERUNG.md)
 
 ## Hinweise
 

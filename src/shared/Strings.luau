@@ -66,6 +66,9 @@ return {
 		-- %d = points
 		lockedBest = "Gesperrt: Bestwert %d Punkte",
 		lockedOther = "Gesperrt",
+		-- Neutral wording for a skin that can be bought (the Roblox dialog shows the price).
+		skinOffer = "Angebot ansehen",
+		skinOfferNeedsSaving = "Nur mit Speichern verfügbar",
 	},
 	skins = skinNames,
 	-- Messages when eating or being eaten (%s = name, %d = points).
@@ -74,6 +77,8 @@ return {
 		eaten = "%s hat dich gefressen",
 		-- %s = dino name
 		evolved = "Du bist jetzt ein %s!",
+		-- %s = skin name
+		skinUnlocked = "Neuer Skin: %s",
 	},
 	data = {
 		-- The profile could not be loaded; the player keeps playing without saving.

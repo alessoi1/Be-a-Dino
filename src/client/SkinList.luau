@@ -4,16 +4,19 @@
 -- server, which checks everything. Reads the attributes the server publishes (display only).
 -- Only checkable in Roblox Studio.
 
+local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CollectionView = require(Shared:WaitForChild("CollectionView"))
+local Log = require(Shared:WaitForChild("Log"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local SkinView = require(Shared:WaitForChild("SkinView"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
 local SkinConfig = require(Shared:WaitForChild("Config"):WaitForChild("Skins"))
+local Ui = require(Shared:WaitForChild("Config"):WaitForChild("Ui"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
@@ -25,6 +28,8 @@ local PADDING = 8
 local CHIP_SIZE = 22
 local CHIP_GAP = 4
 local STATUS_WIDTH = 150
+
+local log = Log.new("SkinList")
 
 local SkinList = {}
 
@@ -97,6 +102,23 @@ function SkinList.create(parent: Instance, position: UDim2, size: UDim2)
 	layout.Parent = list
 
 	local currentDino: string? = nil
+	local lastPrompt = -math.huge
+
+	-- Opens the Roblox purchase dialog (it shows the price). The skin is granted by the
+	-- server after the receipt; nothing is decided here.
+	local function promptPurchase(productId: number)
+		local now = os.clock()
+		if now - lastPrompt < Ui.purchasePromptCooldown then
+			return
+		end
+		lastPrompt = now
+		local ok, err = pcall(function()
+			MarketplaceService:PromptProductPurchase(player, productId)
+		end)
+		if not ok then
+			log.error("purchase prompt failed", { productId = productId, error = tostring(err) })
+		end
+	end
 
 	local function refresh()
 		for _, child in list:GetChildren() do
@@ -122,7 +144,7 @@ function SkinList.create(parent: Instance, position: UDim2, size: UDim2)
 			button.BackgroundTransparency = 0.2
 			button.BorderSizePixel = 0
 			button.Text = ""
-			button.AutoButtonColor = row.status == "available"
+			button.AutoButtonColor = row.status == "available" or row.status == "offer"
 			button.Parent = list
 			local corner = Instance.new("UICorner")
 			corner.Parent = button
@@ -159,6 +181,16 @@ function SkinList.create(parent: Instance, position: UDim2, size: UDim2)
 				status.TextColor3 = UiTheme.good
 			elseif row.status == "available" then
 				status.Text = Strings.collection.skinEquip
+			elseif row.status == "offer" then
+				-- Offers need a loaded profile; guests and loading players cannot keep the skin.
+				if player:GetAttribute("DataReady") == true then
+					status.Text = Strings.collection.skinOffer
+					status.TextColor3 = UiTheme.accent
+				else
+					status.Text = Strings.collection.skinOfferNeedsSaving
+					status.TextColor3 = UiTheme.lockedText
+					name.TextColor3 = UiTheme.lockedText
+				end
 			else
 				status.Text = lockedText(row.skin)
 				status.TextColor3 = UiTheme.lockedText
@@ -166,15 +198,18 @@ function SkinList.create(parent: Instance, position: UDim2, size: UDim2)
 			end
 
 			local skinId = row.skin.id
+			local productId = row.skin.unlock.productId
 			button.Activated:Connect(function()
 				if row.status == "available" then
 					equipRemote:FireServer(skinId)
+				elseif row.status == "offer" and productId ~= nil and player:GetAttribute("DataReady") == true then
+					promptPurchase(productId)
 				end
 			end)
 		end
 	end
 
-	for _, attribute in { "UnlockedSkins", "EquippedSkins" } do
+	for _, attribute in { "UnlockedSkins", "EquippedSkins", "DataReady" } do
 		player:GetAttributeChangedSignal(attribute):Connect(refresh)
 	end
 
