@@ -14,7 +14,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] 3 Futter fressen und wachsen (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md).
 - [x] 4 Stufenwechsel mit Platzhalter-Modellen (Code fertig, Studio-Test offen, Pipeline in docs/MODELLE.md).
 - [x] 5 Fressen zwischen Spielern, Schutzzeit, Respawn (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md).
-- [ ] 6 Oberfläche und Handy-Test.
+- [x] 6 Oberfläche und Handy-Test (Code fertig, Studio- und Gerätetest offen, siehe docs/TESTLISTE.md).
 - [ ] 7 Speichern, Skins, Monetarisierung (nach Rückfrage und Prüfung der Roblox-Regeln).
 
 ## Hinweise

@@ -68,3 +68,34 @@ Stand: noch nicht in Studio getestet. Zum Testen mindestens 2 Spieler im Test-Ta
 - [ ] Reichweite fühlt sich fair an: Ein kleiner Dino kann mit Sprint entkommen (Raptor Tempo 22, Compy Sprint 30).
 - [ ] Zeitquelle: Futter wächst weiter nach etwa 8 Sekunden nach, Ausdauer und Sprint verhalten sich wie vorher (Umstellung auf `ServerClock`).
 - [ ] Bei weniger als 2 Spielern passiert nichts, keine Fehler im Log.
+
+## Schritt 6: Oberfläche, Bestenliste, Handy-Test
+
+Stand: noch nicht in Studio getestet. Zum Testen den Geräte-Emulator im Test-Tab benutzen (Gerät wählen, Hoch- und Querformat) und mindestens 2 Spieler.
+
+Allgemein:
+- [ ] Output zeigt `core gui adjusted`. Die eingebaute Roblox-Spielerliste und der Rucksack sind weg, der Chat ist da.
+- [ ] Die Schrift ist rund (Fredoka) und überall gleich.
+- [ ] Nichts liegt unter dem Roblox-Menüband oben, unter einer Notch oder der Gesten-Leiste (Geräte mit Notch im Emulator wählen).
+
+Inhalte:
+- [ ] **Status links oben:** Dino-Name und Punkte, darunter „Noch N bis Raptor · ×1,0“ und eine Leiste. Beim Fressen und Wachsen aktualisiert sich alles. Auf der letzten Stufe steht „Größter Dino!“.
+- [ ] **Bestenliste rechts oben:** Zeigt höchstens 5 Spieler nach Punkten, mit Rang und Name. Die eigene Zeile ist farbig. Liegt man nicht in den Top 5, steht die eigene Zeile unten mit dem echten Rang. Aktualisiert sich etwa alle 0,5 Sekunden.
+- [ ] **Stufen-Meldung:** Beim Aufstieg erscheint „Du bist jetzt ein Raptor!“ in der oberen Mitte, nicht beim Neustart nach dem Gefressenwerden.
+- [ ] **Fress-Meldung:** wie in Schritt 5, nur eine Meldung zur selben Zeit.
+- [ ] **Neustart-Countdown:** Nach dem Gefressenwerden steht „Neustart in 3“, dann 2, 1 in der Bildmitte und verschwindet beim Respawn.
+
+Geräte (Emulator, jeweils Hoch- und Querformat):
+- [ ] Kleines Android 360 × 640
+- [ ] iPhone SE 375 × 667
+- [ ] iPhone 14 390 × 844
+- [ ] Tablet 768 × 1024
+
+Pro Gerät prüfen:
+- [ ] Status und Bestenliste überlappen sich nicht (bei 360 Breite ist es knapp).
+- [ ] Der Sprint-Button ist mindestens 72 Pixel groß, gut mit dem Daumen erreichbar und verdeckt nicht den Roblox-Joystick oder die Springen-Taste.
+- [ ] Alle Texte sind gut lesbar (mindestens 14 Pixel).
+- [ ] Die Meldungen verdecken das Spielfeld nicht zu sehr.
+- [ ] Beim Drehen des Geräts passt sich alles an.
+
+Nicht im Emulator prüfbar: Touch-Gefühl, Leistung auf einem echten Handy und die tatsächlichen sicheren Ränder. Das bitte einmal auf einem echten Gerät testen.

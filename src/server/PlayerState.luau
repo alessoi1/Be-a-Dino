@@ -56,7 +56,12 @@ end
 local function publish(player: Player, state: GrowthState)
 	player:SetAttribute("Points", math.floor(state.points))
 	player:SetAttribute("Stage", Dinos[state.stageIndex].id)
+	player:SetAttribute("StageIndex", state.stageIndex)
 	player:SetAttribute("StageProgress", math.floor(Growth.progress(Dinos, state) * 100) / 100)
+	player:SetAttribute("Scale", math.floor(Growth.scaleFor(Dinos, state) * 100) / 100)
+	local nextIndex, missing = Growth.pointsToNext(Dinos, state)
+	player:SetAttribute("NextStage", if nextIndex ~= nil then Dinos[nextIndex].id else "")
+	player:SetAttribute("PointsToNext", missing)
 end
 
 -- Registers a handler that is called with the new stage id when a player turns into
@@ -122,6 +127,8 @@ local function reset(player: Player)
 	appliedScale[player.UserId] = Growth.scaleFor(Dinos, state)
 	protectedUntil[player.UserId] = ServerClock.now() + Arena.spawnProtectionSeconds
 	publish(player, state)
+	-- The respawn countdown (set when eaten) is over once the state starts over.
+	player:SetAttribute("RespawnAt", 0)
 	notifyStage(player, Dinos[state.stageIndex].id, "reset")
 	log.info("state reset", { userId = player.UserId })
 end
