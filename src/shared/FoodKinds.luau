@@ -32,6 +32,22 @@ function FoodKinds.pick(kinds: { Kind }, roll: number): number
 	return #kinds
 end
 
+-- Average value of a piece of food. Without `weights` the weights of the kinds count, with
+-- `weights` (a zone) those per kind id.
+function FoodKinds.averageValue(kinds: { Kind }, weights: { [string]: number }?): number
+	local total = 0
+	local sum = 0
+	for _, kind in kinds do
+		local weight = if weights ~= nil then math.max(0, weights[kind.id] or 0) else kind.weight
+		total += weight
+		sum += weight * kind.value
+	end
+	if total <= 0 then
+		return 0
+	end
+	return sum / total
+end
+
 -- Like pick, but with its own weights per kind id (a zone of the arena). Kinds without an
 -- entry have no chance. Without any usable weight the normal weights are used.
 function FoodKinds.pickWeighted(kinds: { Kind }, weights: { [string]: number }, roll: number): number

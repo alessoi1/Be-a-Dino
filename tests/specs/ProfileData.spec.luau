@@ -166,3 +166,41 @@ test("ProfileData: a version 1 profile is migrated to the current version", func
 	assertEquals(raw.version, 1, "input stays untouched")
 	assertEquals(raw.ownedSkins, nil)
 end)
+
+test("ProfileData: a new profile has no coins and invalid coins are rejected", function()
+	assertEquals(ProfileData.new(1).coins, 0)
+	local function rejects(value: any)
+		local data: any = ProfileData.new(1)
+		data.coins = value
+		assertTrue(not ProfileData.validate(data, Profile), tostring(value))
+	end
+	rejects(-1)
+	rejects(0 / 0)
+	rejects(1.5)
+	rejects("5")
+	rejects(Profile.maxCoins + 1)
+	local data: any = ProfileData.new(1)
+	data.coins = Profile.maxCoins
+	assertTrue((ProfileData.validate(data, Profile)))
+end)
+
+test("ProfileData: a version 2 profile is migrated and keeps everything", function()
+	local raw: any = {
+		version = 2,
+		createdAt = 9,
+		reachedStages = { compy = true },
+		bestPoints = 12,
+		ownedSkins = { compy_berry = true },
+		equippedSkins = { compy = "compy_berry" },
+	}
+	local migrated: any = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	assertEquals(migrated.version, ProfileData.VERSION)
+	assertEquals(migrated.coins, 0)
+	assertEquals(migrated.bestPoints, 12)
+	assertTrue(migrated.ownedSkins.compy_berry)
+	assertEquals(migrated.equippedSkins.compy, "compy_berry")
+	assertEquals(raw.version, 2, "input stays untouched")
+	assertEquals(raw.coins, nil)
+	assertTrue((ProfileData.validate(migrated, Profile)))
+end)

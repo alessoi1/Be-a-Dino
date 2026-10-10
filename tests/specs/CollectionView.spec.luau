@@ -1,6 +1,13 @@
 --!strict
 local CollectionView = require("../../src/shared/CollectionView")
-local Dinos = require("../../src/shared/Config/Dinos")
+
+-- A fixed stage list, so this test does not change when the balance in Config/Dinos does.
+local Dinos = {
+	{ id = "compy", minPoints = 0 },
+	{ id = "raptor", minPoints = 50 },
+	{ id = "stego", minPoints = 200 },
+	{ id = "trex", minPoints = 600 },
+}
 local Framework = require("../Framework")
 
 local test = Framework.test

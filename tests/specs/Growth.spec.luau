@@ -1,7 +1,14 @@
 --!strict
 local Framework = require("../Framework")
 local Growth = require("../../src/shared/Growth")
-local Dinos = require("../../src/shared/Config/Dinos")
+
+-- A fixed stage list, so these tests do not change when the balance in Config/Dinos does.
+local Dinos = {
+	{ id = "compy", minPoints = 0, scale = 1, speed = 20, foodUnit = 1 },
+	{ id = "raptor", minPoints = 50, scale = 1.8, speed = 22, foodUnit = 1 },
+	{ id = "stego", minPoints = 200, scale = 3, speed = 18, foodUnit = 1 },
+	{ id = "trex", minPoints = 600, scale = 5, speed = 20, foodUnit = 1 },
+}
 
 local test = Framework.test
 local assertEquals = Framework.assertEquals
@@ -132,4 +139,23 @@ test("Growth: highest stage is remembered, reset after eaten", function()
 	local fresh = Growth.newState()
 	assertEquals(fresh.stageIndex, 1)
 	assertEquals(fresh.points, 0)
+end)
+
+test("Growth: big numbers keep progress and scale in range", function()
+	local big = {
+		{ id = "a", minPoints = 0, scale = 1, speed = 20, foodUnit = 1 },
+		{ id = "b", minPoints = 1000, scale = 2, speed = 20, foodUnit = 1 },
+		{ id = "c", minPoints = 1000000, scale = 4, speed = 20, foodUnit = 1 },
+		{ id = "d", minPoints = 1000000000, scale = 8, speed = 20, foodUnit = 1 },
+	}
+	local state = Growth.newState()
+	state = Growth.addPoints(big, state, 500000000)
+	assertEquals(state.stageIndex, 3)
+	local progress = Growth.progress(big, state)
+	assertNear(progress, (500000000 - 1000000) / (1000000000 - 1000000), 1e-12)
+	local scale = Growth.scaleFor(big, state)
+	assertTrue(scale > 4 and scale < 8, "scale " .. scale)
+	local top = Growth.addPoints(big, state, 5000000000)
+	assertEquals(top.stageIndex, 4)
+	assertEquals(Growth.scaleFor(big, top), 8)
 end)

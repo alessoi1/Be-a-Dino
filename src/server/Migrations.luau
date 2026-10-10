@@ -10,4 +10,10 @@ return {
 		data.version = 2
 		return data
 	end,
+	-- 2 -> 3: coins.
+	function(data: any): any
+		data.coins = 0
+		data.version = 3
+		return data
+	end,
 }
