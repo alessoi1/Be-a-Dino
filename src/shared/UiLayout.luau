@@ -8,6 +8,9 @@ export type Config = {
 	buttonFraction: number,
 	buttonMin: number,
 	buttonMax: number,
+	smallButtonFraction: number,
+	smallButtonMin: number,
+	smallButtonMax: number,
 	minTextSize: number,
 }
 
@@ -37,6 +40,15 @@ function UiLayout.buttonSize(config: Config, width: number, height: number): num
 		return config.buttonMin
 	end
 	return math.clamp(math.floor(side * config.buttonFraction), config.buttonMin, config.buttonMax)
+end
+
+-- Edge length of a small round menu button in pixels (still a touch target).
+function UiLayout.smallButtonSize(config: Config, width: number, height: number): number
+	local side = shortSide(width, height)
+	if side == 0 then
+		return config.smallButtonMin
+	end
+	return math.clamp(math.floor(side * config.smallButtonFraction), config.smallButtonMin, config.smallButtonMax)
 end
 
 -- Smallest base text size (at scale 1) that stays readable at the smallest layout scale.

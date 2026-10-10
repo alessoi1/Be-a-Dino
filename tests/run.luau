@@ -58,6 +58,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/Collection.spec")
 	end,
+	function()
+		require("./specs/CollectionView.spec")
+	end,
 }
 
 local passed = 0
