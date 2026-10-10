@@ -27,6 +27,10 @@ jobs:
       # Installs Rokit and every tool pinned in rokit.toml.
       - uses: CompeyDev/setup-rokit@v0.1.2
 
+      # ServerPackages/ is not in Git; the Rojo build needs it.
+      - name: Install packages (Wally)
+        run: wally install
+
       - name: Format (StyLua)
         run: stylua --check src tests
 

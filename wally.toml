@@ -1,0 +1,10 @@
+[package]
+name = "alessoi1/be-a-dino"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+private = true
+
+[server-dependencies]
+# Package and version checked against the Wally registry (realm: server).
+ProfileStore = "lm-loleris/profilestore@1.0.3"

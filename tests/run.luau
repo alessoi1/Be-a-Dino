@@ -49,6 +49,15 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/UiLayout.spec")
 	end,
+	function()
+		require("./specs/ProfileData.spec")
+	end,
+	function()
+		require("./specs/DataLogic.spec")
+	end,
+	function()
+		require("./specs/Collection.spec")
+	end,
 }
 
 local passed = 0
