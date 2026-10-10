@@ -28,6 +28,22 @@ function Coins.forStages(fromIndex: number, toIndex: number, factor: number): nu
 	return total
 end
 
+-- Coins for eating a player who was on the given stage. `multiplier` is 1 normally and higher
+-- for a player with a bounty.
+function Coins.forKill(victimStageIndex: number, factor: number, multiplier: number): number
+	if
+		not isFinite(victimStageIndex)
+		or not isFinite(factor)
+		or not isFinite(multiplier)
+		or victimStageIndex < 1
+		or factor <= 0
+		or multiplier <= 0
+	then
+		return 0
+	end
+	return math.floor(math.floor(victimStageIndex) * factor * multiplier)
+end
+
 -- Returns the new amount: `coins` plus `amount`, never above `max`. Invalid or non-positive
 -- amounts change nothing.
 function Coins.add(coins: number, amount: number, max: number): number

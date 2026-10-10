@@ -91,6 +91,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/Dinos.spec")
 	end,
+	function()
+		require("./specs/Bounty.spec")
+	end,
+	function()
+		require("./specs/DeathOffer.spec")
+	end,
 }
 
 local passed = 0

@@ -52,3 +52,23 @@ test("Coins: add ignores invalid amounts and repairs invalid balances", function
 	assertEquals(Coins.add(0 / 0, 5, 1000), 0)
 	assertEquals(Coins.add(10.7, 1.4, 1000), 12, "whole coins")
 end)
+
+test("Coins: eating a player gives the stage number times the factor", function()
+	assertEquals(Coins.forKill(1, 1, 1), 1)
+	assertEquals(Coins.forKill(30, 1, 1), 30)
+	assertEquals(Coins.forKill(30, 2, 1), 60)
+end)
+
+test("Coins: a bounty multiplies the coins for eating", function()
+	assertEquals(Coins.forKill(30, 1, 3), 90)
+	assertEquals(Coins.forKill(7, 1, 3), 21)
+end)
+
+test("Coins: invalid input gives no coins for a kill", function()
+	assertEquals(Coins.forKill(0, 1, 1), 0)
+	assertEquals(Coins.forKill(-3, 1, 1), 0)
+	assertEquals(Coins.forKill(5, 0, 1), 0)
+	assertEquals(Coins.forKill(5, 1, 0), 0)
+	assertEquals(Coins.forKill(0 / 0, 1, 1), 0)
+	assertEquals(Coins.forKill(5, 1, math.huge), 0)
+end)
