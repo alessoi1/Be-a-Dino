@@ -11,7 +11,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 - [x] 1 Reine Logik mit Tests: `Growth` (Punkte zu Größe und Stufe), `EatRules` (wer wen fressen darf), `FoodSpawn` (Nachwuchs).
 - [x] 2 Arena (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md), Spawn, Bewegung (Mobile-Joystick), Kamera.
-- [ ] 3 Futter fressen und wachsen.
+- [x] 3 Futter fressen und wachsen (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md).
 - [ ] 4 Stufenwechsel mit Platzhalter-Modellen.
 - [ ] 5 Fressen zwischen Spielern, Schutzzeit, Respawn.
 - [ ] 6 Oberfläche und Handy-Test.

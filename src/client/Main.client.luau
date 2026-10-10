@@ -8,6 +8,7 @@ local Log = require(Shared:WaitForChild("Log"))
 
 local CameraController = require(script.Parent:WaitForChild("CameraController"))
 local SprintControl = require(script.Parent:WaitForChild("SprintControl"))
+local StatusDisplay = require(script.Parent:WaitForChild("StatusDisplay"))
 local DebugInput = require(script.Parent:WaitForChild("DebugInput"))
 
 local log = Log.new("Client")
@@ -15,4 +16,5 @@ log.info("client started")
 
 CameraController.start()
 SprintControl.start()
+StatusDisplay.start()
 DebugInput.start()
