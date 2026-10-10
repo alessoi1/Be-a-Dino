@@ -17,7 +17,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] 6 Oberfläche und Handy-Test (Code fertig, Studio- und Gerätetest offen, siehe docs/TESTLISTE.md).
 - [ ] 7 Speichern, Skins, Monetarisierung (nach Rückfrage und Prüfung der Roblox-Regeln):
   - [x] 7a Speichern: ProfileStore, Profilformat mit Migrationen, Collection und Bestwert (Code fertig, Studio-Test offen)
-  - [ ] 7b Collection-Menü
+  - [x] 7b Collection-Menü (Code fertig, Studio-Test offen)
   - [ ] 7c Skins (ein kostenloser pro Dino)
   - [ ] 7d Shop (bezahlte Skins, ProcessReceipt) nach Richtlinienprüfung
 

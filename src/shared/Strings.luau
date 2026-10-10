@@ -27,6 +27,20 @@ return {
 	leaderboard = {
 		title = "Bestenliste",
 	},
+	collection = {
+		-- Button and window title.
+		button = "Dinos",
+		title = "Sammlung",
+		-- %d of %d dinos reached
+		count = "%d von %d Dinos",
+		-- %d = points
+		best = "Bestwert: %d Punkte",
+		locked = "???",
+		-- %d = points needed
+		hint = "Ab %d Punkten",
+		guest = "Wird nicht gespeichert",
+		close = "X",
+	},
 	-- Messages when eating or being eaten (%s = name, %d = points).
 	notice = {
 		ate = "Du hast %s gefressen (+%d)",

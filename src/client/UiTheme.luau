@@ -16,4 +16,9 @@ return {
 	bodySize = 18,
 	-- Distance to the screen edge in pixels.
 	margin = 8,
+	-- Height of the status panel at the top left (base size); the menu button sits below it.
+	statusPanelHeight = 76,
+	-- Colors for dinos that are not reached yet.
+	lockedCard = Color3.fromRGB(70, 70, 70),
+	lockedText = Color3.fromRGB(190, 190, 190),
 }
