@@ -43,6 +43,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/SpawnPick.spec")
 	end,
+	function()
+		require("./specs/Leaderboard.spec")
+	end,
+	function()
+		require("./specs/UiLayout.spec")
+	end,
 }
 
 local passed = 0
