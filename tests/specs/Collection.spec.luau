@@ -1,6 +1,8 @@
 --!strict
 local Collection = require("../../src/shared/Collection")
-local Dinos = require("../../src/shared/Config/Dinos")
+
+-- A fixed stage list, so these tests do not change when the dinos in Config/Dinos do.
+local Dinos = { { id = "compy" }, { id = "raptor" }, { id = "stego" }, { id = "trex" } }
 local Framework = require("../Framework")
 
 local test = Framework.test

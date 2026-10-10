@@ -17,6 +17,18 @@ export type PartSpec = {
 
 export type Look = { parts: { PartSpec } }
 
+export type Color = { r: number, g: number, b: number }
+
+-- A short description of a look that DinoBody turns into parts (see src/shared/DinoBody.luau).
+export type Plan = {
+	template: string,
+	length: number,
+	height: number,
+	feature: number,
+	body: Color,
+	accent: Color,
+}
+
 local function block(
 	name: string,
 	size: { number },
@@ -90,6 +102,85 @@ local looks: { [string]: Look } = {
 	},
 }
 
+-- Colors for the planned dinos: the main color and the second color (claws, crests, plates ...).
+local palette: { { body: Color, accent: Color } } = {
+	{ body = { r = 100, g = 170, b = 90 }, accent = { r = 235, g = 215, b = 100 } },
+	{ body = { r = 225, g = 140, b = 60 }, accent = { r = 250, g = 230, b = 190 } },
+	{ body = { r = 110, g = 125, b = 150 }, accent = { r = 80, g = 190, b = 170 } },
+	{ body = { r = 140, g = 100, b = 70 }, accent = { r = 220, g = 190, b = 140 } },
+	{ body = { r = 190, g = 70, b = 60 }, accent = { r = 60, g = 50, b = 50 } },
+	{ body = { r = 120, g = 140, b = 70 }, accent = { r = 240, g = 160, b = 60 } },
+	{ body = { r = 130, g = 90, b = 170 }, accent = { r = 240, g = 160, b = 210 } },
+	{ body = { r = 80, g = 130, b = 200 }, accent = { r = 235, g = 240, b = 250 } },
+	{ body = { r = 210, g = 180, b = 120 }, accent = { r = 130, g = 90, b = 60 } },
+	{ body = { r = 60, g = 150, b = 150 }, accent = { r = 190, g = 230, b = 90 } },
+	{ body = { r = 150, g = 150, b = 155 }, accent = { r = 200, g = 70, b = 70 } },
+	{ body = { r = 60, g = 110, b = 80 }, accent = { r = 170, g = 230, b = 190 } },
+}
+
+local function plan(template: string, paletteIndex: number, length: number, height: number, feature: number): Plan
+	local colors = palette[paletteIndex]
+	return {
+		template = template,
+		length = length,
+		height = height,
+		feature = feature,
+		body = colors.body,
+		accent = colors.accent,
+	}
+end
+
+-- Dinos without a hand-written look above get one from their plan. The ids are the stages of
+-- Config/Dinos; each dino has exactly one of the two (a test checks it).
+local plans: { [string]: Plan } = {
+	dromaeo = plan("runner", 1, 0.9, 1.0, 0.3),
+	troodon = plan("runner", 4, 1.0, 1.2, 0.6),
+	oviraptor = plan("biped", 2, 0.8, 0.9, 0.8),
+	coelo = plan("runner", 3, 1.2, 1.0, 0.1),
+	deino = plan("biped", 5, 0.8, 1.0, 0.4),
+	gallimimus = plan("runner", 9, 1.5, 1.5, 0.2),
+	pachy = plan("biped", 6, 0.8, 0.9, 0.9),
+	dilopho = plan("biped", 8, 1.0, 1.0, 0.9),
+	iguano = plan("duckbill", 12, 1.0, 1.0, 0.2),
+	para = plan("duckbill", 10, 1.2, 1.1, 1.0),
+	proto = plan("horned", 9, 0.8, 0.8, 0.2),
+	ankylo = plan("armored", 4, 1.0, 0.9, 0.8),
+	allo = plan("biped", 11, 1.1, 1.1, 0.3),
+	cerato = plan("biped", 7, 1.0, 1.0, 0.7),
+	carno = plan("biped", 5, 1.0, 1.1, 0.8),
+	trike = plan("horned", 6, 1.2, 1.2, 0.9),
+	edmonto = plan("duckbill", 1, 1.4, 1.3, 0.4),
+	theri = plan("biped", 12, 0.9, 1.4, 0.5),
+	baryonyx = plan("biped", 3, 1.2, 1.0, 0.4),
+	utah = plan("biped", 2, 1.0, 1.0, 0.6),
+	alberto = plan("biped", 4, 1.2, 1.2, 0.1),
+	styraco = plan("horned", 2, 1.0, 1.0, 1.0),
+	kentro = plan("armored", 8, 1.1, 1.0, 1.0),
+	euoplo = plan("armored", 11, 1.2, 1.0, 0.5),
+	maia = plan("duckbill", 6, 1.0, 1.0, 0.5),
+	lambeo = plan("duckbill", 7, 1.2, 1.1, 0.9),
+	diplo = plan("longneck", 1, 1.2, 1.0, 0.6),
+	camara = plan("longneck", 10, 1.0, 1.0, 0.4),
+	apato = plan("longneck", 4, 1.3, 1.1, 0.5),
+	brachio = plan("longneck", 8, 1.0, 1.3, 1.0),
+	mamenchi = plan("longneck", 3, 1.0, 1.0, 1.0),
+	spino = plan("biped", 10, 1.3, 1.1, 1.0),
+	giganoto = plan("biped", 11, 1.2, 1.2, 0.4),
+	carcharo = plan("biped", 5, 1.2, 1.3, 0.6),
+	mapu = plan("biped", 9, 1.2, 1.2, 0.2),
+	acro = plan("biped", 6, 1.1, 1.1, 0.8),
+	toro = plan("horned", 4, 1.3, 1.3, 0.8),
+	sauropelta = plan("armored", 12, 1.2, 1.0, 0.9),
+	shantungo = plan("duckbill", 3, 1.5, 1.4, 0.6),
+	super = plan("longneck", 9, 1.4, 1.2, 0.6),
+	sauropo = plan("longneck", 7, 1.2, 1.2, 1.0),
+	dreadnought = plan("longneck", 11, 1.4, 1.3, 0.5),
+	argentino = plan("longneck", 1, 1.5, 1.4, 0.7),
+	patagotitan = plan("longneck", 2, 1.5, 1.5, 0.8),
+	puerta = plan("longneck", 12, 1.6, 1.4, 0.4),
+	titanosaur = plan("longneck", 5, 1.6, 1.6, 1.0),
+}
+
 return {
 	-- Most parts a dino look (placeholder or real model) may have.
 	maxParts = 12,
@@ -99,4 +190,5 @@ return {
 		seconds = 1.5,
 	},
 	looks = looks,
+	plans = plans,
 }

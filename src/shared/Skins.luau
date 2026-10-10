@@ -172,9 +172,10 @@ function Skins.validate(skins: { Skin }, stages: { Stage }, maxIdLength: number)
 		end
 	end
 
+	-- A dino may have no skins at all (it keeps its normal colors), but never two defaults.
 	for _, stage in stages do
-		if defaults[stage.id] ~= 1 then
-			table.insert(errors, stage.id .. ": needs exactly one default skin")
+		if (defaults[stage.id] or 0) > 1 then
+			table.insert(errors, stage.id .. ": has more than one default skin")
 		end
 	end
 	return errors
