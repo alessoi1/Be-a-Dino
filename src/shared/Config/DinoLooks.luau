@@ -11,12 +11,21 @@ export type PartSpec = {
 	size: { x: number, y: number, z: number },
 	offset: { x: number, y: number, z: number },
 	color: { r: number, g: number, b: number },
+	-- Which skin color replaces the color of this part: the main color or the second one.
+	role: "body" | "accent",
 }
 
 export type Look = { parts: { PartSpec } }
 
-local function block(name: string, size: { number }, offset: { number }, color: { number }): PartSpec
+local function block(
+	name: string,
+	size: { number },
+	offset: { number },
+	color: { number },
+	role: ("body" | "accent")?
+): PartSpec
 	return {
+		role = role or "body",
 		name = name,
 		shape = "Block",
 		size = { x = size[1], y = size[2], z = size[3] },
@@ -37,8 +46,8 @@ local looks: { [string]: Look } = {
 			block("Body", { 2, 1.6, 3.2 }, { 0, -1.4, 0 }, compyColor),
 			block("Head", { 1.4, 1.2, 1.6 }, { 0, -0.5, -2 }, compyColor),
 			block("Tail", { 0.8, 0.8, 2.6 }, { 0, -1.4, 2.8 }, compyColor),
-			block("LegLeft", { 0.5, 1, 0.5 }, { -0.6, -2.5, 0.2 }, compyColor),
-			block("LegRight", { 0.5, 1, 0.5 }, { 0.6, -2.5, 0.2 }, compyColor),
+			block("LegLeft", { 0.5, 1, 0.5 }, { -0.6, -2.5, 0.2 }, compyColor, "accent"),
+			block("LegRight", { 0.5, 1, 0.5 }, { 0.6, -2.5, 0.2 }, compyColor, "accent"),
 		},
 	},
 	raptor = {
@@ -48,8 +57,8 @@ local looks: { [string]: Look } = {
 			block("Tail", { 0.6, 0.6, 3.4 }, { 0, -1.2, 3.4 }, raptorColor),
 			block("LegLeft", { 0.5, 1.4, 0.7 }, { -0.6, -2.3, 0.3 }, raptorColor),
 			block("LegRight", { 0.5, 1.4, 0.7 }, { 0.6, -2.3, 0.3 }, raptorColor),
-			block("ClawLeft", { 0.3, 0.3, 0.6 }, { -0.6, -2.85, -0.5 }, { 245, 235, 215 }),
-			block("ClawRight", { 0.3, 0.3, 0.6 }, { 0.6, -2.85, -0.5 }, { 245, 235, 215 }),
+			block("ClawLeft", { 0.3, 0.3, 0.6 }, { -0.6, -2.85, -0.5 }, { 245, 235, 215 }, "accent"),
+			block("ClawRight", { 0.3, 0.3, 0.6 }, { 0.6, -2.85, -0.5 }, { 245, 235, 215 }, "accent"),
 		},
 	},
 	stego = {
@@ -61,22 +70,22 @@ local looks: { [string]: Look } = {
 			block("LegFrontRight", { 0.9, 1.2, 0.9 }, { 1.1, -2.4, -1.4 }, stegoColor),
 			block("LegBackLeft", { 0.9, 1.2, 0.9 }, { -1.1, -2.4, 1.4 }, stegoColor),
 			block("LegBackRight", { 0.9, 1.2, 0.9 }, { 1.1, -2.4, 1.4 }, stegoColor),
-			block("Plate1", { 0.3, 1.4, 1 }, { 0, 1, -1.5 }, stegoPlate),
-			block("Plate2", { 0.3, 1.4, 1 }, { 0, 1, -0.5 }, stegoPlate),
-			block("Plate3", { 0.3, 1.4, 1 }, { 0, 1, 0.5 }, stegoPlate),
-			block("Plate4", { 0.3, 1.4, 1 }, { 0, 1, 1.5 }, stegoPlate),
+			block("Plate1", { 0.3, 1.4, 1 }, { 0, 1, -1.5 }, stegoPlate, "accent"),
+			block("Plate2", { 0.3, 1.4, 1 }, { 0, 1, -0.5 }, stegoPlate, "accent"),
+			block("Plate3", { 0.3, 1.4, 1 }, { 0, 1, 0.5 }, stegoPlate, "accent"),
+			block("Plate4", { 0.3, 1.4, 1 }, { 0, 1, 1.5 }, stegoPlate, "accent"),
 		},
 	},
 	trex = {
 		parts = {
 			block("Body", { 2.2, 2.6, 3.6 }, { 0, -0.9, 0.2 }, trexColor),
 			block("Head", { 1.8, 1.6, 2.4 }, { 0, 0.3, -2.6 }, trexColor),
-			block("Jaw", { 1.5, 0.5, 2 }, { 0, -0.7, -2.4 }, trexColor),
+			block("Jaw", { 1.5, 0.5, 2 }, { 0, -0.7, -2.4 }, trexColor, "accent"),
 			block("Tail", { 1, 1, 3.6 }, { 0, -0.6, 3.4 }, trexColor),
 			block("LegLeft", { 0.9, 1.8, 1.2 }, { -0.8, -2.1, 0.4 }, trexColor),
 			block("LegRight", { 0.9, 1.8, 1.2 }, { 0.8, -2.1, 0.4 }, trexColor),
-			block("ArmLeft", { 0.3, 0.3, 0.8 }, { -0.8, -0.6, -1.7 }, trexColor),
-			block("ArmRight", { 0.3, 0.3, 0.8 }, { 0.8, -0.6, -1.7 }, trexColor),
+			block("ArmLeft", { 0.3, 0.3, 0.8 }, { -0.8, -0.6, -1.7 }, trexColor, "accent"),
+			block("ArmRight", { 0.3, 0.3, 0.8 }, { 0.8, -0.6, -1.7 }, trexColor, "accent"),
 		},
 	},
 }

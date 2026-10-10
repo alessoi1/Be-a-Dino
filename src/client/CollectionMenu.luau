@@ -1,7 +1,8 @@
 --!strict
 -- Collection menu: a small button under the status panel opens a window with one card per
--- dino (reached or still unknown) and the best round. Reads the attributes the server
--- publishes (display only). Only checkable in Roblox Studio.
+-- dino (reached or still unknown), the best round and, behind a tap on a reached dino, the
+-- skin list of that dino. Reads the attributes the server publishes (display only).
+-- Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +13,7 @@ local Strings = require(Shared:WaitForChild("Strings"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
 
+local SkinList = require(script.Parent:WaitForChild("SkinList"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
@@ -33,7 +35,7 @@ local FALLBACK_COLOR = Color3.fromRGB(110, 200, 90)
 
 local CollectionMenu = {}
 
-type CardViews = { card: Frame, name: TextLabel, hint: TextLabel }
+type CardViews = { card: TextButton, name: TextLabel, hint: TextLabel }
 
 local function lookColor(stageId: string): Color3
 	local look = DinoLooks.looks[stageId]
@@ -42,6 +44,20 @@ local function lookColor(stageId: string): Color3
 		return FALLBACK_COLOR
 	end
 	return Color3.fromRGB(part.color.r, part.color.g, part.color.b)
+end
+
+local function newHeaderButton(parent: Instance, text: string): TextButton
+	local button = Instance.new("TextButton")
+	button.Text = text
+	button.FontFace = UiTheme.font
+	button.TextSize = UiTheme.titleSize
+	button.TextColor3 = UiTheme.text
+	button.BackgroundColor3 = UiTheme.panel
+	button.Size = UDim2.fromOffset(CLOSE_SIZE, CLOSE_SIZE)
+	button.Parent = parent
+	local corner = Instance.new("UICorner")
+	corner.Parent = button
+	return button
 end
 
 function CollectionMenu.start()
@@ -81,18 +97,13 @@ function CollectionMenu.start()
 	title.Position = UDim2.fromOffset(PADDING * 2, PADDING)
 	title.Size = UDim2.new(1, -(CLOSE_SIZE + PADDING * 3), 0, HEADER_HEIGHT)
 
-	local close = Instance.new("TextButton")
-	close.Text = Strings.collection.close
-	close.FontFace = UiTheme.font
-	close.TextSize = UiTheme.titleSize
-	close.TextColor3 = UiTheme.text
-	close.BackgroundColor3 = UiTheme.panel
+	local close = newHeaderButton(window, Strings.collection.close)
 	close.AnchorPoint = Vector2.new(1, 0)
 	close.Position = UDim2.new(1, -PADDING, 0, PADDING)
-	close.Size = UDim2.fromOffset(CLOSE_SIZE, CLOSE_SIZE)
-	close.Parent = window
-	local closeCorner = Instance.new("UICorner")
-	closeCorner.Parent = close
+
+	local back = newHeaderButton(window, Strings.collection.back)
+	back.Position = UDim2.fromOffset(PADDING, PADDING)
+	back.Visible = false
 
 	local countLabel = UiKit.newLabel(window, UiTheme.bodySize)
 	countLabel.Position = UDim2.fromOffset(PADDING * 2, PADDING + HEADER_HEIGHT)
@@ -102,18 +113,20 @@ function CollectionMenu.start()
 	bestLabel.Position = UDim2.fromOffset(PADDING * 2, PADDING + HEADER_HEIGHT + INFO_HEIGHT)
 	bestLabel.Size = UDim2.new(1, -PADDING * 4, 0, INFO_HEIGHT)
 
-	local guestLabel = UiKit.newLabel(window, UiTheme.bodySize)
-	guestLabel.Position = UDim2.fromOffset(PADDING * 2, PADDING + HEADER_HEIGHT + INFO_HEIGHT * 2)
-	guestLabel.Size = UDim2.new(1, -PADDING * 4, 0, INFO_HEIGHT)
-	guestLabel.Text = Strings.collection.guest
-	guestLabel.TextColor3 = UiTheme.own
+	-- Notice for guests, otherwise a hint that the cards can be tapped.
+	local noteLabel = UiKit.newLabel(window, UiTheme.bodySize)
+	noteLabel.Position = UDim2.fromOffset(PADDING * 2, PADDING + HEADER_HEIGHT + INFO_HEIGHT * 2)
+	noteLabel.Size = UDim2.new(1, -PADDING * 4, 0, INFO_HEIGHT)
 
 	local listTop = PADDING + HEADER_HEIGHT + INFO_HEIGHT * 3
+	local listPosition = UDim2.fromOffset(PADDING, listTop)
+	local listSize = UDim2.new(1, -PADDING * 2, 1, -(listTop + PADDING))
+
 	local list = Instance.new("ScrollingFrame")
 	list.BackgroundTransparency = 1
 	list.BorderSizePixel = 0
-	list.Position = UDim2.fromOffset(PADDING, listTop)
-	list.Size = UDim2.new(1, -PADDING * 2, 1, -(listTop + PADDING))
+	list.Position = listPosition
+	list.Size = listSize
 	list.CanvasSize = UDim2.new()
 	list.AutomaticCanvasSize = Enum.AutomaticSize.Y
 	list.ScrollBarThickness = 4
@@ -125,11 +138,39 @@ function CollectionMenu.start()
 	grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	grid.Parent = list
 
+	local skinList = SkinList.create(window, listPosition, listSize)
+
+	local reachedSet: { [string]: boolean } = {}
+
+	local function showCards()
+		skinList.hide()
+		list.Visible = true
+		back.Visible = false
+		title.Text = Strings.collection.title
+		title.Position = UDim2.fromOffset(PADDING * 2, PADDING)
+		countLabel.Visible = true
+		bestLabel.Visible = true
+		noteLabel.Visible = true
+	end
+
+	local function showSkins(dinoId: string)
+		list.Visible = false
+		back.Visible = true
+		title.Text = Strings.dinos[dinoId] or dinoId
+		title.Position = UDim2.fromOffset(CLOSE_SIZE + PADDING * 2, PADDING)
+		countLabel.Visible = false
+		bestLabel.Visible = false
+		noteLabel.Visible = false
+		skinList.show(dinoId)
+	end
+
 	local views: { CardViews } = {}
-	for index in Dinos do
-		local card = Instance.new("Frame")
+	for index, stage in Dinos do
+		local card = Instance.new("TextButton")
 		card.LayoutOrder = index
 		card.BorderSizePixel = 0
+		card.Text = ""
+		card.AutoButtonColor = false
 		card.Parent = list
 		local cardCorner = Instance.new("UICorner")
 		cardCorner.Parent = card
@@ -142,19 +183,31 @@ function CollectionMenu.start()
 		hint.Position = UDim2.new(0, PADDING, 1, -(PADDING + CARD_HINT_HEIGHT))
 		hint.Size = UDim2.new(1, -PADDING * 2, 0, CARD_HINT_HEIGHT)
 
+		card.Activated:Connect(function()
+			if reachedSet[stage.id] then
+				showSkins(stage.id)
+			end
+		end)
+
 		table.insert(views, { card = card, name = name, hint = hint })
 	end
 
 	local function refresh()
 		local reachedText = player:GetAttribute("Reached")
 		local best = player:GetAttribute("BestPoints")
-		local reachedSet = CollectionView.decodeReached(if typeof(reachedText) == "string" then reachedText else "")
+		reachedSet = CollectionView.decodeReached(if typeof(reachedText) == "string" then reachedText else "")
 		local cards = CollectionView.cards(Dinos, reachedSet)
 
 		local reached, total = CollectionView.summary(cards)
 		countLabel.Text = string.format(Strings.collection.count, reached, total)
 		bestLabel.Text = string.format(Strings.collection.best, if typeof(best) == "number" then best else 0)
-		guestLabel.Visible = player:GetAttribute("DataGuest") == true
+		if player:GetAttribute("DataGuest") == true then
+			noteLabel.Text = Strings.collection.guest
+			noteLabel.TextColor3 = UiTheme.own
+		else
+			noteLabel.Text = Strings.collection.skinsHint
+			noteLabel.TextColor3 = UiTheme.lockedText
+		end
 
 		for index, view in views do
 			local data = cards[index]
@@ -185,10 +238,14 @@ function CollectionMenu.start()
 
 	button.Activated:Connect(function()
 		window.Visible = not window.Visible
+		if window.Visible then
+			showCards()
+		end
 	end)
 	close.Activated:Connect(function()
 		window.Visible = false
 	end)
+	back.Activated:Connect(showCards)
 end
 
 return CollectionMenu

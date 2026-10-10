@@ -81,3 +81,11 @@ test("DataLogic: replaceContents keeps the same table and copies deeply", functi
 	source.nested.b = 99
 	assertEquals(target.nested.b, 3, "deep copy")
 end)
+
+test("DataLogic: a stored version 1 profile is migrated with the real migrations", function()
+	local raw = { version = 1, createdAt = 5, reachedStages = { compy = true }, bestPoints = 3 }
+	local outcome = DataLogic.prepare(raw, ProfileData, Migrations, 500, Profile)
+	assertEquals(outcome.status, "migrated")
+	assertEquals((outcome.data :: any).version, ProfileData.VERSION)
+	assertEquals((outcome.data :: any).bestPoints, 3)
+end)

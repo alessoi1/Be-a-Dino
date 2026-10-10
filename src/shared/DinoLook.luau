@@ -10,6 +10,7 @@ type PartSpec = {
 	size: { x: number, y: number, z: number },
 	offset: { x: number, y: number, z: number },
 	color: { r: number, g: number, b: number },
+	role: string,
 }
 type Look = { parts: { PartSpec } }
 type Stage = { id: string }
@@ -36,6 +37,9 @@ local function checkPart(stageId: string, spec: PartSpec, errors: { string })
 			table.insert(errors, where .. ": offset must be finite")
 			break
 		end
+	end
+	if spec.role ~= "body" and spec.role ~= "accent" then
+		table.insert(errors, where .. ": role must be body or accent")
 	end
 	for _, value in { spec.color.r, spec.color.g, spec.color.b } do
 		if not isFinite(value) or value < 0 or value > 255 then
