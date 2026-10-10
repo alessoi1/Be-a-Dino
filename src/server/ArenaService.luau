@@ -34,7 +34,22 @@ local function makePart(parent: Instance, name: string, size: Vector3, position:
 	part.Parent = parent
 end
 
+-- Parts of the Studio baseplate template. Its top lies at the same height as the arena floor,
+-- so both flicker (z-fighting) and the grey ground shows through. They are removed at the start.
+local TEMPLATE_PARTS = { "Baseplate", "SpawnLocation" }
+
+local function removeTemplateParts()
+	for _, name in TEMPLATE_PARTS do
+		local part = workspace:FindFirstChild(name)
+		if part ~= nil then
+			part:Destroy()
+			log.info("template part removed", { name = name })
+		end
+	end
+end
+
 local function build()
+	removeTemplateParts()
 	local existing = workspace:FindFirstChild("Arena")
 	if existing ~= nil then
 		existing:Destroy()
