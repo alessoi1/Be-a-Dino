@@ -131,6 +131,15 @@ local function onPlayerAdded(player: Player)
 	player:SetAttribute("Stamina", 1)
 end
 
+-- Call after the server moved a character on purpose (lobby to arena and back), so the
+-- plausibility check does not take the jump for a teleport hack.
+function MovementService.noteTeleport(player: Player)
+	local data = datas[player.UserId]
+	if data ~= nil then
+		data.lastPos = nil
+	end
+end
+
 function MovementService.start(limiter: Limiter)
 	local sprintRemote = Remotes.event(Remotes.names.sprint)
 	sprintRemote.OnServerEvent:Connect(function(player: Player, active: any)

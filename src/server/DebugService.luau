@@ -37,6 +37,9 @@ function DebugService.start(limiter: Limiter)
 			return
 		end
 		lastCall[player.UserId] = now
+		if PlayerState.getMode(player) ~= "playing" then
+			return
+		end
 		PlayerState.addPoints(player, DebugConfig.growPoints)
 		log.info("debug grow", { userId = player.UserId, points = DebugConfig.growPoints })
 	end)

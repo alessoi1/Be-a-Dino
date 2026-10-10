@@ -1,7 +1,8 @@
 --!strict
--- Collection menu: a small button under the status panel opens a window with one card per
--- dino (reached or still unknown), the best round and, behind a tap on a reached dino, the
--- skin list of that dino. Reads the attributes the server publishes (display only).
+-- Collection menu (the dinodex): standing in the dinodex circle of the lobby opens a window
+-- with one card per dino (reached or still unknown), the best round and, behind a tap on a
+-- reached dino, the skin list of that dino. Reads the attributes the server publishes (display
+-- only).
 -- Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
@@ -15,7 +16,6 @@ local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"
 
 local SkinList = require(script.Parent:WaitForChild("SkinList"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
-local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 -- Window and cards (base sizes in pixels).
@@ -63,26 +63,6 @@ end
 function CollectionMenu.start()
 	local player = Players.LocalPlayer
 	local gui = UiKit.newGui("CollectionMenu")
-
-	local button = Instance.new("TextButton")
-	button.Name = "CollectionButton"
-	button.Text = Strings.collection.button
-	button.FontFace = UiTheme.font
-	button.TextSize = UiTheme.bodySize
-	button.TextColor3 = UiTheme.text
-	button.BackgroundColor3 = UiTheme.accent
-	button.AutoButtonColor = true
-	button.Parent = gui
-	local buttonCorner = Instance.new("UICorner")
-	buttonCorner.CornerRadius = UDim.new(0.5, 0)
-	buttonCorner.Parent = button
-
-	UiMetrics.watch(function()
-		local scale = UiMetrics.scale()
-		local size = UiMetrics.smallButtonSize()
-		button.Size = UDim2.fromOffset(size, size)
-		button.Position = UDim2.fromOffset(UiTheme.margin, (UiTheme.margin * 2 + UiTheme.statusPanelHeight) * scale)
-	end)
 
 	local window = UiKit.newPanel(gui)
 	window.Name = "CollectionWindow"
@@ -236,12 +216,17 @@ function CollectionMenu.start()
 	end
 	refresh()
 
-	button.Activated:Connect(function()
-		window.Visible = not window.Visible
-		if window.Visible then
+	-- The window is open while the player stands in the dinodex circle (the server decides
+	-- the zone); the X button closes it until the circle is entered again.
+	local function applyZone()
+		local inside = player:GetAttribute("ZoneId") == "dex"
+		if inside and not window.Visible then
 			showCards()
 		end
-	end)
+		window.Visible = inside
+	end
+	player:GetAttributeChangedSignal("ZoneId"):Connect(applyZone)
+	applyZone()
 	close.Activated:Connect(function()
 		window.Visible = false
 	end)

@@ -1,6 +1,6 @@
 --!strict
--- Builds the arena (floor and walls from parts) and places every new character
--- at a random spot inside it. Only checkable in Roblox Studio.
+-- Builds the arena (floor, walls and the oasis from parts) and finds a spawn spot inside it
+-- for players who enter from the lobby. Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,6 +11,9 @@ local FoodSpawn = require(Shared:WaitForChild("FoodSpawn"))
 local SpawnPick = require(Shared:WaitForChild("SpawnPick"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
+
+local Build = require(script.Parent:WaitForChild("Build"))
+local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 
 local log = Log.new("ArenaService")
 
@@ -56,51 +59,28 @@ local BEACON_HEIGHT = 80
 local BEACON_DIAMETER = 3
 local BEACON_TRANSPARENCY = 0.6
 
--- A round part standing upright along Y (Roblox cylinders lie along X by default).
-local function makeCylinder(
-	parent: Instance,
-	name: string,
-	height: number,
-	diameter: number,
-	bottomY: number,
-	color: Color3,
-	material: Enum.Material,
-	transparency: number
-)
-	local part = Instance.new("Part")
-	part.Name = name
-	part.Shape = Enum.PartType.Cylinder
-	part.Size = Vector3.new(height, diameter, diameter)
-	part.CFrame = CFrame.new(0, bottomY + height / 2, 0) * CFrame.Angles(0, 0, math.rad(90))
-	part.Anchored = true
-	part.CanCollide = false
-	part.CanTouch = false
-	part.CanQuery = false
-	part.CastShadow = false
-	part.Color = color
-	part.Material = material
-	part.Transparency = transparency
-	part.Parent = parent
-end
-
 local function buildOasis(folder: Instance)
 	local radius = FoodConfig.zones.center.radius
-	makeCylinder(
+	Build.cylinder(
 		folder,
 		"Oasis",
 		OASIS_THICKNESS,
 		radius * 2,
 		0,
+		0,
+		0,
 		Color3.fromRGB(70, 140, 210),
 		Enum.Material.SmoothPlastic,
 		0
 	)
-	makeCylinder(
+	Build.cylinder(
 		folder,
 		"OasisBeacon",
 		BEACON_HEIGHT,
 		BEACON_DIAMETER,
 		OASIS_THICKNESS,
+		0,
+		0,
 		Color3.fromRGB(150, 220, 255),
 		Enum.Material.Neon,
 		BEACON_TRANSPARENCY
@@ -150,13 +130,13 @@ local function randomPoint(): { x: number, z: number }
 	return { x = x, z = z }
 end
 
--- Of a few random spots, the one farthest from every other living player.
+-- Of a few random spots, the one farthest from every other player in the arena.
 function ArenaService.spawnPosition(spawning: Player): Vector3
 	local others: { { x: number, z: number } } = {}
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
-		if player ~= spawning and root ~= nil and root:IsA("BasePart") then
+		if player ~= spawning and PlayerState.getMode(player) == "playing" and root ~= nil and root:IsA("BasePart") then
 			table.insert(others, { x = root.Position.X, z = root.Position.Z })
 		end
 	end
@@ -174,33 +154,27 @@ function ArenaService.spawnPosition(spawning: Player): Vector3
 	return Vector3.new(best.x, SPAWN_HEIGHT, best.z)
 end
 
-local function placeCharacter(player: Player, character: Model)
+-- Puts the character of a player into the arena (entering from the lobby). Returns false
+-- when the character cannot be moved.
+function ArenaService.placeInArena(player: Player): boolean
+	local character = player.Character
+	if character == nil then
+		return false
+	end
 	local position = ArenaService.spawnPosition(player)
 	local ok, err = pcall(function()
 		character:PivotTo(CFrame.new(position))
 	end)
 	if not ok then
 		log.error("spawn placement failed", { userId = player.UserId, error = tostring(err) })
-		return
+		return false
 	end
-	log.info("spawned", { userId = player.UserId, x = position.X, z = position.Z })
-end
-
-local function onPlayerAdded(player: Player)
-	player.CharacterAdded:Connect(function(character: Model)
-		placeCharacter(player, character)
-	end)
-	if player.Character ~= nil then
-		placeCharacter(player, player.Character)
-	end
+	log.info("spawned in arena", { userId = player.UserId, x = position.X, z = position.Z })
+	return true
 end
 
 function ArenaService.start()
 	build()
-	Players.PlayerAdded:Connect(onPlayerAdded)
-	for _, player in Players:GetPlayers() do
-		onPlayerAdded(player)
-	end
 	log.info("started")
 end
 

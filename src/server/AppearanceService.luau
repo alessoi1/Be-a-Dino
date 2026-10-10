@@ -232,7 +232,7 @@ function AppearanceService.playCloud(character: Model)
 	Debris:AddItem(attachment, DinoLooks.effect.seconds + CLOUD_LIFETIME_MAX)
 end
 
-local function onStage(player: Player, stageId: string, reason: "reset" | "grow")
+local function onStage(player: Player, stageId: string, reason: "reset" | "grow" | "round")
 	local character = player.Character
 	if character == nil then
 		return
@@ -246,7 +246,7 @@ local function onStage(player: Player, stageId: string, reason: "reset" | "grow"
 		end
 		if reason == "grow" then
 			AppearanceService.playCloud(character)
-		else
+		elseif reason == "round" then
 			showProtection(character)
 		end
 	end)

@@ -17,6 +17,9 @@ local Remotes = {
 		debugGrow = "DebugGrow",
 		-- client -> server event: (skinId: string), the player chooses a skin (checked by the server)
 		equipSkin = "EquipSkin",
+		-- client -> server event: (active: boolean), the player asks to go back to the lobby (true)
+		-- or cancels the wait (false); the server checks mode and time
+		leaveArena = "LeaveArena",
 		-- server -> client event: (kind: "ate" | "eaten", otherName: string, points: number), display only
 		notice = "Notice",
 	},

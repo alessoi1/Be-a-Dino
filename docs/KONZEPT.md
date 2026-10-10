@@ -162,6 +162,8 @@ Nach dem erfolgreichen ersten Studio-Test (Schritte 2 bis 7, Oase, Baseplate-Fix
 - **Glückseier gegen Robux** (erhöhte Chancen auf gute Aussehen): vielleicht, noch nicht entschieden. Wären bezahlte Zufallsobjekte mit allen Pflichten (Chancen in Prozent, `PolicyService`, kein Handel).
 - **Beim Planen noch zu klären** (pro Schritt): Zahlenwörter international (K, M, B, T …), Platzhalter-Dinos für die 50 Dinos (erzeugt, bis echte Modelle da sind), Verhältnis von Varianten zu den heutigen Skins, Autofarm gegen AFK-Missbrauch (zählt Autofarm für „längste Spielzeit“?), Größe der Lobby und Verhalten beim Verlassen der Arena.
 
+**L1 Lobby (entschieden):** Plattform 140 × 140 Studs, 100 Studs über dem Arena-Boden, mittig über der Oase, mit gläsernem Geländer. Vier Kreise: Play (Radius 12, 2 Sekunden Warten), Shop, Dinodex und Boosters (Radius 7, öffnen sofort ihr Fenster). Höchstens 24 Spieler gleichzeitig in der Arena. In der Arena bringt ein „Lobby“-Knopf nach 5 Sekunden zurück (tippen bricht ab). Wer gefressen wird, landet nach dem Neustart-Countdown in der Lobby. Dinodex und Skin-Liste gibt es nur noch über den Kreis in der Lobby. Shop und Boosters sind vorerst „Coming soon“-Fenster. Die Werte stehen in `Config/Lobby`.
+
 **Roadmap Ausbau:**
 
 1. **L1 Lobby:** Lobby über der Arena, Spielkreis, Kreise für Shop, Dinodex und Booster, Spielzustand Lobby oder Spiel.

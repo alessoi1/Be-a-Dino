@@ -29,6 +29,17 @@ function UiKit.addScale(target: GuiObject): UIScale
 	return uiScale
 end
 
+-- Shows the ScreenGui only while the player is in the given mode ("lobby" or "playing"). The
+-- server publishes the mode as a player attribute.
+function UiKit.showOnlyInMode(gui: ScreenGui, mode: string)
+	local player = Players.LocalPlayer
+	local function apply()
+		gui.Enabled = player:GetAttribute("Mode") == mode
+	end
+	player:GetAttributeChangedSignal("Mode"):Connect(apply)
+	apply()
+end
+
 function UiKit.newLabel(parent: Instance, textSize: number): TextLabel
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1

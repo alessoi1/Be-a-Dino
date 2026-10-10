@@ -56,20 +56,14 @@ test("Zones: validate reports broken layouts", function()
 	assertTrue(#problems({ { id = "a", x = 0, z = 0, radius = 0, dwell = 0 } }) > 0, "radius 0")
 	assertTrue(#problems({ { id = "a", x = 0, z = 0, radius = 5, dwell = -1 } }) > 0, "negative dwell")
 	assertTrue(#problems({ { id = "a", x = 65, z = 0, radius = 7, dwell = 0 } }) > 0, "outside the platform")
-	assertTrue(
-		#problems({
-				{ id = "a", x = 0, z = 0, radius = 5, dwell = 0 },
-				{ id = "a", x = 30, z = 0, radius = 5, dwell = 0 },
-			}) > 0,
-		"duplicate id"
-	)
-	assertTrue(
-		#problems({
-				{ id = "a", x = 0, z = 0, radius = 10, dwell = 0 },
-				{ id = "b", x = 15, z = 0, radius = 10, dwell = 0 },
-			}) > 0,
-		"overlap"
-	)
+	assertTrue(#problems({
+		{ id = "a", x = 0, z = 0, radius = 5, dwell = 0 },
+		{ id = "a", x = 30, z = 0, radius = 5, dwell = 0 },
+	}) > 0, "duplicate id")
+	assertTrue(#problems({
+		{ id = "a", x = 0, z = 0, radius = 10, dwell = 0 },
+		{ id = "b", x = 15, z = 0, radius = 10, dwell = 0 },
+	}) > 0, "overlap")
 	assertTrue(#problems({ { id = "a", x = 0 / 0, z = 0, radius = 5, dwell = 0 } }) > 0, "nan position")
 end)
 

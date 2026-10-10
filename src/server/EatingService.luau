@@ -98,7 +98,12 @@ local function tick()
 	local byId: { [number]: Player } = {}
 	for _, player in Players:GetPlayers() do
 		local humanoid, root = livingParts(player)
-		if humanoid ~= nil and root ~= nil and PlayerState.get(player) ~= nil then
+		if
+			humanoid ~= nil
+			and root ~= nil
+			and PlayerState.get(player) ~= nil
+			and PlayerState.getMode(player) == "playing"
+		then
 			local position = root.Position
 			table.insert(combatants, {
 				id = player.UserId,

@@ -46,6 +46,7 @@ function SprintControl.start()
 	end
 
 	local gui = UiKit.newGui("SprintControl")
+	UiKit.showOnlyInMode(gui, "playing")
 
 	local button = Instance.new("TextButton")
 	button.Name = "SprintButton"

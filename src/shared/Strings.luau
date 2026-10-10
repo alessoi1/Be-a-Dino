@@ -87,6 +87,26 @@ return {
 		-- Shown when the profile was opened on another server.
 		sessionEnded = "You were signed out because your data was opened on another server.",
 	},
+	lobby = {
+		-- Labels above the circles (by zone id, see Config/Lobby).
+		zones = {
+			play = "PLAY",
+			shop = "SHOP",
+			dex = "DINODEX",
+			boost = "BOOSTERS",
+		},
+		hint = "Step into a glowing circle",
+		-- %d = seconds until the arena is entered
+		entering = "Entering the arena in %d",
+		full = "Arena full, please wait",
+		-- Button in the arena that goes back to the lobby.
+		leave = "Lobby",
+		-- %d = seconds left; tapping again cancels
+		leaving = "Leaving in %d (tap to cancel)",
+		comingSoon = "Coming soon",
+		shopTitle = "Shop",
+		boostTitle = "Boosters",
+	},
 	respawn = {
 		-- %d = seconds
 		countdown = "Respawn in %d",

@@ -5,6 +5,8 @@ Zum Prüfen auf dem Handy: Studio Test-Tab, Geräte-Emulator.
 
 Vorbereitung, Reihenfolge und Fehlerberichte stehen in `docs/STUDIO-TEST.md`.
 
+**Seit der Lobby (Ausbau L1) startet jeder Spieler in der Lobby.** Für alle Tests mit Arena zuerst in den grünen Play-Kreis stellen (2 Sekunden). Dinodex, Skins und Shop öffnen nur über ihre Kreise in der Lobby, die Taste `G` (Debug-Punkte) wirkt nur in der Arena.
+
 ## Schritt 2: Arena, Bewegung, Sprint, Kamera
 
 Stand: noch nicht in Studio getestet.
@@ -184,3 +186,31 @@ Stand: noch nicht in Studio getestet. Am besten mit mehreren Spielern.
 - [ ] Wachstum in der Oase ist spürbar schneller. Notiere grob, wie lange man dort bis zum Raptor und zum Stego braucht.
 - [ ] Spieler erscheinen nie in der Oase und nicht unmittelbar daneben (mehrmals zurücksetzen und beobachten).
 - [ ] Mit mehreren Spielern: Treffen sich die Spieler wirklich in der Mitte? Ist es für kleine Dinos zu gefährlich oder gerade richtig? (Notizen für die Balance: Radius, Anzahl und Gewichte stehen in `Config/Food`.)
+
+## Ausbau L1: Lobby
+
+Stand: noch nicht in Studio getestet. Die Lobby ändert den Ablauf aller anderen Tests (siehe Hinweis am Anfang dieser Datei).
+
+Start und Lobby:
+- [ ] Output zeigt `LobbyService started` und `lobby built zones=4`, kein `lobby config invalid`.
+- [ ] Beim Betreten stehst du auf einer Plattform hoch über der Arena (100 Studs), mit einem gläsernen Geländer ringsum. Du blickst über das Geländer auf die Arena und die Oase. Du kannst nicht hinunterfallen.
+- [ ] Vier leuchtende Kreise mit schwebenden Schildern: PLAY (grün, Mitte), SHOP (gelb, links), DINODEX (blau, unten) und BOOSTERS (lila, rechts). Du erscheinst nie in einem Kreis.
+- [ ] Unten steht „Step into a glowing circle“. Oben links, oben rechts und die Sprint-Taste (Arena-Oberfläche) sind in der Lobby **nicht** zu sehen.
+- [ ] Die Kreise flackern nicht (keine Überlappung mit dem Boden).
+
+Kreise:
+- [ ] **Shop** und **Boosters**: Im Kreis öffnet sich ein Fenster mit „Coming soon“, beim Verlassen schließt es sich.
+- [ ] **Dinodex**: Im Kreis öffnet sich die Sammlung mit den Karten und Skins (wie vorher). Mit dem X schließt man sie, beim erneuten Betreten öffnet sie sich wieder. Ohne Kreis ist sie nicht erreichbar.
+- [ ] **Play**: Im Kreis erscheint „Entering the arena in 2“, dann 1. Wer vorher hinausgeht, bricht ab.
+
+Arena betreten und zurück:
+- [ ] Nach den 2 Sekunden stehst du in der Arena (an einem zufälligen Ort, nicht in der Oase, möglichst weit von anderen), du bist der kleine Compy mit weißem Schutz-Leuchten (4 Sekunden). Status, Bestenliste und Sprint-Taste erscheinen, der Lobby-Hinweis verschwindet. Im Log: `entered the arena`.
+- [ ] Oben im Bestenlistenfeld stehen nur Spieler aus der Arena, nicht die aus der Lobby.
+- [ ] Taste `G` gibt Punkte, aber nur in der Arena.
+- [ ] Unten Mitte steht der Knopf „Lobby“. Tippen startet „Leaving in 5 (tap to cancel)“. Nochmal tippen bricht ab. Läuft die Zeit ab, bist du wieder in der Lobby, klein und mit 0 Punkten. Im Log: `back in the lobby`.
+- [ ] Der Bestwert und die erreichten Dinos bleiben nach dem Zurückgehen erhalten (Dinodex prüfen).
+- [ ] Gefressen werden: „Respawn in 3“, danach bist du in der **Lobby** (nicht in der Arena).
+- [ ] Mit zwei Spielern: Ein Spieler in der Lobby kann nicht gefressen werden und frisst nichts. Der Spieler im Kreis sieht den anderen unten in der Arena.
+- [ ] Mehr als 24 Spieler gleichzeitig lassen sich nur mit Konfigurationsänderung testen: In `Config/Lobby` `maxPlaying = 1` setzen, mit zwei Spielern testen. Der zweite sieht im Kreis „Arena full, please wait“ und kommt nicht hinein, bis der erste geht.
+- [ ] Teleport hinauf und hinunter wird nicht als Tempo-Hack zurückgesetzt (kein `movement rejected` im Log).
+- [ ] Sprint-Taste unten rechts, der Springen-Button des Handys ist ausgeblendet (wie im Fix davor).
