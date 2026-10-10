@@ -4,7 +4,7 @@
 
 return {
 	-- Side length of the square arena floor.
-	size = 400,
+	size = 500,
 	-- Walls around the arena (studs).
 	wallHeight = 20,
 	wallThickness = 4,

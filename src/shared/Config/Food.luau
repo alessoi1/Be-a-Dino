@@ -19,7 +19,7 @@ local kinds: { FoodKind } = {
 return {
 	kinds = kinds,
 	-- How many pieces exist at most.
-	count = 300,
+	count = 450,
 	-- Seconds until an eaten piece comes back.
 	respawnSeconds = 8,
 	-- Pickup radius in studs: base plus this much per unit of the dino scale.
