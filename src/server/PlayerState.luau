@@ -32,6 +32,13 @@ local function applyScale(player: Player, state: GrowthState)
 	end
 end
 
+-- Display values for the client (read only there; the server is the only writer).
+local function publish(player: Player, state: GrowthState)
+	player:SetAttribute("Points", math.floor(state.points))
+	player:SetAttribute("Stage", Dinos[state.stageIndex].id)
+	player:SetAttribute("StageProgress", math.floor(Growth.progress(Dinos, state) * 100) / 100)
+end
+
 function PlayerState.get(player: Player): GrowthState?
 	return states[player.UserId]
 end
@@ -54,6 +61,7 @@ function PlayerState.addPoints(player: Player, amount: number)
 	local newState, changed = Growth.addPoints(Dinos, state, amount)
 	states[player.UserId] = newState
 	log.debug("points added", { userId = player.UserId, amount = amount, points = newState.points })
+	publish(player, newState)
 	if changed then
 		applyScale(player, newState)
 		log.info(
@@ -64,7 +72,9 @@ function PlayerState.addPoints(player: Player, amount: number)
 end
 
 local function reset(player: Player)
-	states[player.UserId] = Growth.newState()
+	local state = Growth.newState()
+	states[player.UserId] = state
+	publish(player, state)
 	log.info("state reset", { userId = player.UserId })
 end
 

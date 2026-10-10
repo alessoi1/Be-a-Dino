@@ -12,6 +12,7 @@ local RejectLimiter = require(script.Parent:WaitForChild("RejectLimiter"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ArenaService = require(script.Parent:WaitForChild("ArenaService"))
 local MovementService = require(script.Parent:WaitForChild("MovementService"))
+local FoodService = require(script.Parent:WaitForChild("FoodService"))
 local DebugService = require(script.Parent:WaitForChild("DebugService"))
 
 local log = Log.new("Main")
@@ -23,4 +24,5 @@ local limiter = RejectLimiter.new(Log.new("Remotes"), Movement.rejectLogInterval
 PlayerState.start()
 ArenaService.start()
 MovementService.start(limiter)
+FoodService.start()
 DebugService.start(limiter)
