@@ -48,3 +48,64 @@ test("FoodKinds: invalid configs are reported", function()
 	assertTrue(#FoodKinds.validate({ kind("a", -1, 5) }) > 0, "negative value")
 	assertTrue(#FoodKinds.validate({ kind("a", 1, 5), kind("a", 2, 5) }) > 0, "duplicate id")
 end)
+
+test("FoodKinds: pickWeighted follows the zone weights", function()
+	local weights = { a = 40, b = 40, c = 20 }
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0), 1)
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0.39), 1)
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0.4), 2)
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0.79), 2)
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0.8), 3)
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 1), 3)
+end)
+
+test("FoodKinds: pickWeighted skips kinds without weight and handles bad rolls", function()
+	local weights = { b = 10 }
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0), 2)
+	assertEquals(FoodKinds.pickWeighted(kinds, weights, 0.99), 2)
+	assertEquals(FoodKinds.pickWeighted(kinds, { a = 1, b = 1, c = 1 }, 0 / 0), 1)
+	assertEquals(FoodKinds.pickWeighted(kinds, {}, 0.5), FoodKinds.pick(kinds, 0.5), "no weights: the normal weights")
+end)
+
+local zones = { center = { radius = 60, count = 80, spawnClearance = 20, weights = { a = 40, b = 40, c = 20 } } }
+
+test("FoodKinds: validateZones accepts a good zone", function()
+	assertEquals(#FoodKinds.validateZones(kinds, zones, 500, 450, 4), 0)
+end)
+
+test("FoodKinds: the real zone config is valid", function()
+	local errors = FoodKinds.validateZones(FoodConfig.kinds, FoodConfig.zones, 500, FoodConfig.count, FoodConfig.margin)
+	assertEquals(table.concat(errors, "; "), "")
+end)
+
+test("FoodKinds: validateZones reports broken zones", function()
+	local function problems(change: (zone: any) -> ()): { string }
+		local zone = { radius = 60, count = 80, spawnClearance = 20, weights = { a = 40, b = 40, c = 20 } }
+		change(zone)
+		return FoodKinds.validateZones(kinds, { center = zone }, 500, 450, 4)
+	end
+	assertTrue(#problems(function(zone)
+		zone.radius = 0
+	end) > 0, "radius 0")
+	assertTrue(#problems(function(zone)
+		zone.radius = 300
+	end) > 0, "disc leaves the arena")
+	assertTrue(#problems(function(zone)
+		zone.count = 500
+	end) > 0, "more pieces than food")
+	assertTrue(#problems(function(zone)
+		zone.count = -1
+	end) > 0, "negative count")
+	assertTrue(#problems(function(zone)
+		zone.weights = { x = 5 }
+	end) > 0, "unknown kind")
+	assertTrue(#problems(function(zone)
+		zone.weights = { a = 0, b = 0 }
+	end) > 0, "no weight")
+	assertTrue(#problems(function(zone)
+		zone.weights = { a = -1, b = 5 }
+	end) > 0, "negative weight")
+	assertTrue(#problems(function(zone)
+		zone.spawnClearance = -5
+	end) > 0, "negative clearance")
+end)
