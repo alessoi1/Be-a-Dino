@@ -24,6 +24,7 @@ Das Projekt wird auf Mac und Windows bearbeitet. Deshalb:
 
 ```
 rokit install                    # Werkzeuge aus rokit.toml installieren
+wally install                    # Pakete aus wally.toml (ServerPackages, nicht im Git; vor rojo build nötig)
 rojo serve                       # Live-Sync nach Studio (im Rojo-Plugin "Connect")
 mkdir build                      # einmalig (Rojo legt den Ordner nicht an, er ist nicht im Git)
 rojo build -o build/BeDino.rbxl
@@ -109,4 +110,4 @@ Code formatiert, Lint sauber, Tests grün, Regeln oben eingehalten, kurze Notiz,
 
 ## Aktueller Stand
 
-(Von Hand pflegen.) Projekt neu aufgesetzt: Werkzeuge, CI, Log, Remotes, Test-Setup und leere Config-Dateien (`Config/Arena`, `Config/Dinos`) stehen. Noch nichts vom Spiel gebaut. Nächster Schritt: Entscheidungen in `docs/KONZEPT.md` (Abschnitt Offene Fragen) klären, dann Schritt 1 der Roadmap (reine Wachstums- und Stufenlogik mit Tests).
+(Von Hand pflegen.) Roadmap-Schritte 1 bis 6 sind im Code fertig (Logik mit Tests, Arena, Bewegung, Futter, Modelle, Fressen, Oberfläche), aber alles mit Roblox-Diensten ist noch nie in Studio gelaufen (Checklisten in `docs/TESTLISTE.md`). Schritt 7 (Speichern, Collection, Skins, Shop) ist in vier Branches 7a bis 7d geteilt, Stand siehe `docs/OFFEN.md`. Entscheidungen stehen in `docs/KONZEPT.md`.

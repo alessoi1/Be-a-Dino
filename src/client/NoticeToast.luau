@@ -64,6 +64,15 @@ function NoticeToast.start()
 		end
 	end)
 
+	-- The profile could not be loaded: tell the player once that nothing is saved.
+	local function showGuest()
+		if player:GetAttribute("DataGuest") == true then
+			show(Strings.data.guest)
+		end
+	end
+	player:GetAttributeChangedSignal("DataGuest"):Connect(showGuest)
+	showGuest()
+
 	-- Turning into a bigger dino (not the restart after being eaten, where the index drops).
 	local lastIndex = player:GetAttribute("StageIndex")
 	player:GetAttributeChangedSignal("StageIndex"):Connect(function()

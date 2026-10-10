@@ -104,7 +104,16 @@ Ergänzt zu Schritt 5 (Fressen):
 - **Respawn:** 3 Sekunden nach dem Gefressenwerden, dann vier Sekunden Schutz. Der Spawnpunkt ist von mehreren Zufallsorten der, der am weitesten von anderen Spielern entfernt liegt.
 - **Gefressenwerden:** Der Dino verschwindet mit einer Wolke (keine Leiche). Beide Beteiligten sehen kurz eine Meldung.
 
+Ergänzt zu Schritt 7 (Speichern, Skins, Shop):
+
+- **Aufteilung:** 7a Speichern, 7b Collection-Menü, 7c Skins, 7d Shop. Jeder Teil ist ein eigener Branch und PR.
+- **Speichern:** ProfileStore über Wally (`lm-loleris/profilestore@1.0.3`, genehmigt). Gespeichert werden erreichte Dinos und der Bestwert; später Skins und Kaufbelege. Die laufende Runde wird nicht gespeichert.
+- **Ladefehler:** Der Spieler spielt als Gast (ohne Speichern, Shop gesperrt) und sieht einen Hinweis. Kein Kick, außer wenn der Spielstand auf einem anderen Server geöffnet wurde.
+- **Futter-Booster:** Weggelassen. Erst nach Spieltests und neuer Richtlinienprüfung entscheiden (indirekter PvP-Vorteil gegen Robux).
+- **Skins:** Pro Dino ein kostenloser Skin (durch Erreichen einer Stufe) und ein bezahlter (Developer Product). Skins ändern keine Werte. Namen und Farben werden von mir vorgeschlagen und von dir geändert.
+- **Keine bezahlten Zufallsobjekte.**
+
 ## Weiterhin offen
 
-- Futter-Booster und Skins: bei Schritt 7 nochmals prüfen (bestätigt). Ein Wachstums-Plus hilft auch im PvP indirekt, daher Umfang (Dauer, Stärke, Begrenzung) und Richtlinien dort klären.
+- Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.
 - Sprint: Verbrauch, Aufladerate, ob man beim Sprinten fressen darf (Werte beim Testen).

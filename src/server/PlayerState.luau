@@ -20,9 +20,11 @@ type GrowthState = { points: number, stageIndex: number, highestStageIndex: numb
 local log = Log.new("PlayerState")
 
 type StageHandler = (player: Player, stageId: string, reason: "reset" | "grow") -> ()
+type PointsHandler = (player: Player, state: GrowthState) -> ()
 
 local states: { [number]: GrowthState } = {}
 local stageHandlers: { StageHandler } = {}
+local pointsHandlers: { PointsHandler } = {}
 -- Server time until which a player cannot be eaten (set at every respawn).
 local protectedUntil: { [number]: number } = {}
 -- The scale last applied to the character, to skip tiny rescales.
@@ -70,6 +72,12 @@ function PlayerState.onStage(handler: StageHandler)
 	table.insert(stageHandlers, handler)
 end
 
+-- Registers a handler that is called with the new state after every change of the points.
+-- It runs often (every piece of food), so it must be cheap.
+function PlayerState.onPoints(handler: PointsHandler)
+	table.insert(pointsHandlers, handler)
+end
+
 function PlayerState.get(player: Player): GrowthState?
 	return states[player.UserId]
 end
@@ -106,6 +114,12 @@ function PlayerState.addPoints(player: Player, amount: number)
 	states[player.UserId] = newState
 	log.debug("points added", { userId = player.UserId, amount = amount, points = newState.points })
 	publish(player, newState)
+	for _, handler in pointsHandlers do
+		local ok, err = pcall(handler, player, newState)
+		if not ok then
+			log.error("points handler failed", { userId = player.UserId, error = tostring(err) })
+		end
+	end
 	local scale = Growth.scaleFor(Dinos, newState)
 	local scaleStepped = math.abs(scale - (appliedScale[player.UserId] or 1)) >= GrowthConfig.scaleApplyStep
 	if changed or scaleStepped then
