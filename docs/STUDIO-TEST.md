@@ -46,7 +46,7 @@ Server:
 [BeDino][Receipts] handler registered name=skins
 [BeDino][SkinService] started
 [BeDino][MovementService] started
-[BeDino][FoodService] food placed count=450
+[BeDino][FoodService] food placed count=450 oasis=80
 [BeDino][FoodService] started
 [BeDino][PlayerCollision] started
 [BeDino][EatingService] started

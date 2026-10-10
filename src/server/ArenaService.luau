@@ -10,6 +10,7 @@ local Log = require(Shared:WaitForChild("Log"))
 local FoodSpawn = require(Shared:WaitForChild("FoodSpawn"))
 local SpawnPick = require(Shared:WaitForChild("SpawnPick"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
+local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
 local log = Log.new("ArenaService")
 
@@ -48,6 +49,64 @@ local function removeTemplateParts()
 	end
 end
 
+-- The oasis in the middle: a flat disc just above the floor and a thin light column that
+-- shows from afar where the middle is (looks only, no collision).
+local OASIS_THICKNESS = 0.2
+local BEACON_HEIGHT = 80
+local BEACON_DIAMETER = 3
+local BEACON_TRANSPARENCY = 0.6
+
+-- A round part standing upright along Y (Roblox cylinders lie along X by default).
+local function makeCylinder(
+	parent: Instance,
+	name: string,
+	height: number,
+	diameter: number,
+	bottomY: number,
+	color: Color3,
+	material: Enum.Material,
+	transparency: number
+)
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Shape = Enum.PartType.Cylinder
+	part.Size = Vector3.new(height, diameter, diameter)
+	part.CFrame = CFrame.new(0, bottomY + height / 2, 0) * CFrame.Angles(0, 0, math.rad(90))
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	part.CastShadow = false
+	part.Color = color
+	part.Material = material
+	part.Transparency = transparency
+	part.Parent = parent
+end
+
+local function buildOasis(folder: Instance)
+	local radius = FoodConfig.zones.center.radius
+	makeCylinder(
+		folder,
+		"Oasis",
+		OASIS_THICKNESS,
+		radius * 2,
+		0,
+		Color3.fromRGB(70, 140, 210),
+		Enum.Material.SmoothPlastic,
+		0
+	)
+	makeCylinder(
+		folder,
+		"OasisBeacon",
+		BEACON_HEIGHT,
+		BEACON_DIAMETER,
+		OASIS_THICKNESS,
+		Color3.fromRGB(150, 220, 255),
+		Enum.Material.Neon,
+		BEACON_TRANSPARENCY
+	)
+end
+
 local function build()
 	removeTemplateParts()
 	local existing = workspace:FindFirstChild("Arena")
@@ -78,6 +137,8 @@ local function build()
 	makePart(folder, "WallWest", Vector3.new(thick, height, size), Vector3.new(-offset, height / 2, 0), wallColor)
 	makePart(folder, "WallEast", Vector3.new(thick, height, size), Vector3.new(offset, height / 2, 0), wallColor)
 
+	buildOasis(folder)
+
 	folder.Parent = workspace
 	log.info("arena built", { size = size, wallHeight = height })
 end
@@ -103,7 +164,13 @@ function ArenaService.spawnPosition(spawning: Player): Vector3
 	for _ = 1, Arena.spawnCandidates do
 		table.insert(candidates, randomPoint())
 	end
-	local best = SpawnPick.best(candidates, others) or randomPoint()
+	-- Nobody spawns in or right next to the oasis.
+	local oasis = FoodConfig.zones.center
+	local allowed = SpawnPick.outsideDisc(candidates, 0, 0, oasis.radius + oasis.spawnClearance)
+	if #allowed == 0 then
+		allowed = candidates
+	end
+	local best = SpawnPick.best(allowed, others) or randomPoint()
 	return Vector3.new(best.x, SPAWN_HEIGHT, best.z)
 end
 

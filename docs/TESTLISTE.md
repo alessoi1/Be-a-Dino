@@ -171,3 +171,16 @@ Test (nimm zuerst ein Konto, bei dem 1 Robux nichts ausmacht, und sieh dir im Di
 - [ ] Zweiter Beleg für denselben Skin vergibt nicht doppelt (`outcome = duplicate`), wird aber bestätigt.
 - [ ] Skins ändern kein Tempo, keine Größe und kein Fressverhalten (Werte vor und nach dem Kauf vergleichen).
 - [ ] Kaufdialog und Texte sind auf kleinen Geräten gut zu bedienen (360 × 640, Querformat).
+
+## Oase in der Mitte
+
+Stand: noch nicht in Studio getestet. Am besten mit mehreren Spielern.
+
+- [ ] Output zeigt `food placed` mit `count = 450` und `oasis = 80`, kein `food config invalid`.
+- [ ] In der Mitte der Arena liegt eine runde blaue Fläche (Radius 60), darüber eine dünne leuchtende Säule, die man aus der ganzen Arena sieht. Man läuft ohne Stufe oder Hängenbleiben darüber.
+- [ ] Die Fläche flackert nicht (kein Überlappen mit dem Boden).
+- [ ] In der Oase liegt deutlich dichter Futter, mit mehr mittleren (gelben) und großen (roten) Stücken. Außerhalb liegt wie vorher überwiegend kleines grünes Futter. Außerhalb der Oase liegt kein Futter in der Fläche.
+- [ ] Gefressenes Futter in der Oase kommt wieder in der Oase nach (nach etwa 8 Sekunden), außen kommt es wieder außen nach.
+- [ ] Wachstum in der Oase ist spürbar schneller. Notiere grob, wie lange man dort bis zum Raptor und zum Stego braucht.
+- [ ] Spieler erscheinen nie in der Oase und nicht unmittelbar daneben (mehrmals zurücksetzen und beobachten).
+- [ ] Mit mehreren Spielern: Treffen sich die Spieler wirklich in der Mitte? Ist es für kleine Dinos zu gefährlich oder gerade richtig? (Notizen für die Balance: Radius, Anzahl und Gewichte stehen in `Config/Food`.)

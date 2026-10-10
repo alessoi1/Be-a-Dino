@@ -27,4 +27,17 @@ function SpawnPick.best(candidates: { Point }, others: { Point }): Point?
 	return best
 end
 
+-- The candidates that are not inside the disc (the border counts as outside).
+function SpawnPick.outsideDisc(candidates: { Point }, centerX: number, centerZ: number, radius: number): { Point }
+	local kept: { Point } = {}
+	for _, candidate in candidates do
+		local dx = candidate.x - centerX
+		local dz = candidate.z - centerZ
+		if dx * dx + dz * dz >= radius * radius then
+			table.insert(kept, candidate)
+		end
+	end
+	return kept
+end
+
 return SpawnPick

@@ -33,3 +33,18 @@ end)
 test("SpawnPick: no candidates gives nil", function()
 	assertEquals(SpawnPick.best({}, { { x = 0, z = 0 } }), nil)
 end)
+
+test("SpawnPick: outsideDisc removes candidates inside the disc", function()
+	local candidates = { { x = 0, z = 0 }, { x = 30, z = 0 }, { x = 100, z = 0 }, { x = 0, z = -200 } }
+	local kept = SpawnPick.outsideDisc(candidates, 0, 0, 50)
+	assertEquals(#kept, 2)
+	assertEquals(kept[1].x, 100)
+	assertEquals(kept[2].z, -200)
+end)
+
+test("SpawnPick: outsideDisc keeps the border and does not change the input", function()
+	local candidates = { { x = 50, z = 0 }, { x = 49.9, z = 0 } }
+	local kept = SpawnPick.outsideDisc(candidates, 0, 0, 50)
+	assertEquals(#kept, 1)
+	assertEquals(#candidates, 2)
+end)
