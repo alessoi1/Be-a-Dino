@@ -11,10 +11,15 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local EatRules = require(Shared:WaitForChild("EatRules"))
+local Coins = require(Shared:WaitForChild("Coins"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
+local CoinConfig = require(Shared:WaitForChild("Config"):WaitForChild("Coins"))
 
 local AppearanceService = require(script.Parent:WaitForChild("AppearanceService"))
+local BountyService = require(script.Parent:WaitForChild("BountyService"))
+local CoinService = require(script.Parent:WaitForChild("CoinService"))
+local DeathService = require(script.Parent:WaitForChild("DeathService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
@@ -45,9 +50,9 @@ local function livingParts(player: Player): (Humanoid?, BasePart?)
 	return humanoid, root
 end
 
-local function notice(player: Player, kind: string, otherName: string, points: number)
+local function notice(player: Player, kind: string, otherName: string, points: number, coins: number?, bounty: boolean?)
 	if noticeRemote ~= nil then
-		noticeRemote:FireClient(player, kind, otherName, points)
+		noticeRemote:FireClient(player, kind, otherName, points, coins, bounty)
 	end
 end
 
@@ -65,6 +70,9 @@ local function execute(eat: Eat, byId: { [number]: Player })
 	end
 
 	local gained = EatRules.pointsGained(Arena.eatPointsShare, victimState.points)
+	-- Coins for the kill: more for a higher victim, and more with a bounty on the victim.
+	local multiplier = BountyService.claimMultiplier(victim)
+	local coins = Coins.forKill(victimState.stageIndex, CoinConfig.perKillFactor, multiplier)
 	log.info("player eaten", {
 		victimId = victim.UserId,
 		eaterId = eater.UserId,
@@ -74,6 +82,8 @@ local function execute(eat: Eat, byId: { [number]: Player })
 		eaterScale = PlayerState.scaleOf(eater),
 		distance = eat.distance,
 		gained = gained,
+		coins = coins,
+		bounty = multiplier > 1,
 	})
 
 	local character = victim.Character
@@ -88,7 +98,11 @@ local function execute(eat: Eat, byId: { [number]: Player })
 	victim:SetAttribute("RespawnAt", ServerClock.now() + Arena.respawnSeconds)
 
 	PlayerState.addPoints(eater, gained)
-	notice(eater, "ate", victim.DisplayName, gained)
+	if coins > 0 then
+		CoinService.add(eater, coins)
+	end
+	DeathService.open(victim, eater)
+	notice(eater, "ate", victim.DisplayName, gained, coins, multiplier > 1)
 	notice(victim, "eaten", eater.DisplayName, 0)
 end
 
