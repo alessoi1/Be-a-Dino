@@ -72,3 +72,69 @@ test("EatRules: eater gets a share of the victim points, rounded down", function
 	assertEquals(EatRules.pointsGained(0.5, 0), 0)
 	assertEquals(EatRules.pointsGained(0.5, -10), 0)
 end)
+
+local function player(id: number, x: number, scale: number): EatRules.Player
+	return { id = id, x = x, z = 0, scale = scale, protectedUntil = 0, alive = true }
+end
+
+test("EatRules.findEats: a bigger player in range eats a smaller one", function()
+	local eats = EatRules.findEats(config, { player(1, 0, 3), player(2, 2, 1) }, 100)
+	assertEquals(#eats, 1)
+	assertEquals(eats[1].eaterId, 1)
+	assertEquals(eats[1].victimId, 2)
+	assertEquals(eats[1].distance, 2)
+end)
+
+test("EatRules.findEats: equal sizes never eat each other", function()
+	assertEquals(#EatRules.findEats(config, { player(1, 0, 3), player(2, 0.5, 3) }, 100), 0)
+end)
+
+test("EatRules.findEats: out of range, protected or dead players are skipped", function()
+	assertEquals(#EatRules.findEats(config, { player(1, 0, 3), player(2, 50, 1) }, 100), 0, "too far")
+	local protected = player(2, 1, 1)
+	protected.protectedUntil = 200
+	assertEquals(#EatRules.findEats(config, { player(1, 0, 3), protected }, 100), 0, "protected")
+	local dead = player(2, 1, 1)
+	dead.alive = false
+	assertEquals(#EatRules.findEats(config, { player(1, 0, 3), dead }, 100), 0, "dead victim")
+	local deadEater = player(1, 0, 3)
+	deadEater.alive = false
+	assertEquals(#EatRules.findEats(config, { deadEater, player(2, 1, 1) }, 100), 0, "dead eater")
+end)
+
+test("EatRules.findEats: the biggest eats first, an eaten player eats nobody", function()
+	local eats = EatRules.findEats(config, { player(1, 0, 3), player(3, 0.5, 5), player(2, 1, 1) }, 100)
+	-- player 3 (scale 5) eats first and takes player 1 and player 2,
+	-- so player 1 (scale 3) no longer eats player 2.
+	local byVictim: { [number]: number } = {}
+	for _, eat in eats do
+		byVictim[eat.victimId] = eat.eaterId
+	end
+	assertEquals(byVictim[1], 3)
+	assertEquals(byVictim[2], 3)
+	assertEquals(#eats, 2)
+end)
+
+test("EatRules.findEats: every victim is eaten at most once", function()
+	local eats = EatRules.findEats(config, { player(1, 0, 3), player(2, 0.2, 3), player(3, 1, 1) }, 100)
+	assertEquals(#eats, 1)
+end)
+
+test("EatRules.findEats: one eater may eat several victims, nearest first", function()
+	local eats = EatRules.findEats(config, { player(1, 0, 5), player(2, 3, 1), player(3, 1, 1) }, 100)
+	assertEquals(#eats, 2)
+	assertEquals(eats[1].victimId, 3)
+	assertEquals(eats[2].victimId, 2)
+end)
+
+test("EatRules.findEats: ties are decided by id, so the result is stable", function()
+	local players = { player(5, 0, 5), player(2, 1, 1), player(3, -1, 1) }
+	local eats = EatRules.findEats(config, players, 100)
+	assertEquals(eats[1].victimId, 2)
+	assertEquals(eats[2].victimId, 3)
+end)
+
+test("EatRules.findEats: nobody eats themselves and invalid positions are ignored", function()
+	assertEquals(#EatRules.findEats(config, { player(1, 0, 3) }, 100), 0)
+	assertEquals(#EatRules.findEats(config, { player(1, 0, 3), player(2, 0 / 0, 1) }, 100), 0)
+end)

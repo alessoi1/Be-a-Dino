@@ -14,6 +14,18 @@ export type Combatant = {
 	protectedUntil: number,
 }
 
+-- A player as the server sees them: position on the ground plane, scale and state.
+export type Player = {
+	id: number,
+	x: number,
+	z: number,
+	scale: number,
+	protectedUntil: number,
+	alive: boolean,
+}
+
+export type Eat = { eaterId: number, victimId: number, distance: number }
+
 export type Reason = "invalid" | "self" | "protected" | "too_small" | "too_far"
 
 local EatRules = {}
@@ -46,6 +58,51 @@ function EatRules.canEat(
 		return false, "too_far"
 	end
 	return true, nil
+end
+
+-- All eatings of one server tick. Bigger players act first (ties by id), so the result
+-- does not depend on the order of the list. Every victim is eaten at most once, a player
+-- who was eaten earlier in the tick eats nobody, and one eater may eat several victims
+-- (nearest first).
+function EatRules.findEats(config: Config, players: { Player }, now: number): { Eat }
+	local order: { Player } = table.clone(players)
+	table.sort(order, function(a: Player, b: Player): boolean
+		if a.scale ~= b.scale then
+			return a.scale > b.scale
+		end
+		return a.id < b.id
+	end)
+
+	local eaten: { [number]: boolean } = {}
+	local eats: { Eat } = {}
+	for _, eater in order do
+		if not eater.alive or eaten[eater.id] then
+			continue
+		end
+		local targets: { { victim: Player, distance: number } } = {}
+		for _, victim in order do
+			if victim.id == eater.id or not victim.alive or eaten[victim.id] then
+				continue
+			end
+			local dx = victim.x - eater.x
+			local dz = victim.z - eater.z
+			local distance = math.sqrt(dx * dx + dz * dz)
+			if EatRules.canEat(config, eater, victim, distance, now) then
+				table.insert(targets, { victim = victim, distance = distance })
+			end
+		end
+		table.sort(targets, function(a, b): boolean
+			if a.distance ~= b.distance then
+				return a.distance < b.distance
+			end
+			return a.victim.id < b.victim.id
+		end)
+		for _, target in targets do
+			eaten[target.victim.id] = true
+			table.insert(eats, { eaterId = eater.id, victimId = target.victim.id, distance = target.distance })
+		end
+	end
+	return eats
 end
 
 -- Points the eater receives from a victim with `victimPoints`, rounded down.

@@ -40,6 +40,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/DinoLook.spec")
 	end,
+	function()
+		require("./specs/SpawnPick.spec")
+	end,
 }
 
 local passed = 0

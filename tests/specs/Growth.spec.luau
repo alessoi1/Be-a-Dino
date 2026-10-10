@@ -5,6 +5,7 @@ local Dinos = require("../../src/shared/Config/Dinos")
 
 local test = Framework.test
 local assertEquals = Framework.assertEquals
+local assertNear = Framework.assertNear
 local assertTrue = Framework.assertTrue
 
 test("Growth: new state is the smallest dino with no points", function()
@@ -78,6 +79,31 @@ end)
 test("Growth: progress is 1 on the last stage", function()
 	local last = Growth.addPoints(Dinos, Growth.newState(), 5000)
 	assertEquals(Growth.progress(Dinos, last), 1)
+end)
+
+test("Growth: scale grows between the stage values with the progress", function()
+	local half = Growth.addPoints(Dinos, Growth.newState(), 25)
+	assertNear(Growth.scaleFor(Dinos, half), 1.4, 1e-9)
+	local late = Growth.addPoints(Dinos, Growth.newState(), 49)
+	assertNear(Growth.scaleFor(Dinos, late), 1 + 0.8 * 49 / 50, 1e-9)
+end)
+
+test("Growth: scale is continuous at a stage change", function()
+	local before = Growth.addPoints(Dinos, Growth.newState(), 49.999)
+	local after = Growth.addPoints(Dinos, Growth.newState(), 50)
+	assertNear(Growth.scaleFor(Dinos, before), Growth.scaleFor(Dinos, after), 0.001)
+end)
+
+test("Growth: scale never shrinks with more points and stays on the last stage", function()
+	local state = Growth.newState()
+	local previous = Growth.scaleFor(Dinos, state)
+	for _ = 1, 800 do
+		state = Growth.addPoints(Dinos, state, 1)
+		local scale = Growth.scaleFor(Dinos, state)
+		assertTrue(scale >= previous, "no shrinking at " .. state.points)
+		previous = scale
+	end
+	assertEquals(previous, 5)
 end)
 
 test("Growth: highest stage is remembered, reset after eaten", function()
