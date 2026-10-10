@@ -99,3 +99,20 @@ Pro Gerät prüfen:
 - [ ] Beim Drehen des Geräts passt sich alles an.
 
 Nicht im Emulator prüfbar: Touch-Gefühl, Leistung auf einem echten Handy und die tatsächlichen sicheren Ränder. Das bitte einmal auf einem echten Gerät testen.
+
+## Schritt 7a: Speichern
+
+Stand: noch nicht in Studio getestet. Voraussetzungen, die du selbst einstellen musst:
+- Das Place ist in Roblox veröffentlicht (File, Publish to Roblox).
+- In den Spieleinstellungen unter Security ist „Enable Studio Access to API Services“ eingeschaltet.
+- `wally install` wurde ausgeführt, dann `rojo serve`.
+
+Ablauf:
+- [ ] Output zeigt `Data started`, dann beim Betreten `loading profile` und `profile loaded` mit `status = new`.
+- [ ] Ohne die oben genannten Einstellungen: `player plays as guest, nothing is saved` im Log, die Meldung „Dein Fortschritt wird gerade nicht gespeichert.“ erscheint, das Spiel läuft normal weiter.
+- [ ] Eine Stufe erreichen (Taste `G`): Log `dino reached`. Spiel beenden, wieder starten: `profile loaded` mit `status = loaded`.
+- [ ] Der Bestwert bleibt nach dem Neustart erhalten und sinkt nicht, wenn man eine schlechtere Runde spielt (im Profil prüfen, etwa mit einem Test in der Befehlsleiste, bis das Collection-Menü da ist).
+- [ ] Gefressenwerden löscht die erreichten Dinos nicht (nur die laufende Runde ist weg).
+- [ ] Zwei Studio-Sitzungen mit demselben Konto: die ältere meldet `profile session ended` und wird mit der Meldung abgemeldet.
+- [ ] Beim Verlassen: `saving and releasing profile` im Log, kein Fehler.
+- [ ] `ProfileStore error` oder `overwritten by foreign data` im Log bedeutet ein Problem und ist zu melden.

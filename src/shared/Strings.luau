@@ -34,6 +34,12 @@ return {
 		-- %s = dino name
 		evolved = "Du bist jetzt ein %s!",
 	},
+	data = {
+		-- The profile could not be loaded; the player keeps playing without saving.
+		guest = "Dein Fortschritt wird gerade nicht gespeichert.",
+		-- Shown when the profile was opened on another server.
+		sessionEnded = "Du wurdest abgemeldet, weil dein Spielstand auf einem anderen Server geöffnet wurde.",
+	},
 	respawn = {
 		-- %d = seconds
 		countdown = "Neustart in %d",
