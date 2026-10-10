@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Ui = require(Shared:WaitForChild("Config"):WaitForChild("Ui"))
@@ -58,7 +59,7 @@ function NoticeToast.start()
 			return
 		end
 		if kind == "ate" then
-			show(string.format(Strings.notice.ate, otherName, points))
+			show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)))
 		elseif kind == "eaten" then
 			show(string.format(Strings.notice.eaten, otherName))
 		elseif kind == "skin" then

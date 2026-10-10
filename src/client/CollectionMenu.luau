@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CollectionView = require(Shared:WaitForChild("CollectionView"))
+local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
@@ -180,7 +181,8 @@ function CollectionMenu.start()
 
 		local reached, total = CollectionView.summary(cards)
 		countLabel.Text = string.format(Strings.collection.count, reached, total)
-		bestLabel.Text = string.format(Strings.collection.best, if typeof(best) == "number" then best else 0)
+		bestLabel.Text =
+			string.format(Strings.collection.best, NumberFormat.compact(if typeof(best) == "number" then best else 0))
 		if player:GetAttribute("DataGuest") == true then
 			noteLabel.Text = Strings.collection.guest
 			noteLabel.TextColor3 = UiTheme.own
@@ -205,7 +207,7 @@ function CollectionMenu.start()
 				view.card.BackgroundColor3 = UiTheme.lockedCard
 				view.name.Text = Strings.collection.locked
 				view.name.TextColor3 = UiTheme.lockedText
-				view.hint.Text = string.format(Strings.collection.hint, data.minPoints)
+				view.hint.Text = string.format(Strings.collection.hint, NumberFormat.compact(data.minPoints))
 				view.hint.TextColor3 = UiTheme.lockedText
 			end
 		end

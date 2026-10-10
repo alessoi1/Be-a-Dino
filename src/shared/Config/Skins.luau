@@ -69,7 +69,7 @@ local skins: { Skin } = {
 	{
 		id = "trex_gold",
 		dinoId = "trex",
-		unlock = { kind = "best", points = 1000 },
+		unlock = { kind = "best", points = 5000000000 },
 		colors = { body = color(220, 180, 50), accent = color(255, 240, 150) },
 	},
 	{

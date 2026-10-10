@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CollectionView = require(Shared:WaitForChild("CollectionView"))
+local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Log = require(Shared:WaitForChild("Log"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local SkinView = require(Shared:WaitForChild("SkinView"))
@@ -74,7 +75,7 @@ local function lockedText(skin: Skin): string
 	if unlock.kind == "reach" and unlock.stageId ~= nil then
 		return string.format(Strings.collection.lockedReach, Strings.dinos[unlock.stageId] or unlock.stageId)
 	elseif unlock.kind == "best" and unlock.points ~= nil then
-		return string.format(Strings.collection.lockedBest, unlock.points)
+		return string.format(Strings.collection.lockedBest, NumberFormat.compact(unlock.points))
 	end
 	return Strings.collection.lockedOther
 end

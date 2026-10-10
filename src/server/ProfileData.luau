@@ -15,12 +15,15 @@ export type Data = {
 	ownedSkins: { [string]: boolean },
 	-- The chosen skin id per dino id.
 	equippedSkins: { [string]: string },
+	-- Coins earned by growing (never bought with Robux).
+	coins: number,
 }
 
 export type Limits = {
 	maxReachedStages: number,
 	maxOwnedSkins: number,
 	maxEquippedSkins: number,
+	maxCoins: number,
 }
 
 -- Turns data of version n into data of version n + 1 (and sets `version`).
@@ -29,7 +32,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 2
+ProfileData.VERSION = 3
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -54,6 +57,7 @@ function ProfileData.new(now: number): Data
 		bestPoints = 0,
 		ownedSkins = {},
 		equippedSkins = {},
+		coins = 0,
 	}
 end
 
@@ -111,6 +115,10 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 	end
 	if equipped > limits.maxEquippedSkins then
 		return false, "too many equipped skins"
+	end
+
+	if not isFiniteNumber(data.coins) or data.coins < 0 or data.coins % 1 ~= 0 or data.coins > limits.maxCoins then
+		return false, "coins must be a whole number between 0 and the limit"
 	end
 	return true, nil
 end

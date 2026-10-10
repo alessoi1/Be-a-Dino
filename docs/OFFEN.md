@@ -30,7 +30,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 ## Ausbau (siehe `docs/KONZEPT.md`, Abschnitt Ausbau)
 
 - [x] L1 Lobby (Spielkreis, Kreise für Shop, Dinodex, Booster; Code fertig, Studio-Test offen)
-- [ ] L2 Große Zahlen, neues Wachstum, Münzen
+- [x] L2 Große Zahlen, neues Wachstum, Münzen (Code fertig, Studio-Test offen)
 - [ ] L3 50 Dinos (Platzhalter), Freischalten durch Größe
 - [ ] L4 Todes-Bildschirm (Zur Lobby, Rache mit Kopfgeld)
 - [ ] L5 Autofarm

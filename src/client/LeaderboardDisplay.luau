@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Leaderboard = require(Shared:WaitForChild("Leaderboard"))
 local Log = require(Shared:WaitForChild("Log"))
+local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Ui = require(Shared:WaitForChild("Config"):WaitForChild("Ui"))
 
@@ -98,7 +99,7 @@ function LeaderboardDisplay.start()
 			end
 			view.row.Visible = true
 			view.name.Text = string.format("%d. %s", data.rank, data.name)
-			view.points.Text = tostring(math.floor(data.points))
+			view.points.Text = NumberFormat.compact(data.points)
 			local color = if data.isOwn then UiTheme.own else UiTheme.text
 			view.name.TextColor3 = color
 			view.points.TextColor3 = color

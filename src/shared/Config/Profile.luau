@@ -9,4 +9,6 @@ return {
 	-- Most bought skins and most chosen skins (one per dino) a profile may hold.
 	maxOwnedSkins = 64,
 	maxEquippedSkins = 16,
+	-- Most coins a player may hold.
+	maxCoins = 1000000000000,
 }

@@ -26,12 +26,14 @@ type Mode = "lobby" | "playing"
 type Reason = "reset" | "grow" | "round"
 type StageHandler = (player: Player, stageId: string, reason: Reason) -> ()
 type PointsHandler = (player: Player, state: GrowthState) -> ()
+type GrowHandler = (player: Player, fromIndex: number, toIndex: number) -> ()
 
 local states: { [number]: GrowthState } = {}
 local stageHandlers: { StageHandler } = {}
 -- Lobby (safe) or playing in the arena; every new character starts in the lobby.
 local modes: { [number]: Mode } = {}
 local pointsHandlers: { PointsHandler } = {}
+local growHandlers: { GrowHandler } = {}
 -- Server time until which a player cannot be eaten (set at every respawn).
 local protectedUntil: { [number]: number } = {}
 -- The scale last applied to the character, to skip tiny rescales.
@@ -84,6 +86,12 @@ end
 -- It runs often (every piece of food), so it must be cheap.
 function PlayerState.onPoints(handler: PointsHandler)
 	table.insert(pointsHandlers, handler)
+end
+
+-- Registers a handler that is called when a player grows into a higher stage, with the stage
+-- numbers before and after (several stages can be skipped at once).
+function PlayerState.onGrow(handler: GrowHandler)
+	table.insert(growHandlers, handler)
 end
 
 function PlayerState.get(player: Player): GrowthState?
@@ -144,6 +152,12 @@ function PlayerState.addPoints(player: Player, amount: number)
 		applyScale(player, newState)
 	end
 	if changed then
+		for _, handler in growHandlers do
+			local ok, err = pcall(handler, player, state.stageIndex, newState.stageIndex)
+			if not ok then
+				log.error("grow handler failed", { userId = player.UserId, error = tostring(err) })
+			end
+		end
 		notifyStage(player, Dinos[newState.stageIndex].id, "grow")
 		log.info(
 			"stage changed",

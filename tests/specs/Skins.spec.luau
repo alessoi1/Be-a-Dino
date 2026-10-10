@@ -48,10 +48,11 @@ end)
 
 test("Skins: a best skin needs the best round", function()
 	local skin = Skins.find(skins, "trex_gold") :: Skins.Skin
+	local needed = skin.unlock.points :: number
 	local s = state()
-	s.bestPoints = 999
+	s.bestPoints = needed - 1
 	assertTrue(not Skins.isUnlocked(skin, s))
-	s.bestPoints = 1000
+	s.bestPoints = needed
 	assertTrue(Skins.isUnlocked(skin, s))
 end)
 

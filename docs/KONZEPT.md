@@ -164,6 +164,8 @@ Nach dem erfolgreichen ersten Studio-Test (Schritte 2 bis 7, Oase, Baseplate-Fix
 
 **L1 Lobby (entschieden):** Plattform 140 × 140 Studs, 100 Studs über dem Arena-Boden, mittig über der Oase, mit gläsernem Geländer. Vier Kreise: Play (Radius 12, 2 Sekunden Warten), Shop, Dinodex und Boosters (Radius 7, öffnen sofort ihr Fenster). Höchstens 24 Spieler gleichzeitig in der Arena. In der Arena bringt ein „Lobby“-Knopf nach 5 Sekunden zurück (tippen bricht ab). Wer gefressen wird, landet nach dem Neustart-Countdown in der Lobby. Dinodex und Skin-Liste gibt es nur noch über den Kreis in der Lobby. Shop und Boosters sind vorerst „Coming soon“-Fenster. Die Werte stehen in `Config/Lobby`.
 
+**L2 Große Zahlen (entschieden):** Die Zahl, die der Spieler sieht, heißt **Size** und wird kurz geschrieben (K, M, B, T, Qa, Qi, danach `1.2e21`). Der Futterwert wächst mit der Stufe (Futtereinheit pro Stufe), damit jede Stufe etwa 40 Futterstücke außerhalb der Oase braucht (erlaubt sind 20 bis 80, ein Test prüft das). Für die 4 vorhandenen Dinos gilt bis L3: Compy ab 0, Raptor ab 1K, Stego ab 1M, T-Rex ab 1B. Die 50 Dinos aus L3 laufen dann gleichmäßig von 1K bis 1T. **Münzen:** `5 × Stufennummer` für jede neu erreichte Stufe (übersprungene zählen), in jeder Runde neu verdienbar, gespeichert im Profil (Version 3), nie für Robux. Der goldene T-Rex-Skin braucht 5B Bestwert. Die Debug-Taste `G` gibt 25 % der Strecke bis zur nächsten Stufe.
+
 **Roadmap Ausbau:**
 
 1. **L1 Lobby:** Lobby über der Arena, Spielkreis, Kreise für Shop, Dinodex und Booster, Spielzustand Lobby oder Spiel.

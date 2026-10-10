@@ -76,7 +76,7 @@ Mit einem Spieler. Ziel: Läuft das Grundspiel überhaupt?
 2. In den **PLAY-Kreis** stellen und 2 Sekunden warten. Du landest als kleiner grüner Compy mit weißem Schutz in der grünen Arena. Futter liegt verteilt, oben links das Statusfeld, oben rechts die Bestenliste.
 3. Laufen mit WASD, mit Shift sprinten. Die Ausdauerleiste unten sinkt und lädt wieder auf.
 4. Futter einsammeln: Punkte steigen, das Futter kommt nach etwa 8 Sekunden an anderer Stelle wieder.
-5. Taste `G` drücken (nur in Studio und nur in der Arena): jedes Mal +25 Punkte. Bei 50 Punkten wird der Dino größer und zum orangen Raptor, mit einer Wolke.
+5. Taste `G` drücken (nur in Studio und nur in der Arena): Jeder Druck bringt 25 % der Strecke bis zur nächsten Stufe, nach vier Drücken wird der Dino größer und zum orangen Raptor, mit einer Wolke.
 6. Unten auf „Lobby“ tippen und 5 Sekunden warten: Du bist wieder in der Lobby, klein und mit 0 Punkten.
 7. In den **DINODEX-Kreis** stellen: Die Sammlung öffnet sich, der Raptor ist freigeschaltet.
 
@@ -102,7 +102,7 @@ Tipp: Die Schritte 5 und 7d sind am heikelsten. Nimm dir dafür Zeit.
 ## 5. Mehrspieler und Handy-Emulator
 
 **Zwei Spieler:** Reiter Test → Clients and Servers → **Players: 2** → Start. Es öffnen sich zwei Client-Fenster und ein Server.
-- Fressen testen: Im ersten Fenster `G` mehrmals drücken (zum Beispiel 4-mal, also 100 Punkte, dann ist der Raptor deutlich größer). Im zweiten Fenster als Compy stehen bleiben. Der Raptor muss nah an den Compy laufen. Erwartung: Der Compy verschwindet mit einer Wolke, nach etwa 3 Sekunden erscheint er wieder (4 Sekunden weißes Leuchten als Schutz), und beide sehen kurz eine Meldung.
+- Fressen testen: Im ersten Fenster `G` mehrmals drücken (zum Beispiel 5-mal, dann bist du schon Raptor und deutlich größer). Im zweiten Fenster als Compy stehen bleiben. Der Raptor muss nah an den Compy laufen. Erwartung: Der Compy verschwindet mit einer Wolke, nach etwa 3 Sekunden erscheint er wieder (4 Sekunden weißes Leuchten als Schutz), und beide sehen kurz eine Meldung.
 - Schutzzeit: Direkt nach dem Respawn darf der Raptor den Compy nicht fressen.
 - Skins: Im zweiten Fenster einen Skin wählen und im ersten prüfen, ob er sichtbar ist.
 

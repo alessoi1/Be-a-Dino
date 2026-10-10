@@ -7,6 +7,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Strings = require(Shared:WaitForChild("Strings"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
@@ -66,14 +67,18 @@ function StatusDisplay.start()
 
 		local name = if typeof(stage) == "string" then Strings.dinos[stage] or stage else ""
 		local pointsValue = if typeof(points) == "number" then points else 0
-		title.Text = string.format("%s · %d %s", name, pointsValue, Strings.status.points)
+		title.Text = string.format("%s · %s %s", name, NumberFormat.compact(pointsValue), Strings.status.points)
 
 		local sizeText = if typeof(scale) == "number"
 			then string.format(Strings.status.size, formatScale(scale))
 			else ""
 		local wayText: string
 		if typeof(nextStage) == "string" and nextStage ~= "" and typeof(missing) == "number" then
-			wayText = string.format(Strings.status.toNext, missing, Strings.dinos[nextStage] or nextStage)
+			wayText = string.format(
+				Strings.status.toNext,
+				NumberFormat.compact(missing),
+				Strings.dinos[nextStage] or nextStage
+			)
 		else
 			wayText = Strings.status.maxStage
 		end

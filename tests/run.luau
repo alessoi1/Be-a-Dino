@@ -76,6 +76,15 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/PlayMode.spec")
 	end,
+	function()
+		require("./specs/NumberFormat.spec")
+	end,
+	function()
+		require("./specs/Progression.spec")
+	end,
+	function()
+		require("./specs/Coins.spec")
+	end,
 }
 
 local passed = 0
