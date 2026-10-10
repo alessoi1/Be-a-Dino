@@ -11,7 +11,10 @@ local FOLDER_NAME = "Remotes"
 local Remotes = {
 	names = {
 		-- Add remotes here with a comment: direction, arguments, meaning.
-		-- example = "Example", -- client -> server event: (no arguments)
+		-- client -> server event: (active: boolean), the player holds or releases sprint
+		sprint = "Sprint",
+		-- client -> server event: (no arguments), Studio only: adds debug points (see Config/Debug)
+		debugGrow = "DebugGrow",
 	},
 }
 

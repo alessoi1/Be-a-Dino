@@ -5,6 +5,11 @@
 return {
 	-- Side length of the square arena floor.
 	size = 400,
+	-- Walls around the arena (studs).
+	wallHeight = 20,
+	wallThickness = 4,
+	-- Distance to the walls in which nobody spawns (studs).
+	spawnMargin = 10,
 	-- Food: how many pieces exist at most, how much one piece is worth (growth points),
 	-- seconds until an eaten piece comes back.
 	foodCount = 300,

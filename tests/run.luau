@@ -22,6 +22,15 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/FoodSpawn.spec")
 	end,
+	function()
+		require("./specs/Stamina.spec")
+	end,
+	function()
+		require("./specs/MoveCheck.spec")
+	end,
+	function()
+		require("./specs/CameraRig.spec")
+	end,
 }
 
 local passed = 0
