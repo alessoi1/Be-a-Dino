@@ -12,6 +12,10 @@ return {
 	foodRespawnSeconds = 8,
 	-- Eating another player needs this much more size than the victim (1.2 = 20 % more).
 	eatRatio = 1.2,
+	-- Maximum eating distance in studs per unit of the eater's scale.
+	eatDistanceFactor = 1.5,
+	-- Share of the victim's points the eater receives (0.5 = half).
+	eatPointsShare = 0.5,
 	-- Seconds after a respawn in which a player cannot be eaten.
 	spawnProtectionSeconds = 4,
 }

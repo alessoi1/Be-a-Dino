@@ -9,7 +9,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 ## Roadmap (siehe Konzept)
 
-- [ ] 1 Reine Logik mit Tests: `Growth` (Punkte zu Größe und Stufe), `EatRules` (wer wen fressen darf), `FoodSpawn` (Nachwuchs).
+- [x] 1 Reine Logik mit Tests: `Growth` (Punkte zu Größe und Stufe), `EatRules` (wer wen fressen darf), `FoodSpawn` (Nachwuchs).
 - [ ] 2 Arena, Spawn, Bewegung (Mobile-Joystick), Kamera.
 - [ ] 3 Futter fressen und wachsen.
 - [ ] 4 Stufenwechsel mit Platzhalter-Modellen.

@@ -13,6 +13,15 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/RejectLimiter.spec")
 	end,
+	function()
+		require("./specs/Growth.spec")
+	end,
+	function()
+		require("./specs/EatRules.spec")
+	end,
+	function()
+		require("./specs/FoodSpawn.spec")
+	end,
 }
 
 local passed = 0
