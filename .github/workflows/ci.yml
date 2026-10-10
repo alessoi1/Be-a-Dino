@@ -32,13 +32,13 @@ jobs:
         run: wally install
 
       - name: Format (StyLua)
-        run: stylua --check src tests
+        run: stylua --check src tests tools
 
       - name: Generate Roblox standard library for Selene
         run: selene generate-roblox-std
 
       - name: Lint (Selene)
-        run: selene src tests
+        run: selene src tests tools
 
       - name: Tests (Lune)
         run: lune run tests/run

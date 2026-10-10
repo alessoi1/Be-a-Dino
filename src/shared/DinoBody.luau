@@ -319,10 +319,7 @@ end
 
 -- All looks by dino id (hand-written ones win over plans).
 function DinoBody.resolveAll(looks: { [string]: Look }, plans: { [string]: Plan }): { [string]: Look }
-	local all: { [string]: Look } = {}
-	for id, look in looks do
-		all[id] = look
-	end
+	local all: { [string]: Look } = table.clone(looks)
 	for id, planned in plans do
 		if all[id] == nil then
 			all[id] = DinoBody.build(planned)

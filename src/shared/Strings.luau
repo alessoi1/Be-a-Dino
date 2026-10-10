@@ -106,6 +106,7 @@ return {
 		back = "<",
 		-- Shown below the best round while the progress is saved.
 		skinsHint = "Tap a dino to see its skins",
+		noSkins = "No skins for this dino yet",
 		skinEquipped = "Equipped",
 		skinEquip = "Equip",
 		-- %s = dino name

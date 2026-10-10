@@ -15,6 +15,8 @@ local Remotes = {
 		sprint = "Sprint",
 		-- client -> server event: (no arguments), Studio only: adds debug points (see Config/Debug)
 		debugGrow = "DebugGrow",
+		-- client -> server event: (no arguments), Studio only: jumps to the next dino
+		debugNextStage = "DebugNextStage",
 		-- client -> server event: (skinId: string), the player chooses a skin (checked by the server)
 		equipSkin = "EquipSkin",
 		-- client -> server event: (active: boolean), the player asks to go back to the lobby (true)
