@@ -19,7 +19,7 @@ Alle Befehle im Terminal im Projektordner.
    rojo plugin install
    ```
    Danach Studio neu starten.
-3. **Ein leeres Place anlegen:** In Studio ein neues Baseplate-Place erstellen und **außerhalb des Repos** speichern. Den Inhalt (die Baseplate, Spawn-Platte) kannst du löschen, die Arena baut das Spiel selbst. Skripte kommen nur über Rojo, bearbeite sie nie in Studio.
+3. **Ein leeres Place anlegen:** In Studio ein neues Baseplate-Place erstellen und **außerhalb des Repos** speichern. Lösche darin am besten die Baseplate und die Spawn-Platte, die Arena baut das Spiel selbst. Bleiben sie stehen, entfernt der Server sie beim Start (Log `template part removed`), sonst würde der graue Boden durch den grünen flackern. Skripte kommen nur über Rojo, bearbeite sie nie in Studio.
 4. **Place veröffentlichen** (File → Publish to Roblox). Ohne Veröffentlichung gibt es kein Speichern und keine Käufe.
 5. **Studio-Zugriff auf Dienste erlauben:** Home → Game Settings → Security → „Enable Studio Access to API Services“ einschalten. Ohne das spielt jeder im Gastmodus (siehe `docs/TESTLISTE.md`, Schritt 7a).
 6. **Rojo starten und verbinden:**

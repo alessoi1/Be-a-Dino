@@ -30,7 +30,7 @@ Alle Befehle laufen im Terminal (Mac: Terminal, Windows: PowerShell) im Projekto
 ## 3. Mit Roblox Studio verbinden
 
 1. `rojo plugin install` ausführen, Studio neu starten.
-2. In Studio ein neues Baseplate-Place anlegen (außerhalb des Repos speichern). Skripte kommen nur über Rojo.
+2. In Studio ein neues Baseplate-Place anlegen (außerhalb des Repos speichern) und darin die Baseplate und die Spawn-Platte löschen: Sie liegen auf derselben Höhe wie der Boden der Arena und würden flackern (der Server entfernt sie beim Start auch selbst). Skripte kommen nur über Rojo.
 3. Im Projektordner `rojo serve` starten, in Studio im Reiter Plugins im Rojo-Fenster **Connect** drücken.
 4. View, **Output** öffnen, Play (F5) drücken. Erwartet: `[BeDino][Main] server started` und `[BeDino][Client] client started`.
 
