@@ -15,9 +15,21 @@ type GrowthState = { points: number, stageIndex: number, highestStageIndex: numb
 
 local log = Log.new("PlayerState")
 
+type StageHandler = (player: Player, stageId: string, reason: "reset" | "grow") -> ()
+
 local states: { [number]: GrowthState } = {}
+local stageHandlers: { StageHandler } = {}
 
 local PlayerState = {}
+
+local function notifyStage(player: Player, stageId: string, reason: "reset" | "grow")
+	for _, handler in stageHandlers do
+		local ok, err = pcall(handler, player, stageId, reason)
+		if not ok then
+			log.error("stage handler failed", { userId = player.UserId, error = tostring(err) })
+		end
+	end
+end
 
 local function applyScale(player: Player, state: GrowthState)
 	local character = player.Character
@@ -37,6 +49,12 @@ local function publish(player: Player, state: GrowthState)
 	player:SetAttribute("Points", math.floor(state.points))
 	player:SetAttribute("Stage", Dinos[state.stageIndex].id)
 	player:SetAttribute("StageProgress", math.floor(Growth.progress(Dinos, state) * 100) / 100)
+end
+
+-- Registers a handler that is called with the new stage id when a player turns into
+-- another dino ("grow") and when the state starts over ("reset", also without a character yet).
+function PlayerState.onStage(handler: StageHandler)
+	table.insert(stageHandlers, handler)
 end
 
 function PlayerState.get(player: Player): GrowthState?
@@ -64,6 +82,7 @@ function PlayerState.addPoints(player: Player, amount: number)
 	publish(player, newState)
 	if changed then
 		applyScale(player, newState)
+		notifyStage(player, Dinos[newState.stageIndex].id, "grow")
 		log.info(
 			"stage changed",
 			{ userId = player.UserId, stage = Dinos[newState.stageIndex].id, points = newState.points }
@@ -75,6 +94,7 @@ local function reset(player: Player)
 	local state = Growth.newState()
 	states[player.UserId] = state
 	publish(player, state)
+	notifyStage(player, Dinos[state.stageIndex].id, "reset")
 	log.info("state reset", { userId = player.UserId })
 end
 
