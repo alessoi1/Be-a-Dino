@@ -9,7 +9,9 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
+local Progression = require(Shared:WaitForChild("Progression"))
 local DebugConfig = require(Shared:WaitForChild("Config"):WaitForChild("Debug"))
+local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
@@ -40,8 +42,13 @@ function DebugService.start(limiter: Limiter)
 		if PlayerState.getMode(player) ~= "playing" then
 			return
 		end
-		PlayerState.addPoints(player, DebugConfig.growPoints)
-		log.info("debug grow", { userId = player.UserId, points = DebugConfig.growPoints })
+		local state = PlayerState.get(player)
+		if state == nil then
+			return
+		end
+		local points = Progression.pointsForFraction(Dinos, state, DebugConfig.growFraction)
+		PlayerState.addPoints(player, points)
+		log.info("debug grow", { userId = player.UserId, points = points })
 	end)
 	log.warn("studio debug helper is active")
 end

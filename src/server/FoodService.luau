@@ -12,6 +12,8 @@ local Log = require(Shared:WaitForChild("Log"))
 local FoodField = require(Shared:WaitForChild("FoodField"))
 local FoodKinds = require(Shared:WaitForChild("FoodKinds"))
 local FoodSpawn = require(Shared:WaitForChild("FoodSpawn"))
+local Progression = require(Shared:WaitForChild("Progression"))
+local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
@@ -111,9 +113,12 @@ local function collectFor(player: Player, now: number)
 		return
 	end
 
+	-- A piece is worth more on a higher stage, so every stage takes about the same number of pieces.
+	local growth = PlayerState.get(player)
+	local unit = if growth ~= nil then Dinos[growth.stageIndex].foodUnit else Dinos[1].foodUnit
 	local total = 0
 	for _, item in items do
-		total += FoodConfig.kinds[item.kind].value
+		total += Progression.foodGain(unit, FoodConfig.kinds[item.kind].value)
 		releaseFood(item.id, now)
 	end
 	PlayerState.addPoints(player, total)

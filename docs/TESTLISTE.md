@@ -5,7 +5,9 @@ Zum Prüfen auf dem Handy: Studio Test-Tab, Geräte-Emulator.
 
 Vorbereitung, Reihenfolge und Fehlerberichte stehen in `docs/STUDIO-TEST.md`.
 
-**Seit der Lobby (Ausbau L1) startet jeder Spieler in der Lobby.** Für alle Tests mit Arena zuerst in den grünen Play-Kreis stellen (2 Sekunden). Dinodex, Skins und Shop öffnen nur über ihre Kreise in der Lobby, die Taste `G` (Debug-Punkte) wirkt nur in der Arena.
+**Seit der Lobby (Ausbau L1) startet jeder Spieler in der Lobby.** Für alle Tests mit Arena zuerst in den grünen Play-Kreis stellen (2 Sekunden). Dinodex, Skins und Shop öffnen nur über ihre Kreise in der Lobby, die Taste `G` (Debug) wirkt nur in der Arena.
+
+**Seit L2 (große Zahlen) sind die Stufen weit auseinander** (Compy ab 0, Raptor ab 1K, Stego ab 1M, T-Rex ab 1B). Die Zahlen in den älteren Abschnitten dieser Datei („50 Punkte“, „+25“) stammen aus der Zeit davor: Ein Druck auf `G` gibt jetzt 25 % der Strecke bis zur nächsten Stufe, und das Futter ist auf höheren Stufen mehr wert.
 
 ## Schritt 2: Arena, Bewegung, Sprint, Kamera
 
@@ -214,3 +216,25 @@ Arena betreten und zurück:
 - [ ] Mehr als 24 Spieler gleichzeitig lassen sich nur mit Konfigurationsänderung testen: In `Config/Lobby` `maxPlaying = 1` setzen, mit zwei Spielern testen. Der zweite sieht im Kreis „Arena full, please wait“ und kommt nicht hinein, bis der erste geht.
 - [ ] Teleport hinauf und hinunter wird nicht als Tempo-Hack zurückgesetzt (kein `movement rejected` im Log).
 - [ ] Sprint-Taste unten rechts, der Springen-Button des Handys ist ausgeblendet (wie im Fix davor).
+
+## Ausbau L2: Große Zahlen, Wachstum, Münzen
+
+Stand: noch nicht in Studio getestet. Alle Werte sind Startwerte (`Config/Dinos`, `Config/Coins`, `Config/Progress`).
+
+Zahlen:
+- [ ] Die Größe zeigt kurze Zahlen: „Compy · 340 size“, später „1.23K“, „12.3K“, „1.23M“ (nicht 1234 oder 1234567). Die Bestenliste in der Arena zeigt dieselben kurzen Zahlen.
+- [ ] Die Zeile darunter zeigt „… size to Raptor · ×1.0“ mit kurzer Zahl, auf der letzten Stufe „Biggest dino!“.
+- [ ] Futter bringt auf der ersten Stufe etwa 17 (klein), 51 (mittel) und 170 (groß). Nach dem Aufstieg zum Raptor sind es zehntausende (16.5K, 49.6K, 165K).
+- [ ] **Tempo:** Zähle grob die Futterstücke bis zum Raptor. Erwartet sind etwa 40 außerhalb der Oase und etwa 17 in der Oase. Notiere, wie lange das dauert und ob es sich gut anfühlt.
+- [ ] Dasselbe für Raptor zu Stego und Stego zu T-Rex (jeweils etwa gleich viele Stücke).
+- [ ] Taste `G`: Jeder Druck bringt 25 % der Strecke bis zur nächsten Stufe (vier Drücke = nächste Stufe).
+- [ ] Die Figur wächst weiter fließend zwischen den Stufen, die Fortschrittsleiste füllt sich gleichmäßig pro Stück.
+- [ ] Fressen: Wer einen Spieler frisst, bekommt die Hälfte von dessen Größe. Die Meldung zeigt „You ate Anna (+1.5K)“ mit kurzer Zahl.
+- [ ] Dinodex: „Best size: 12.3K“ und bei gesperrten Karten „Reach 1K size“ (kurze Zahlen). Skin „Gold“ (T-Rex): „Locked: best size 5B“.
+
+Münzen:
+- [ ] Oben links steht ein Zähler „Coins 0“. In der Arena sitzt er direkt unter dem Statusfeld und überlappt es nicht, in der Lobby in der Ecke.
+- [ ] Bei jedem Aufstieg steigt der Zähler: Raptor +10, Stego +15, T-Rex +20 (Log `coins earned`). Springt man mehrere Stufen auf einmal, zählen die übersprungenen mit.
+- [ ] Nach dem Zurücksetzen und erneutem Aufsteigen gibt es wieder Münzen. Münzen gehen beim Gefressenwerden nicht verloren.
+- [ ] Spiel beenden und neu starten: Die Münzen sind wieder da (nur mit Speichern, siehe 7a). Das Profil aus früheren Tests wird auf Version 3 migriert (Log `status = migrated`).
+- [ ] Gastmodus: Münzen zählen für die Sitzung und gehen danach verloren.

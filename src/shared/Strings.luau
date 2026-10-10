@@ -33,10 +33,10 @@ return {
 		button = "Sprint",
 	},
 	status = {
-		-- Shown as "Raptor · 120 points".
-		points = "points",
-		-- %d = points still missing, then the name of the next dino.
-		toNext = "%d points to %s",
+		-- Shown as "Raptor · 1.2K size" (the size is a short number, see NumberFormat).
+		points = "size",
+		-- %s = size still missing (short number), then the name of the next dino.
+		toNext = "%s size to %s",
 		maxStage = "Biggest dino!",
 		-- %s = size, for example 1.4.
 		size = "×%s",
@@ -50,11 +50,11 @@ return {
 		title = "Collection",
 		-- %d of %d dinos reached
 		count = "%d of %d dinos",
-		-- %d = points
-		best = "Best round: %d points",
+		-- %s = size (short number)
+		best = "Best size: %s",
 		locked = "???",
-		-- %d = points needed
-		hint = "Reach %d points",
+		-- %s = size needed (short number)
+		hint = "Reach %s size",
 		guest = "Not saved",
 		close = "X",
 		back = "<",
@@ -64,17 +64,17 @@ return {
 		skinEquip = "Equip",
 		-- %s = dino name
 		lockedReach = "Locked: reach the %s",
-		-- %d = points
-		lockedBest = "Locked: best round %d points",
+		-- %s = size (short number)
+		lockedBest = "Locked: best size %s",
 		lockedOther = "Locked",
 		-- Neutral wording for a skin that can be bought (the Roblox dialog shows the price).
 		skinOffer = "View offer",
 		skinOfferNeedsSaving = "Not available without saving",
 	},
 	skins = skinNames,
-	-- Messages when eating or being eaten (%s = name, %d = points).
+	-- Messages when eating or being eaten (%s = name, then the size gained as a short number).
 	notice = {
-		ate = "You ate %s (+%d)",
+		ate = "You ate %s (+%s)",
 		eaten = "%s ate you",
 		-- %s = dino name
 		evolved = "You are now a %s!",
@@ -106,6 +106,10 @@ return {
 		comingSoon = "Coming soon",
 		shopTitle = "Shop",
 		boostTitle = "Boosters",
+	},
+	coins = {
+		-- %s = amount (short number)
+		label = "Coins %s",
 	},
 	respawn = {
 		-- %d = seconds
