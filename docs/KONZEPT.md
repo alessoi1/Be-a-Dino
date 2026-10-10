@@ -135,6 +135,44 @@ Ergänzt: Sprache im Spiel (10. Oktober 2026):
 
 - **Englisch:** Alle Texte, die Spieler sehen, sind englisch (`src/shared/Strings.luau`), damit das Spiel international verständlich ist. Die Projektdokumentation und die Zusammenarbeit bleiben deutsch. Zahlen werden mit Punkt geschrieben (zum Beispiel ×1.4). Weitere Sprachen später über eine Übersetzungstabelle möglich.
 
+## Ausbau (Version 2, 10. Oktober 2026)
+
+Nach dem erfolgreichen ersten Studio-Test (Schritte 2 bis 7, Oase, Baseplate-Fix, englische Texte) wünscht sich der Spielentwickler einen großen Ausbau. Alles hier ist beschlossen, die Umsetzung kommt in kleinen Schritten mit je einem Plan.
+
+**Wünsche:**
+
+1. **Todes-Bildschirm** mit drei Auswahlen: Wiederbeleben in gleicher Größe (Robux), Rache (Robux) und Zur Lobby (gratis).
+2. **Autofarm:** Button über dem Sprint-Button, gratis, sammelt automatisch Punkte.
+3. **Booster-Reiter:** verschiedene Tränke zum Kaufen (Robux).
+4. **Lobby:** Wer das Spiel betritt, landet in einer Lobby über der Arena, sieht auf das Spielfeld herab und betritt einen Spielkreis, um mitzuspielen.
+5. **Shop** als eigener Kreis in der Lobby (Skins, später mehr).
+6. **Dinodex** (die heutige Sammlung) und **Booster** ebenfalls als Kreise in der Lobby.
+7. **Globale Ranglisten** in der Lobby aller Spieler: meiste Kills, größte jemals erreichte Größe, längste Spielzeit.
+8. **Etwa 50 Dinos.**
+9. Dinos werden freigeschaltet, wenn man größer wird.
+10. **Varianten** jedes Dinos: Glowing, Gold, Shadow, Rainbow. Man bekommt sie über **Eier**, die man mit **Münzen** kauft. Münzen verdient man, wenn man als Dino größer wird.
+11. **Große Zahlen** bei der Größe (der erste Dino etwa 0 bis 1000, danach immer weiter bis in die Billionen), weil das attraktiver wirkt.
+
+**Entscheidungen:**
+
+- **Reihenfolge:** Zuerst alles Gratis (Lobby, große Zahlen und 50 Dinos, Todes-Bildschirm, Autofarm, globale Ranglisten, Varianten und Eier), das Bezahlte ganz am Ende.
+- **Rache:** Der Killer wird für alle sichtbar markiert (Kopfgeld). Wer ihn frisst, bekommt Münzen. Der Rächer startet klein, kein direkter PvP-Vorteil.
+- **Bezahlte Vorteile:** Wiederbeleben in gleicher Größe und Tränke sind erlaubt und werden als letzter Schritt gebaut, nach Prüfung der dann aktuellen Roblox-Richtlinien. Die frühere Regel „kein bezahlter PvP-Vorteil“ und die Entscheidung gegen Booster sind damit ersetzt (siehe `CLAUDE.md`). Skins und Varianten ändern weiterhin keine Werte.
+- **Münzen:** Nur durch Spielen verdienbar, nie mit Robux kaufbar.
+- **Glückseier gegen Robux** (erhöhte Chancen auf gute Aussehen): vielleicht, noch nicht entschieden. Wären bezahlte Zufallsobjekte mit allen Pflichten (Chancen in Prozent, `PolicyService`, kein Handel).
+- **Beim Planen noch zu klären** (pro Schritt): Zahlenwörter international (K, M, B, T …), Platzhalter-Dinos für die 50 Dinos (erzeugt, bis echte Modelle da sind), Verhältnis von Varianten zu den heutigen Skins, Autofarm gegen AFK-Missbrauch (zählt Autofarm für „längste Spielzeit“?), Größe der Lobby und Verhalten beim Verlassen der Arena.
+
+**Roadmap Ausbau:**
+
+1. **L1 Lobby:** Lobby über der Arena, Spielkreis, Kreise für Shop, Dinodex und Booster, Spielzustand Lobby oder Spiel.
+2. **L2 Große Zahlen und Fortschritt:** neues Wachstum und Futterwert, Anzeige K/M/B/T, Münzen.
+3. **L3 50 Dinos:** Platzhalter, Freischalten durch Größe.
+4. **L4 Todes-Bildschirm** mit Zur Lobby (gratis), Rache (Kopfgeld) und später den bezahlten Knöpfen.
+5. **L5 Autofarm.**
+6. **L6 Globale Ranglisten** (Kills, größte Größe, Spielzeit) auf Tafeln in der Lobby.
+7. **L7 Varianten und Eier** mit Münzen.
+8. **L8 Bezahltes:** Wiederbeleben, Tränke, eventuell Glückseier, nach Richtlinienprüfung (`docs/MONETARISIERUNG.md`).
+
 ## Weiterhin offen
 
 - Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.

@@ -27,6 +27,17 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
   - [x] 7c Skins (ein kostenloser pro Dino; Code fertig, Studio-Test offen)
   - [x] 7d Shop (bezahlte Skins, ProcessReceipt; Code fertig, Produkte und Studio-Test offen, siehe docs/MONETARISIERUNG.md)
 
+## Ausbau (siehe `docs/KONZEPT.md`, Abschnitt Ausbau)
+
+- [ ] L1 Lobby (Spielkreis, Kreise für Shop, Dinodex, Booster)
+- [ ] L2 Große Zahlen, neues Wachstum, Münzen
+- [ ] L3 50 Dinos (Platzhalter), Freischalten durch Größe
+- [ ] L4 Todes-Bildschirm (Zur Lobby, Rache mit Kopfgeld)
+- [ ] L5 Autofarm
+- [ ] L6 Globale Ranglisten in der Lobby
+- [ ] L7 Varianten (Glowing, Gold, Shadow, Rainbow) und Eier mit Münzen
+- [ ] L8 Bezahltes (Wiederbeleben, Tränke, eventuell Glückseier), nach Richtlinienprüfung
+
 ## Hinweise
 
 - Studio-Tests als Checkliste in `docs/TESTLISTE.md` führen (Datei bei Bedarf anlegen, Muster: `docs/TESTLISTE.md` in Glimmer Deep).

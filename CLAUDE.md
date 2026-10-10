@@ -88,7 +88,9 @@ Alles wird mit Logs versehen, damit Fehler leicht nachvollziehbar sind.
 
 - Käufe nur über `MarketplaceService`. `ProcessReceipt` bestätigt erst nach erfolgreichem Speichern und ist idempotent.
 - Zufallsobjekte gegen Robux (zum Beispiel Eier mit zufälligem Dino): alle Chancen als Prozent anzeigen, für eingeschränkte Spieler per `PolicyService` (`ArePaidRandomItemsRestricted`) ausblenden. Im Zweifel gar keine bezahlten Zufallsobjekte.
-- Skins sind frei kaufbar und ändern keine Werte. Kein Vorteil im PvP gegen Robux (kein bezahltes Größen- oder Tempo-Plus, das das Fressen beeinflusst), ohne vorherige Rückfrage und Prüfung der aktuellen Richtlinien.
+- Skins sind frei kaufbar und ändern keine Werte.
+- Bezahlte Vorteile im PvP (Wiederbeleben in gleicher Größe, Tränke) hat der Spielentwickler am 10. Oktober 2026 ausdrücklich freigegeben (siehe `docs/KONZEPT.md`, Ausbau). Sie werden erst ganz am Ende gebaut, nach Prüfung der dann aktuellen Roblox-Richtlinien, und jeder weitere bezahlte Vorteil braucht wieder eine Rückfrage. Das gilt nicht für Skins und Varianten, die Werte nie ändern.
+- Münzen gibt es nur durch Spielen, nie gegen Robux. Glückseier gegen Robux sind noch nicht entschieden; falls sie gebaut werden, gelten die Regeln für bezahlte Zufallsobjekte oben ohne Ausnahme (alle Chancen als Prozent, auch die erhöhten, `PolicyService`, kein Handel mit den Ergebnissen).
 - PvP-Darstellung altersgerecht: kein Blut, keine realistische Gewalt (Dino „verschwindet“ mit Effekt).
 - Kauftexte neutral („View offer“), nie drängend („Last chance“).
 - Die Regeln ändern sich. Vor Launch gegen die aktuelle Roblox-Dokumentation prüfen (Abschnitt Roblox-Regeln in `docs/KONZEPT.md`).
