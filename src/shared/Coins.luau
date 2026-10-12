@@ -44,6 +44,18 @@ function Coins.forKill(victimStageIndex: number, factor: number, multiplier: num
 	return math.floor(math.floor(victimStageIndex) * factor * multiplier)
 end
 
+-- Coins earned with a potion: the amount times the factor, rounded down. A factor of 1 or less
+-- (or invalid input) leaves the amount as it is.
+function Coins.boosted(amount: number, factor: number): number
+	if not isFinite(amount) or amount <= 0 then
+		return 0
+	end
+	if not isFinite(factor) or factor <= 1 then
+		return math.floor(amount)
+	end
+	return math.floor(amount * factor)
+end
+
 -- Pays `price` from `coins`. Returns the new amount, or nil when there are not enough coins (or
 -- the input is invalid), so nothing is taken then.
 function Coins.spend(coins: number, price: number): number?

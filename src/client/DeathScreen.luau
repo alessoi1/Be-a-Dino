@@ -1,7 +1,8 @@
 --!strict
--- The window after being eaten: who ate you and three choices. Back to lobby works; reviving at
--- your size and putting a bounty on the killer are paid (Robux) and come in a later step, so they
--- are shown greyed out. The server decides; this only sends the intention "lobby". Reads the
+-- The window after being eaten: who ate you and three choices: revive at your size and put a
+-- bounty on the killer (both paid with Robux) and back to lobby (free). A saved revive or bounty
+-- is used with a tap; otherwise the tap opens the purchase dialog, and the server uses the item as
+-- soon as the purchase arrives. The server decides; this only sends the intention. Reads the
 -- attributes the server publishes (display only). Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
@@ -11,7 +12,9 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
+local OfferConfig = require(Shared:WaitForChild("Config"):WaitForChild("Offers"))
 
+local PurchasePrompt = require(script.Parent:WaitForChild("PurchasePrompt"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
@@ -41,12 +44,20 @@ local function newRow(parent: Instance, top: number): TextButton
 	return row
 end
 
--- A greyed out row that does nothing (a choice that is not available yet).
+-- A greyed out row that does nothing (a choice that is not available now).
 local function makeDisabled(row: TextButton)
 	row.Active = false
 	row.AutoButtonColor = false
 	row.BackgroundColor3 = UiTheme.lockedCard
 	row.TextColor3 = UiTheme.lockedText
+end
+
+-- A paid row that can be tapped.
+local function makeEnabled(row: TextButton)
+	row.Active = true
+	row.AutoButtonColor = true
+	row.BackgroundColor3 = UiTheme.accent
+	row.TextColor3 = UiTheme.text
 end
 
 function DeathScreen.start()
@@ -74,8 +85,6 @@ function DeathScreen.start()
 	closing.TextColor3 = UiTheme.lockedText
 
 	local revive = newRow(panel, rowsTop)
-	revive.Text = Strings.death.reviveSoon
-	makeDisabled(revive)
 
 	local bounty = newRow(panel, rowsTop + ROW_HEIGHT + ROW_GAP)
 	makeDisabled(bounty)
@@ -90,6 +99,32 @@ function DeathScreen.start()
 		remote:FireServer("lobby")
 	end)
 
+	-- A saved one is used with the server; without one the purchase dialog opens first.
+	local function creditsOf(attribute: string): number
+		local value = player:GetAttribute(attribute)
+		return if typeof(value) == "number" then value else 0
+	end
+	revive.Activated:Connect(function()
+		if not revive.Active then
+			return
+		end
+		if creditsOf("ReviveCredits") > 0 then
+			remote:FireServer("revive")
+		else
+			PurchasePrompt.request(OfferConfig.products.revive)
+		end
+	end)
+	bounty.Activated:Connect(function()
+		if not bounty.Active then
+			return
+		end
+		if creditsOf("BountyCredits") > 0 then
+			remote:FireServer("bounty")
+		else
+			PurchasePrompt.request(OfferConfig.products.bounty)
+		end
+	end)
+
 	RunService.RenderStepped:Connect(function()
 		local until_ = player:GetAttribute("DeathUntil")
 		local left = if typeof(until_) == "number" then until_ - workspace:GetServerTimeNow() else 0
@@ -100,7 +135,24 @@ function DeathScreen.start()
 		local killer = player:GetAttribute("DeathKiller")
 		local name = if typeof(killer) == "string" then killer else ""
 		title.Text = string.format(Strings.death.title, name)
-		bounty.Text = string.format(Strings.death.bountySoon, name)
+		local saved = PurchasePrompt.canBuy()
+		local revives = creditsOf("ReviveCredits")
+		local bounties = creditsOf("BountyCredits")
+		if not saved then
+			revive.Text = Strings.death.revive .. "\n" .. Strings.death.needsSave
+			bounty.Text = string.format(Strings.death.bounty, name) .. "\n" .. Strings.death.needsSave
+			makeDisabled(revive)
+			makeDisabled(bounty)
+		else
+			revive.Text = if revives > 0
+				then string.format(Strings.death.reviveSaved, revives)
+				else Strings.death.revive .. "\n" .. Strings.death.offer
+			bounty.Text = if bounties > 0
+				then string.format(Strings.death.bountySaved, name, bounties)
+				else string.format(Strings.death.bounty, name) .. "\n" .. Strings.death.offer
+			makeEnabled(revive)
+			makeEnabled(bounty)
+		end
 		closing.Text = string.format(Strings.death.closing, math.ceil(left))
 		panel.Visible = true
 	end)

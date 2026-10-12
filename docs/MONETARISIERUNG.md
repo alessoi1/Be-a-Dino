@@ -5,7 +5,7 @@ Stand: Oktober 2026. Die Regeln von Roblox ändern sich. Vor dem Start gegen die
 ## Was es bisher gibt und was nicht
 
 - **Noch nichts wird verkauft.** Die bezahlten Skins aus Schritt 7c und 7d gibt es nicht mehr: Die Varianten (Glowing, Gold, Shadow, Rainbow) ersetzen sie und kommen **mit Münzen aus Eiern**, nicht mit Robux. Münzen gibt es nur durch Spielen, nie gegen Robux.
-- Der `ReceiptService` (genau ein `ProcessReceipt`, bestätigt erst nach dem Speichern) bleibt als Grundlage für **L8**, hat aber noch keinen Handler. Ohne Handler bleibt jeder Beleg offen (`NotProcessedYet`), und Roblox stellt ihn später wieder zu.
+- Der `ReceiptService` (genau ein `ProcessReceipt`, bestätigt erst nach dem Speichern) hat seit **L8** einen Handler im `OfferService` für die sechs Produkte (IDs in `Config/Offers`). Ohne Handler bleibt jeder Beleg offen (`NotProcessedYet`), und Roblox stellt ihn später wieder zu.
 
 ## Was in L8 verkauft werden soll (noch nicht gebaut)
 

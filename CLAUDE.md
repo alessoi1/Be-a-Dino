@@ -113,4 +113,4 @@ Code formatiert, Lint sauber, Tests grün, Regeln oben eingehalten, kurze Notiz,
 
 ## Aktueller Stand
 
-(Von Hand pflegen.) Die Roadmap-Schritte 1 bis 7 und der Ausbau L1 bis L7b (Lobby, große Zahlen und Münzen, 50 Dinos, Todes-Bildschirm mit Kopfgeld, Autofarm, globale Ranglisten, Varianten, Eier) sind im Code fertig, aber alles mit Roblox-Diensten ist noch nie in Studio gelaufen (Checklisten in `docs/TESTLISTE.md`, Anleitung in `docs/STUDIO-TEST.md`). Offen: L8 (Bezahltes, nach Richtlinienprüfung, siehe `docs/MONETARISIERUNG.md`) und alle Studio-Tests. Entscheidungen stehen in `docs/KONZEPT.md`, offene Punkte in `docs/OFFEN.md`.
+(Von Hand pflegen.) Die Roadmap-Schritte 1 bis 7 und der Ausbau L1 bis L8 (Lobby, große Zahlen und Münzen, 50 Dinos, Todes-Bildschirm mit Kopfgeld, Autofarm, globale Ranglisten, Varianten, Eier, bezahlte Angebote) sind im Code fertig, aber alles mit Roblox-Diensten ist noch nie in Studio gelaufen (Checklisten in `docs/TESTLISTE.md`, Anleitung in `docs/STUDIO-TEST.md`). Offen: alle Studio-Tests, auch die Kauftests (siehe `docs/MONETARISIERUNG.md`). Entscheidungen stehen in `docs/KONZEPT.md`, offene Punkte in `docs/OFFEN.md`.

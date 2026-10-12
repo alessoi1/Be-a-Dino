@@ -13,4 +13,13 @@ return {
 	maxCoins = 1000000000000,
 	-- Largest number of kills or seconds in the arena a profile may hold.
 	maxStat = 1000000000000000,
+	-- Paid offers: most potion kinds and saved-credit kinds, most seconds of one potion, most saved
+	-- credits of one kind, most remembered purchase ids and the longest purchase id (guards against
+	-- junk data; the real limits of the offers are in Config/Offers).
+	maxPotionKinds = 16,
+	maxPotionSeconds = 86400,
+	maxCreditKinds = 8,
+	maxCredits = 100,
+	maxReceipts = 200,
+	maxReceiptLength = 128,
 }

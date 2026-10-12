@@ -17,10 +17,10 @@ local DinoLook = require(Shared:WaitForChild("DinoLook"))
 local Variants = require(Shared:WaitForChild("Variants"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
-local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local VariantConfig = require(Shared:WaitForChild("Config"):WaitForChild("Variants"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 local LOOK_NAME = "DinoLook"
 local MODELS_FOLDER = "Models"
@@ -241,7 +241,7 @@ function AppearanceService.removeLook(character: Model)
 end
 
 -- White glow around the character while the spawn protection lasts.
-local function showProtection(character: Model)
+local function showProtection(character: Model, seconds: number)
 	local highlight = Instance.new("Highlight")
 	highlight.Name = "SpawnProtection"
 	highlight.Adornee = character
@@ -250,7 +250,7 @@ local function showProtection(character: Model)
 	highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
 	highlight.OutlineTransparency = PROTECTION_OUTLINE_TRANSPARENCY
 	highlight.Parent = character
-	Debris:AddItem(highlight, Arena.spawnProtectionSeconds)
+	Debris:AddItem(highlight, seconds)
 end
 
 function AppearanceService.playCloud(character: Model)
@@ -296,7 +296,11 @@ local function onStage(player: Player, stageId: string, reason: "reset" | "grow"
 		if reason == "grow" then
 			AppearanceService.playCloud(character)
 		elseif reason == "round" then
-			showProtection(character)
+			-- Lasts as long as the protection of the server (a shield potion makes it longer).
+			local seconds = PlayerState.protectedUntil(player) - ServerClock.now()
+			if seconds > 0 then
+				showProtection(character, seconds)
+			end
 		end
 	end)
 end

@@ -328,3 +328,30 @@ Stand: noch nicht in Studio getestet. Zum Testen brauchst du Münzen (Taste `H` 
 - [ ] Im Gastmodus steht „Your progress must be saved to open eggs.“, es werden keine Münzen abgebucht.
 - [ ] Nach Neustart sind Münzen und Varianten wie nach dem Ei (Log `egg opened`, danach Speichern).
 - [ ] Das Fenster erscheint nur im Shop-Kreis und lässt sich auf 360 px Breite ganz bedienen.
+
+## Ausbau L8: Bezahlte Angebote
+
+Stand: noch nicht in Studio getestet. Die sechs Developer Products (IDs in `src/shared/Config/Offers.luau`) stehen mit 1 Robux im Creator Hub. **Vor dem ersten Kauf im Kaufdialog nachsehen, ob Studio echte Robux abbucht** (Dialog zeigt den Preis). Zum Testen: Place veröffentlicht, Studio-Zugriff auf API-Dienste an, Profil geladen (kein Gastmodus). Das Profil wird auf **Version 6** migriert.
+
+Start:
+- [ ] Output zeigt `OfferService started potions=4`, kein `offer config invalid`, `Receipts handler registered name=offers`.
+- [ ] Profil: Log `status = migrated` (von 5 auf 6), danach `loaded`.
+
+Revive:
+- [ ] In der Arena gefressen werden, im Todes-Fenster „Revive at your size / View offer“ antippen: Der Kaufdialog öffnet sich. Nach dem Kauf wird der Spieler wieder in die Arena gesetzt, mit **denselben Punkten und demselben Dino**, mit Schutz (weißer Schimmer), Meldung „You are back!“. Log `offer granted`, `credit used`, `revived`.
+- [ ] Kauf **nach** Ablauf der 15 Sekunden: Das Revive ist gespeichert; beim nächsten Tod steht „Revive at your size (saved: 1)“, ein Tipp nutzt es ohne neuen Kauf.
+- [ ] Arena voll beim Revive: Meldung „Revive not possible now…“, das Revive bleibt gespeichert, das Fenster geht wieder auf.
+- [ ] Derselbe Beleg zweimal (Spiel mitten im Kauf beenden, neu starten): Nur ein Revive, Log `repeated receipt ignored`.
+- [ ] Das Fenster schließt sich nach der Wahl, „Back to lobby“ geht weiter.
+
+Kopfgeld:
+- [ ] „Bounty on <Name>“ antippen und kaufen: Der Killer bekommt das „BOUNTY ×3“-Schild, wer ihn frisst, bekommt dreimal so viele Münzen. Meldung „Bounty placed on …“.
+- [ ] Ist der Killer nicht mehr in der Arena, bleibt das Kopfgeld gespeichert („Bounty on … (saved: 1)“).
+
+Tränke (Booster-Kreis):
+- [ ] Das Fenster zeigt vier Tränke mit Wirkung und Dauer („10m in the arena“). „View offer“ öffnet den Kaufdialog. Gäste und Spieler ohne geladenes Profil sehen graue Knöpfe und den Hinweis „Your progress must be saved…“.
+- [ ] Nach dem Kauf zeigt das Fenster „10m left“, Meldung „<Name> potion added“. Die Zeit läuft **nur in der Arena** herunter (in der Lobby bleibt sie stehen); in der Arena zeigt die kleine Liste unter dem Münzzähler die Restzeit.
+- [ ] **Growth:** Futter gibt doppelt so viele Punkte (Fressen von Spielern nicht). **Coin:** Münzen für neue Stufen und fürs Fressen doppelt. **Speed:** der Dino ist spürbar etwa 15 % schneller, ohne dass der Server ihn zurückzieht (kein „rubberband“). **Shield:** nach dem Start in der Arena halten die Schutzzeit und der weiße Schimmer 5 Sekunden länger (9 statt 4).
+- [ ] Zwei Tränke derselben Art zählen die Zeit zusammen, bis höchstens 60 Minuten; darüber steht „Full“.
+- [ ] Ende der Zeit: Meldung „<Name> potion ended“, die Wirkung ist weg.
+- [ ] Nach Neustart ist die Restzeit noch da.

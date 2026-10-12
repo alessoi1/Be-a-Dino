@@ -15,6 +15,7 @@ local CoinConfig = require(Shared:WaitForChild("Config"):WaitForChild("Coins"))
 local ProfileConfig = require(Shared:WaitForChild("Config"):WaitForChild("Profile"))
 
 local DataService = require(script.Parent:WaitForChild("DataService"))
+local OfferService = require(script.Parent:WaitForChild("OfferService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 
 local log = Log.new("CoinService")
@@ -50,6 +51,16 @@ function CoinService.add(player: Player, amount: number)
 	publish(player)
 end
 
+-- Adds coins that were earned by playing (stage rewards, eating): a running coin potion
+-- raises the amount. Returns the coins actually added.
+function CoinService.addEarned(player: Player, amount: number): number
+	local boosted = Coins.boosted(amount, OfferService.coinFactor(player))
+	if boosted > 0 then
+		CoinService.add(player, boosted)
+	end
+	return boosted
+end
+
 -- Takes `price` coins. Returns false (and takes nothing) when there are not enough.
 function CoinService.spend(player: Player, price: number): boolean
 	local data = DataService.getData(player)
@@ -71,8 +82,8 @@ function CoinService.start()
 	PlayerState.onGrow(function(player: Player, fromIndex: number, toIndex: number)
 		local amount = Coins.forStages(fromIndex, toIndex, CoinConfig.perStageFactor)
 		if amount > 0 then
-			CoinService.add(player, amount)
-			log.info("coins earned", { userId = player.UserId, amount = amount, from = fromIndex, to = toIndex })
+			local added = CoinService.addEarned(player, amount)
+			log.info("coins earned", { userId = player.UserId, amount = added, from = fromIndex, to = toIndex })
 		end
 	end)
 

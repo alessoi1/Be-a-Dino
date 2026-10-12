@@ -284,3 +284,89 @@ test("ProfileData: a version 4 profile is migrated, the skin fields are dropped"
 	assertEquals(raw.ownedSkins.compy_berry, true, "input stays untouched")
 	assertTrue((ProfileData.validate(migrated, Profile)))
 end)
+
+test("ProfileData: a new profile has empty offer fields", function()
+	local data = ProfileData.new(1)
+	assertEquals(next(data.potionSeconds), nil)
+	assertEquals(next(data.credits), nil)
+	assertEquals(#data.receipts, 0)
+end)
+
+test("ProfileData: validate rejects broken offer fields", function()
+	local function rejects(change: (data: any) -> (), label: string)
+		local data: any = ProfileData.new(1000)
+		change(data)
+		assertTrue(not ProfileData.validate(data, Profile), label)
+	end
+	rejects(function(data)
+		data.potionSeconds = "none"
+	end, "potionSeconds type")
+	rejects(function(data)
+		data.potionSeconds = { growth = 0 }
+	end, "potion seconds must be above 0")
+	rejects(function(data)
+		data.potionSeconds = { growth = Profile.maxPotionSeconds + 1 }
+	end, "potion seconds above the limit")
+	rejects(function(data)
+		data.potionSeconds = { growth = 0 / 0 }
+	end, "potion seconds nan")
+	rejects(function(data)
+		data.potionSeconds = { [1] = 5 }
+	end, "potion key")
+	rejects(function(data)
+		data.credits = { revive = 1.5 }
+	end, "credit count whole")
+	rejects(function(data)
+		data.credits = { revive = 0 }
+	end, "credit count at least 1")
+	rejects(function(data)
+		data.credits = { revive = Profile.maxCredits + 1 }
+	end, "credit above the limit")
+	rejects(function(data)
+		data.receipts = { 5 }
+	end, "receipt must be text")
+	rejects(function(data)
+		data.receipts = "none"
+	end, "receipts type")
+	rejects(function(data)
+		local list = {}
+		for index = 1, Profile.maxReceipts + 1 do
+			list[index] = "p" .. index
+		end
+		data.receipts = list
+	end, "too many receipts")
+	rejects(function(data)
+		data.receipts = { string.rep("x", Profile.maxReceiptLength + 1) }
+	end, "receipt too long")
+	rejects(function(data)
+		data.receipts = { [1] = "a", [3] = "b" }
+	end, "receipts with a gap")
+	local ok: any = ProfileData.new(1000)
+	ok.potionSeconds = { growth = 300 }
+	ok.credits = { revive = 2 }
+	ok.receipts = { "a", "b" }
+	assertTrue((ProfileData.validate(ok, Profile)))
+end)
+
+test("ProfileData: a version 5 profile is migrated and keeps everything", function()
+	local raw: any = {
+		version = 5,
+		createdAt = 9,
+		reachedStages = { compy = true },
+		bestPoints = 12,
+		variants = { compy = { gold = true } },
+		equippedVariants = { compy = "gold" },
+		coins = 40,
+		kills = 3,
+		playSeconds = 600,
+	}
+	local migrated: any = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	assertEquals(migrated.version, ProfileData.VERSION)
+	assertEquals(migrated.coins, 40)
+	assertEquals(migrated.variants.compy.gold, true)
+	assertEquals(next(migrated.potionSeconds), nil)
+	assertEquals(#migrated.receipts, 0)
+	assertEquals(raw.potionSeconds, nil, "input stays untouched")
+	assertTrue((ProfileData.validate(migrated, Profile)))
+end)

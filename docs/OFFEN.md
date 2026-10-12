@@ -37,7 +37,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] L6 Globale Ranglisten in der Lobby (Code fertig, Studio-Test offen)
 - [x] L7a Varianten (Glowing, Gold, Shadow, Rainbow) für alle 50 Dinos, ersetzen die Skins (Code fertig, Studio-Test offen)
 - [x] L7b Eier mit Münzen (Shop-Kreis, Chancen in Prozent, Doppelte geben Münzen zurück)
-- [ ] L8 Bezahltes (Wiederbeleben, Tränke, eventuell Glückseier), nach Richtlinienprüfung
+- [x] L8 Bezahltes (Wiederbeleben, Kopfgeld, vier Tränke; Glückseier entfallen; Code fertig, alle Kauftests in Studio offen)
 
 ## Hinweise
 
