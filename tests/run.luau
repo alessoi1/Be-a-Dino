@@ -106,6 +106,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/VariantBook.spec")
 	end,
+	function()
+		require("./specs/Eggs.spec")
+	end,
 }
 
 local passed = 0

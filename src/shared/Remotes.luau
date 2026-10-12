@@ -33,6 +33,12 @@ local Remotes = {
 		-- client -> server event: (active: boolean), the player asks to switch the autofarm on or off;
 		-- the server decides (arena only, at most a few minutes) and publishes the result as an attribute
 		autoFarm = "AutoFarm",
+		-- client -> server event: (no arguments), the player opens an egg in the shop (lobby only);
+		-- the server checks mode, coins and pause and rolls the result
+		openEgg = "OpenEgg",
+		-- server -> client event: (dinoId: string, variantId: string, duplicate: boolean,
+		-- refund: number), what the egg gave; display only
+		eggResult = "EggResult",
 		-- server -> client event: (kind: "ate" | "eaten", otherName: string, points: number,
 		-- coins: number?, bounty: boolean?), display only
 		notice = "Notice",

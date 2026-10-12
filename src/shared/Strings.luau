@@ -145,6 +145,26 @@ return {
 		shopTitle = "Shop",
 		boostTitle = "Boosters",
 	},
+	eggs = {
+		title = "Dino egg",
+		-- %s = price (short number)
+		price = "%s coins",
+		-- %s = coins the player has (short number)
+		balance = "You have %s coins",
+		open = "Open egg",
+		opening = "Opening...",
+		notEnough = "Not enough coins",
+		chancesTitle = "Chances",
+		-- %s = variant name, %s = percent number
+		chance = "%s: %s%%",
+		-- %s = variant name, %s = dino name
+		got = "%s %s!",
+		duplicate = "You already had it",
+		-- %s = coins given back (short number)
+		refund = "+%s coins back",
+		newOne = "New!",
+		unavailable = "Your progress must be saved to open eggs.",
+	},
 	boards = {
 		-- Titles of the global leaderboards in the lobby (by list id, see Config/Leaderboards).
 		kills = "Most kills",

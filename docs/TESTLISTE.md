@@ -313,3 +313,18 @@ Dinodex:
 - [ ] Neustart als Compy nach dem Gefressenwerden: Der Compy trägt seine gewählte Variante wieder. Nach einem Stufenwechsel trägt der neue Dino die dort gewählte Variante.
 - [ ] Spiel beenden und neu starten: Besitz und Auswahl sind wieder da (nur mit Speichern, siehe 7a).
 - [ ] Schnelles Tippen auf „Equip“ erzeugt keine Fehler, im Log höchstens `remote call rejected` mit `rate_limited` (höchstens alle 5 Sekunden).
+
+## Ausbau L7b: Eier im Shop
+
+Stand: noch nicht in Studio getestet. Zum Testen brauchst du Münzen (Taste `H` springt zum nächsten Dino und gibt Münzen) und ein geladenes Profil (kein Gastmodus, Place veröffentlicht, Studio-Zugriff auf API-Dienste an).
+
+- [ ] Output zeigt `EggService started price=200`, kein `egg config invalid`.
+- [ ] Im Shop-Kreis erscheint das Fenster „Dino egg“ mit Preis, Münzstand und vier Chancen in Prozent (70, 22, 6, 2), zusammen 100.
+- [ ] Mit weniger als 200 Münzen steht auf dem Knopf „Not enough coins“ und er tut nichts.
+- [ ] Mit genug Münzen: „Open egg“ bucht 200 Münzen ab, nach kurzem Warten steht dort „Variante Dino!“ und „New!“. Die Variante ist im Dinodex als „Equip“ verfügbar.
+- [ ] Ein Doppeltes zeigt „You already had it (+100 coins back)“, netto kostet es 100 Münzen.
+- [ ] Es kommen nur bereits erreichte Dinos heraus (im Dinodex prüfen).
+- [ ] Mehrfaches schnelles Tippen öffnet nur ein Ei pro Tipp, im Log höchstens `remote call rejected` mit `rate_limited` oder `busy`.
+- [ ] Im Gastmodus steht „Your progress must be saved to open eggs.“, es werden keine Münzen abgebucht.
+- [ ] Nach Neustart sind Münzen und Varianten wie nach dem Ei (Log `egg opened`, danach Speichern).
+- [ ] Das Fenster erscheint nur im Shop-Kreis und lässt sich auf 360 px Breite ganz bedienen.
