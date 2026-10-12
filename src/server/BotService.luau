@@ -169,7 +169,7 @@ local function spawnBody(bot: Bot)
 	end
 	PlayerCollision.assign(model)
 	model:ScaleTo(scale)
-	AppearanceService.attachBotLook(model, Dinos[bot.state.stageIndex].id)
+	task.spawn(AppearanceService.attachBotLook, model, Dinos[bot.state.stageIndex].id)
 
 	bot.model = model
 	bot.humanoid = humanoid
@@ -295,7 +295,7 @@ function BotService.addPoints(id: number, amount: number)
 		model:ScaleTo(scale)
 	end
 	if changed then
-		AppearanceService.attachBotLook(model, Dinos[updated.stageIndex].id)
+		task.spawn(AppearanceService.attachBotLook, model, Dinos[updated.stageIndex].id)
 		AppearanceService.playCloud(model)
 		log.info("bot stage changed", { id = id, stage = Dinos[updated.stageIndex].id, points = updated.points })
 	end

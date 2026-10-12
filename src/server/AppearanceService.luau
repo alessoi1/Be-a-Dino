@@ -1,10 +1,12 @@
 --!strict
 -- Shows every player as the dino of their current stage: hides the avatar and welds
 -- the dino look to the figure. A real model (ServerStorage/Models/<stage id>) is used
--- when it exists and passes the checks, otherwise the placeholder built from parts
+-- when it exists and passes the checks, then the real shape of the dino (the meshes of
+-- Config/DinoMeshes, colored per dino), otherwise the placeholder built from parts
 -- (Config/DinoLooks). The Humanoid stays the physics body, so movement is unchanged.
 -- Only checkable in Roblox Studio.
 
+local AssetService = game:GetService("AssetService")
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,15 +16,19 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local DinoBody = require(Shared:WaitForChild("DinoBody"))
 local DinoLook = require(Shared:WaitForChild("DinoLook"))
+local DinoMesh = require(Shared:WaitForChild("DinoMesh"))
 local Variants = require(Shared:WaitForChild("Variants"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
+local DinoMeshes = require(Shared:WaitForChild("Config"):WaitForChild("DinoMeshes"))
 local VariantConfig = require(Shared:WaitForChild("Config"):WaitForChild("Variants"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 local LOOK_NAME = "DinoLook"
+-- Set on the parts that move; the client turns their joints (see DinoAnimator).
+local LIMB_ATTRIBUTE = "Limb"
 local MODELS_FOLDER = "Models"
 -- Seconds to wait for the parts of a new character.
 local CHARACTER_WAIT = 5
@@ -124,6 +130,165 @@ local function buildPlaceholder(stageId: string, variantId: string?): Model?
 	return model
 end
 
+-- The loaded meshes of every template: template name -> part name -> MeshPart (never shown, only
+-- cloned). A template is "loading" until all its meshes had their try, then "ready" or "failed".
+local meshParts: { [string]: { [string]: MeshPart } } = {}
+local templateState: { [string]: "loading" | "ready" | "failed" } = {}
+-- Seconds between two checks while a dino waits for its meshes.
+local MESH_WAIT_STEP = 0.1
+
+-- Loads all meshes of one template at the same time. A mesh that cannot be loaded (wrong id, no
+-- permission, no connection) is logged and the dinos of that template keep their placeholder.
+local function loadTemplate(templateName: string, template: { parts: { any } })
+	local parts: { [string]: MeshPart } = {}
+	local pending = #template.parts
+	local failed = false
+	for _, spec in template.parts do
+		task.spawn(function()
+			local ok, result = pcall(function()
+				return AssetService:CreateMeshPartAsync(Content.fromAssetId(spec.meshId))
+			end)
+			if ok then
+				parts[spec.name] = result
+			else
+				failed = true
+				log.error(
+					"mesh not loaded",
+					{ template = templateName, part = spec.name, meshId = spec.meshId, error = tostring(result) }
+				)
+			end
+			pending -= 1
+		end)
+	end
+	while pending > 0 do
+		task.wait(MESH_WAIT_STEP)
+	end
+	meshParts[templateName] = parts
+	templateState[templateName] = if failed then "failed" else "ready"
+	log.info("meshes loaded", { template = templateName, state = templateState[templateName] })
+end
+
+-- Starts loading every template; they load at the same time, and each one can be used as soon as
+-- it is ready. When everything is there, characters that got a placeholder in the meantime are
+-- refreshed (see AppearanceService.start).
+local function loadMeshes(onDone: () -> ())
+	local pending = 0
+	for templateName in DinoMeshes.templates do
+		templateState[templateName] = "loading"
+		pending += 1
+	end
+	for templateName, template in DinoMeshes.templates do
+		task.spawn(function()
+			loadTemplate(templateName, template)
+			pending -= 1
+		end)
+	end
+	while pending > 0 do
+		task.wait(MESH_WAIT_STEP)
+	end
+	onDone()
+end
+
+local function colorOf(color: { r: number, g: number, b: number }): Color3
+	return Color3.fromRGB(color.r, color.g, color.b)
+end
+
+-- The look of a dino from its real shape: the meshes of the template, colored for this dino
+-- (and its variant). Nil when the dino has no shape yet or the meshes are not usable.
+local function buildMeshLook(stageId: string, variantId: string?): Model?
+	local entry = DinoMesh.resolve(stageId, DinoLooks.plans, DinoMeshes.dinos, DinoMeshes.templates)
+	if entry == nil then
+		return nil
+	end
+	local waited = 0
+	while templateState[entry.template] == "loading" and waited < DinoMeshes.loadWaitSeconds do
+		task.wait(MESH_WAIT_STEP)
+		waited += MESH_WAIT_STEP
+	end
+	if templateState[entry.template] == "loading" then
+		log.warn("meshes still loading, placeholder used", { stage = stageId, template = entry.template })
+		return nil
+	end
+	local loaded = meshParts[entry.template]
+	if loaded == nil then
+		return nil
+	end
+
+	local template = DinoMeshes.templates[entry.template]
+	local variant = if variantId ~= nil then Variants.find(VariantConfig.variants, variantId) else nil
+	local varied = 0
+	for _, spec in template.parts do
+		if DinoMesh.isVaried(spec.role) then
+			varied += 1
+		end
+	end
+
+	local model = Instance.new("Model")
+	model.Name = stageId
+	if variant ~= nil then
+		-- The client animates the rainbow variant near the camera (see VariantEffects).
+		model:SetAttribute("Variant", variant.id)
+	end
+	local variedIndex = 0
+	local created: { [string]: MeshPart } = {}
+	for _, spec in template.parts do
+		local source = loaded[spec.name]
+		if source == nil then
+			continue
+		end
+		local part = source:Clone()
+		part.Name = spec.name
+		if spec.limb ~= nil and spec.joint ~= nil then
+			part:SetAttribute(LIMB_ATTRIBUTE, spec.limb)
+		end
+		created[spec.name] = part
+		part.CFrame = CFrame.new(spec.offset.x, spec.offset.y, spec.offset.z)
+		local color = DinoMesh.colorFor(spec.role, entry, DinoMeshes.fixed)
+		if DinoMesh.isVaried(spec.role) then
+			variedIndex += 1
+			if variant ~= nil then
+				local appearance = Variants.appearance(
+					variant,
+					color,
+					spec.role,
+					variedIndex,
+					varied,
+					VariantConfig.rainbowSaturation,
+					VariantConfig.rainbowValue
+				)
+				color = appearance.color
+				part.Material = MATERIALS[appearance.material] or part.Material
+				part.Transparency = appearance.transparency
+			end
+		else
+			-- Eyes and the dark details do not change with the variants (also not the rainbow).
+			part:SetAttribute("NoVariant", true)
+		end
+		part.Color = colorOf(color)
+		part.Parent = model
+	end
+	-- The moving parts turn around their joint, relative to the fixed root part.
+	local rootPart = created[template.root]
+	if rootPart ~= nil then
+		for _, spec in template.parts do
+			local part = created[spec.name]
+			local joint = spec.joint
+			if part ~= nil and spec.limb ~= nil and joint ~= nil then
+				local jointFrame = CFrame.new(joint.x, joint.y, joint.z)
+				local motor = Instance.new("Motor6D")
+				motor.Name = spec.limb
+				motor.Part0 = rootPart
+				motor.Part1 = part
+				motor.C0 = rootPart.CFrame:ToObjectSpace(jointFrame)
+				motor.C1 = part.CFrame:ToObjectSpace(jointFrame)
+				motor.Parent = part
+			end
+		end
+	end
+	model.WorldPivot = CFrame.new()
+	return model
+end
+
 -- Returns false with a log entry when the model breaks the rules.
 local function checkModel(stageId: string, model: Model): boolean
 	local partCount = 0
@@ -159,6 +324,10 @@ local function loadLook(stageId: string, variantId: string?): Model?
 	if template ~= nil and not template:IsA("Model") then
 		log.error("model rejected", { stage = stageId, reason = "not_a_model", class = template.ClassName })
 	end
+	local meshLook = buildMeshLook(stageId, variantId)
+	if meshLook ~= nil then
+		return meshLook
+	end
 	return buildPlaceholder(stageId, variantId)
 end
 
@@ -187,14 +356,40 @@ local function weld(root: BasePart, part: BasePart)
 	part.CanTouch = false
 	part.CanQuery = false
 	part.Massless = true
+	-- A moving part (leg, tail) hangs on a Motor6D of the look instead (see buildMeshLook).
+	if part:GetAttribute(LIMB_ATTRIBUTE) ~= nil then
+		return
+	end
 	local constraint = Instance.new("WeldConstraint")
 	constraint.Part0 = root
 	constraint.Part1 = part
 	constraint.Parent = part
 end
 
--- Scales the look to the character, puts it on the root and welds every part to it.
+-- Building a look can take a while (the meshes may still be loading), and several requests for
+-- the same character can overlap (for example the two state resets at the start). The newest
+-- request wins: an older one that finishes later drops its look instead of adding a second dino.
+local latestRequest: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+local requestCounter = 0
+
+local function claimRequest(character: Model): number
+	requestCounter += 1
+	latestRequest[character] = requestCounter
+	return requestCounter
+end
+
+local function isCurrent(character: Model, request: number): boolean
+	return latestRequest[character] == request and character.Parent ~= nil
+end
+
+-- Scales the look to the character, puts it on the root and welds every part to it. Looks that
+-- are already on the character are removed first, so there is never more than one.
 local function mountLook(character: Model, root: BasePart, look: Model)
+	for _, child in character:GetChildren() do
+		if child.Name == LOOK_NAME then
+			child:Destroy()
+		end
+	end
 	look.Name = LOOK_NAME
 	look:ScaleTo(character:GetScale())
 	look:PivotTo(root.CFrame)
@@ -213,10 +408,7 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		return
 	end
 
-	local old = character:FindFirstChild(LOOK_NAME)
-	if old ~= nil then
-		old:Destroy()
-	end
+	local request = claimRequest(character)
 
 	local variantId: string? = nil
 	if variantProvider ~= nil then
@@ -232,6 +424,11 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		log.error("no look for stage", { userId = player.UserId, stage = stageId })
 		return
 	end
+	if not isCurrent(character, request) then
+		log.debug("look dropped, a newer request exists", { userId = player.UserId, stage = stageId })
+		look:Destroy()
+		return
+	end
 	mountLook(character, root, look)
 	hideAvatar(character)
 	log.debug("look attached", { userId = player.UserId, stage = stageId })
@@ -244,13 +441,14 @@ function AppearanceService.attachBotLook(model: Model, stageId: string): boolean
 		log.warn("bot look not attached", { stage = stageId, reason = "no_root" })
 		return false
 	end
-	local old = model:FindFirstChild(LOOK_NAME)
-	if old ~= nil then
-		old:Destroy()
-	end
+	local request = claimRequest(model)
 	local look = loadLook(stageId, nil)
 	if look == nil then
 		log.error("no look for stage", { stage = stageId, bot = true })
+		return false
+	end
+	if not isCurrent(model, request) then
+		look:Destroy()
 		return false
 	end
 	mountLook(model, root, look)
@@ -349,6 +547,24 @@ function AppearanceService.start()
 	local problems = DinoLook.validate(Dinos, DinoBody.resolveAll(DinoLooks.looks, DinoLooks.plans), DinoLooks.maxParts)
 	if #problems > 0 then
 		log.error("dino looks invalid", { problems = table.concat(problems, "; ") })
+	end
+
+	local meshProblems = DinoMesh.validate(DinoMeshes.templates, DinoMeshes.dinos, DinoMeshes.fixed, DinoLooks.maxParts)
+	if #meshProblems > 0 then
+		log.error("dino meshes invalid", { problems = table.concat(meshProblems, "; ") })
+		for templateName in DinoMeshes.templates do
+			templateState[templateName] = "failed"
+		end
+	else
+		task.spawn(loadMeshes, function()
+			-- Anyone who got a placeholder while the meshes were loading gets the real shape now.
+			for _, player in Players:GetPlayers() do
+				local stage = player:GetAttribute("Stage")
+				if player.Character ~= nil and typeof(stage) == "string" then
+					AppearanceService.refresh(player, stage)
+				end
+			end
+		end)
 	end
 
 	PlayerState.onStage(onStage)

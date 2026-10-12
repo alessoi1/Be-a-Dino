@@ -102,24 +102,56 @@ local looks: { [string]: Look } = {
 	},
 }
 
--- Colors for the planned dinos: the main color and the second color (claws, crests, plates ...).
-local palette: { { body: Color, accent: Color } } = {
-	{ body = { r = 100, g = 170, b = 90 }, accent = { r = 235, g = 215, b = 100 } },
-	{ body = { r = 225, g = 140, b = 60 }, accent = { r = 250, g = 230, b = 190 } },
-	{ body = { r = 110, g = 125, b = 150 }, accent = { r = 80, g = 190, b = 170 } },
-	{ body = { r = 140, g = 100, b = 70 }, accent = { r = 220, g = 190, b = 140 } },
-	{ body = { r = 190, g = 70, b = 60 }, accent = { r = 60, g = 50, b = 50 } },
-	{ body = { r = 120, g = 140, b = 70 }, accent = { r = 240, g = 160, b = 60 } },
-	{ body = { r = 130, g = 90, b = 170 }, accent = { r = 240, g = 160, b = 210 } },
-	{ body = { r = 80, g = 130, b = 200 }, accent = { r = 235, g = 240, b = 250 } },
-	{ body = { r = 210, g = 180, b = 120 }, accent = { r = 130, g = 90, b = 60 } },
-	{ body = { r = 60, g = 150, b = 150 }, accent = { r = 190, g = 230, b = 90 } },
-	{ body = { r = 150, g = 150, b = 155 }, accent = { r = 200, g = 70, b = 70 } },
-	{ body = { r = 60, g = 110, b = 80 }, accent = { r = 170, g = 230, b = 190 } },
+-- Colors for the planned dinos, in natural tones. Every body shape has its own color family, so a
+-- dino can be recognized by its color alone: runners olive and tan, the heavy hunters reddish
+-- brown, duckbills blue green, armored dinos stone grey, horned dinos sandy orange and the long
+-- necks blue grey. A dino takes one of the colors of its family. Each entry is the skin color (the
+-- pattern of the real shapes is multiplied with it, so it shows a little darker) and the second
+-- color (claws, teeth, horns, crests; mostly ivory). The first color of a family is the one the
+-- preview in tools/blender/dinos.py uses.
+local ivory = { r = 232, g = 222, b = 190 }
+local families: { [string]: { { body: Color, accent: Color } } } = {
+	runner = {
+		{ body = { r = 153, g = 143, b = 87 }, accent = ivory },
+		{ body = { r = 178, g = 150, b = 100 }, accent = ivory },
+		{ body = { r = 160, g = 120, b = 70 }, accent = ivory },
+		{ body = { r = 120, g = 140, b = 110 }, accent = ivory },
+	},
+	biped = {
+		{ body = { r = 158, g = 77, b = 61 }, accent = ivory },
+		{ body = { r = 120, g = 80, b = 58 }, accent = ivory },
+		{ body = { r = 140, g = 62, b = 62 }, accent = ivory },
+		{ body = { r = 105, g = 88, b = 60 }, accent = ivory },
+	},
+	duckbill = {
+		{ body = { r = 77, g = 148, b = 138 }, accent = { r = 240, g = 170, b = 80 } },
+		{ body = { r = 95, g = 150, b = 140 }, accent = { r = 240, g = 170, b = 80 } },
+		{ body = { r = 120, g = 170, b = 130 }, accent = { r = 235, g = 150, b = 70 } },
+		{ body = { r = 60, g = 120, b = 125 }, accent = { r = 235, g = 150, b = 70 } },
+	},
+	armored = {
+		{ body = { r = 133, g = 128, b = 117 }, accent = ivory },
+		{ body = { r = 150, g = 135, b = 115 }, accent = ivory },
+		{ body = { r = 105, g = 100, b = 95 }, accent = ivory },
+		{ body = { r = 140, g = 125, b = 105 }, accent = ivory },
+	},
+	horned = {
+		{ body = { r = 204, g = 140, b = 82 }, accent = ivory },
+		{ body = { r = 185, g = 115, b = 70 }, accent = ivory },
+		{ body = { r = 210, g = 165, b = 100 }, accent = ivory },
+		{ body = { r = 170, g = 95, b = 60 }, accent = ivory },
+	},
+	longneck = {
+		{ body = { r = 112, g = 133, b = 163 }, accent = ivory },
+		{ body = { r = 130, g = 145, b = 165 }, accent = ivory },
+		{ body = { r = 95, g = 115, b = 140 }, accent = ivory },
+		{ body = { r = 140, g = 150, b = 170 }, accent = ivory },
+	},
 }
 
 local function plan(template: string, paletteIndex: number, length: number, height: number, feature: number): Plan
-	local colors = palette[paletteIndex]
+	local family = families[template]
+	local colors = family[(paletteIndex - 1) % #family + 1]
 	return {
 		template = template,
 		length = length,

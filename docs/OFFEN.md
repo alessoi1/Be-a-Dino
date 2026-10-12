@@ -39,6 +39,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] L7b Eier mit Münzen (Shop-Kreis, Chancen in Prozent, Doppelte geben Münzen zurück)
 - [x] L8 Bezahltes (Wiederbeleben, Kopfgeld, vier Tränke; Glückseier entfallen; Code fertig, alle Kauftests in Studio offen)
 - [x] L9 Bots: füllen die Arena bis acht Dinos auf, der kleinste geht pro eintretendem Spieler; fressen und werden gefressen (Code fertig, Studio-Test offen, Abschnitt Bots in `docs/TESTLISTE.md`)
+- [ ] Dino-Optik (kantiges Low-Poly, Filmfarben, Blender-Formen mit Lauf-Animation): alle sechs Formen sind fertig und eingebaut (`docs/MODELLE.md`); offen sind Handytest (Leistung mit vielen animierten Dinos), Varianten (Gold, Shadow, Rainbow) auf den neuen Formen ansehen, Feinschliff einzelner Formen, danach Arena, Lobby und Oberfläche im selben Stil.
 
 ## Hinweise
 
