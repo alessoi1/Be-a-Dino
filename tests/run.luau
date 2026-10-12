@@ -121,6 +121,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/DinoAnim.spec")
 	end,
+	function()
+		require("./specs/ScenerySpawn.spec")
+	end,
 }
 
 local passed = 0
