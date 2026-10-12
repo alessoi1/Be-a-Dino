@@ -112,6 +112,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/Offers.spec")
 	end,
+	function()
+		require("./specs/BotBrain.spec")
+	end,
 }
 
 local passed = 0

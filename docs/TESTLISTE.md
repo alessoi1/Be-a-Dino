@@ -355,3 +355,26 @@ Tränke (Booster-Kreis):
 - [ ] Zwei Tränke derselben Art zählen die Zeit zusammen, bis höchstens 60 Minuten; darüber steht „Full“.
 - [ ] Ende der Zeit: Meldung „<Name> potion ended“, die Wirkung ist weg.
 - [ ] Nach Neustart ist die Restzeit noch da.
+
+## Bots
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Bots.luau` (Startwerte, noch nicht balanciert). Die Bots sind Modelle aus einem Humanoid auf einem unsichtbaren Wurzelteil, **ob das Laufen und das Skalieren so funktioniert, zeigt erst Studio.**
+
+Start und Anzahl:
+- [ ] Output zeigt `BotService started fillTo=8` und acht Mal `bot spawned`; im Workspace gibt es den Ordner `Bots` mit den Modellen.
+- [ ] Die Bots stehen auf dem Boden (nicht in der Luft oder im Boden), sehen aus wie Dinos (Platzhalter) und tragen Namen aus `Strings.botNames`.
+- [ ] Ein Spieler in der Lobby ändert nichts. Betritt der erste Spieler die Arena, geht ein Bot (Log `bot removed reason=player_entered`, Wolke), der kleinste zuerst. Mit sieben Spielern in der Arena bleibt ein Bot, mit acht keiner.
+- [ ] Verlässt ein Spieler die Arena, kommt nach etwa einer Sekunde ein Bot nach.
+
+Verhalten:
+- [ ] Bots laufen zum Futter und werden größer (Log `bot stage changed`), bleiben aber bei Stufe 6 stehen (`maxStageIndex`).
+- [ ] Bots laufen vor größeren Dinos weg, jagen kleinere und laufen nicht in die Wände. Bots sind langsamer als ein Spieler derselben Stufe (Sprint holt sie nicht ein, ohne ihn kommt man nicht weg).
+- [ ] Eine eigene Schutzzeit von 4 Sekunden nach dem Auftauchen: in dieser Zeit lässt sich ein Bot nicht fressen und wird nicht gejagt.
+
+Fressen:
+- [ ] Ein ausreichend großer Spieler frisst einen Bot: Bot verschwindet mit Wolke, Meldung „You ate <Name>“ mit Punkten und Münzen, Kill zählt in der Statistik. Der Bot kommt nach 5 Sekunden kleiner zurück (Log `bot eaten`).
+- [ ] Ein Bot frisst einen Spieler: Todes-Fenster mit dem Bot-Namen; „Bounty“ ist grau mit „No bounty on bots“; Revive und „Back to lobby“ funktionieren wie sonst. Log `death offer opened killer=bot`.
+- [ ] Bots fressen sich auch untereinander (Log `player eaten` mit `victimBot=true eaterBot=true`).
+- [ ] Spieler spawnen nicht direkt neben einem Bot.
+- [ ] Keine Fehler im Output (`bot tick failed`, `bot lost its body`, `adding a bot failed`).
+- [ ] Mit mehreren Spielern prüfen, ob die Server-Leistung gut bleibt (kein Ruckeln durch Bots).

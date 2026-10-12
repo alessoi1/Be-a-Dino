@@ -15,6 +15,7 @@ local log = Log.new("PlayerCollision")
 
 local PlayerCollision = {}
 
+-- Puts every part of a character (or a bot) into the dino group, now and for parts added later.
 local function assign(character: Model)
 	for _, descendant in character:GetDescendants() do
 		if descendant:IsA("BasePart") then
@@ -28,6 +29,8 @@ local function assign(character: Model)
 		end
 	end)
 end
+
+PlayerCollision.assign = assign
 
 function PlayerCollision.start()
 	local registered, err = pcall(function()

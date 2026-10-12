@@ -22,6 +22,9 @@ local SPAWN_HEIGHT = 5
 
 local random = Random.new()
 
+-- Where the bots are right now (nil until the BotService registers).
+local botPositions: (() -> { { x: number, z: number } })? = nil
+
 local ArenaService = {}
 
 local function makePart(parent: Instance, name: string, size: Vector3, position: Vector3, color: Color3)
@@ -130,9 +133,20 @@ local function randomPoint(): { x: number, z: number }
 	return { x = x, z = z }
 end
 
--- Of a few random spots, the one farthest from every other player in the arena.
-function ArenaService.spawnPosition(spawning: Player): Vector3
+-- Registers where the bots are, so nobody spawns right next to one (set by the BotService).
+function ArenaService.setBotPositions(provider: () -> { { x: number, z: number } })
+	botPositions = provider
+end
+
+-- Of a few random spots, the one farthest from every other player and bot in the arena.
+-- `spawning` is nil for a bot.
+function ArenaService.spawnPosition(spawning: Player?): Vector3
 	local others: { { x: number, z: number } } = {}
+	if botPositions ~= nil then
+		for _, point in botPositions() do
+			table.insert(others, point)
+		end
+	end
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")

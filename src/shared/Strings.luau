@@ -216,6 +216,21 @@ return {
 		-- The sign above a marked player; %d = the multiplier for the coins.
 		marker = "BOUNTY ×%d",
 	},
+	-- Names of the bots (dino names, so they do not pass for players).
+	botNames = {
+		"Rexy",
+		"Spike",
+		"Chomper",
+		"Stompy",
+		"Clawdia",
+		"Nibbles",
+		"Rumble",
+		"Fern",
+		"Bruno",
+		"Zippy",
+		"Mossy",
+		"Tank",
+	},
 	death = {
 		-- %s = name of the one who ate you
 		title = "You were eaten by %s",
@@ -226,6 +241,8 @@ return {
 		reviveSaved = "Revive at your size (saved: %d)",
 		-- %s = name of the one who ate you
 		bounty = "Bounty on %s",
+		-- Shown instead of the bounty choice when a bot ate you.
+		bountyBot = "No bounty on bots",
 		-- %d = saved bounties
 		bountySaved = "Bounty on %s (saved: %d)",
 		-- Second line of a paid choice that opens the purchase dialog.

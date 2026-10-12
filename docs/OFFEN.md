@@ -38,6 +38,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] L7a Varianten (Glowing, Gold, Shadow, Rainbow) für alle 50 Dinos, ersetzen die Skins (Code fertig, Studio-Test offen)
 - [x] L7b Eier mit Münzen (Shop-Kreis, Chancen in Prozent, Doppelte geben Münzen zurück)
 - [x] L8 Bezahltes (Wiederbeleben, Kopfgeld, vier Tränke; Glückseier entfallen; Code fertig, alle Kauftests in Studio offen)
+- [x] L9 Bots: füllen die Arena bis acht Dinos auf, der kleinste geht pro eintretendem Spieler; fressen und werden gefressen (Code fertig, Studio-Test offen, Abschnitt Bots in `docs/TESTLISTE.md`)
 
 ## Hinweise
 
