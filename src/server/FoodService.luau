@@ -78,6 +78,8 @@ local function placeFood(id: number)
 	part.Size = Vector3.new(kind.size, kind.size, kind.size)
 	part.Color = Color3.fromRGB(kind.color.r, kind.color.g, kind.color.b)
 	part.Position = Vector3.new(x, kind.size / 2 + FLOAT_HEIGHT, z)
+	-- Display only: the autofarm of the client prefers valuable pieces.
+	part:SetAttribute("Value", kind.value)
 	part.Parent = folder
 end
 
