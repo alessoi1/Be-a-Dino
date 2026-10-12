@@ -204,3 +204,42 @@ test("ProfileData: a version 2 profile is migrated and keeps everything", functi
 	assertEquals(raw.coins, nil)
 	assertTrue((ProfileData.validate(migrated, Profile)))
 end)
+
+test("ProfileData: a new profile has no kills and no play time", function()
+	local data = ProfileData.new(1)
+	assertEquals(data.kills, 0)
+	assertEquals(data.playSeconds, 0)
+end)
+
+test("ProfileData: invalid statistics are rejected", function()
+	for _, field in { "kills", "playSeconds" } do
+		for _, value in { -1, 0 / 0, 1.5, "5", Profile.maxStat + 1 } do
+			local data: any = ProfileData.new(1)
+			data[field] = value
+			assertTrue(not ProfileData.validate(data, Profile), field .. " " .. tostring(value))
+		end
+		local ok: any = ProfileData.new(1)
+		ok[field] = Profile.maxStat
+		assertTrue((ProfileData.validate(ok, Profile)), field .. " at the limit")
+	end
+end)
+
+test("ProfileData: a version 3 profile is migrated and keeps everything", function()
+	local raw: any = {
+		version = 3,
+		createdAt = 9,
+		reachedStages = { compy = true },
+		bestPoints = 12,
+		ownedSkins = {},
+		equippedSkins = {},
+		coins = 77,
+	}
+	local migrated: any = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	assertEquals(migrated.version, ProfileData.VERSION)
+	assertEquals(migrated.coins, 77)
+	assertEquals(migrated.kills, 0)
+	assertEquals(migrated.playSeconds, 0)
+	assertEquals(raw.kills, nil, "input stays untouched")
+	assertTrue((ProfileData.validate(migrated, Profile)))
+end)

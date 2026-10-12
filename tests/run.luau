@@ -100,6 +100,15 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/AutoFarm.spec")
 	end,
+	function()
+		require("./specs/TimeFormat.spec")
+	end,
+	function()
+		require("./specs/Stats.spec")
+	end,
+	function()
+		require("./specs/GlobalBoard.spec")
+	end,
 }
 
 local passed = 0

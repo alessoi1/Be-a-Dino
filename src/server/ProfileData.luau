@@ -17,6 +17,10 @@ export type Data = {
 	equippedSkins: { [string]: string },
 	-- Coins earned by growing (never bought with Robux).
 	coins: number,
+	-- Players eaten in total.
+	kills: number,
+	-- Seconds in the arena in total (autofarm counts).
+	playSeconds: number,
 }
 
 export type Limits = {
@@ -24,6 +28,7 @@ export type Limits = {
 	maxOwnedSkins: number,
 	maxEquippedSkins: number,
 	maxCoins: number,
+	maxStat: number,
 }
 
 -- Turns data of version n into data of version n + 1 (and sets `version`).
@@ -32,7 +37,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 3
+ProfileData.VERSION = 4
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -58,6 +63,8 @@ function ProfileData.new(now: number): Data
 		ownedSkins = {},
 		equippedSkins = {},
 		coins = 0,
+		kills = 0,
+		playSeconds = 0,
 	}
 end
 
@@ -119,6 +126,13 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 
 	if not isFiniteNumber(data.coins) or data.coins < 0 or data.coins % 1 ~= 0 or data.coins > limits.maxCoins then
 		return false, "coins must be a whole number between 0 and the limit"
+	end
+
+	for _, field in { "kills", "playSeconds" } do
+		local value = data[field]
+		if not isFiniteNumber(value) or value < 0 or value % 1 ~= 0 or value > limits.maxStat then
+			return false, field .. " must be a whole number between 0 and the limit"
+		end
 	end
 	return true, nil
 end
