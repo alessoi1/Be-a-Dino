@@ -109,6 +109,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/GlobalBoard.spec")
 	end,
+	function()
+		require("./specs/Variants.spec")
+	end,
+	function()
+		require("./specs/VariantBook.spec")
+	end,
 }
 
 local passed = 0
