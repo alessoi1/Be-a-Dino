@@ -27,6 +27,9 @@ local Remotes = {
 		-- client -> server event: (active: boolean), the player asks to go back to the lobby (true)
 		-- or cancels the wait (false); the server checks mode and time
 		leaveArena = "LeaveArena",
+		-- client -> server event: (active: boolean), the player asks to switch the autofarm on or off;
+		-- the server decides (arena only, at most a few minutes) and publishes the result as an attribute
+		autoFarm = "AutoFarm",
 		-- server -> client event: (kind: "ate" | "eaten" | "skin", otherName: string, points: number,
 		-- coins: number?, bounty: boolean?), display only
 		notice = "Notice",

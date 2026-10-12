@@ -33,7 +33,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] L2 Große Zahlen, neues Wachstum, Münzen (Code fertig, Studio-Test offen)
 - [x] L3 50 Dinos (Platzhalter), Freischalten durch Größe (Code fertig, Studio-Test offen)
 - [x] L4 Todes-Bildschirm (Zur Lobby; Revive und Kopfgeld als Robux-Knöpfe kommen in L8; Code fertig, Studio-Test offen)
-- [ ] L5 Autofarm
+- [x] L5 Autofarm (Code fertig, Studio-Test offen; das Laufen per `MoveTo` ist der unsichere Teil, siehe docs/TESTLISTE.md)
 - [ ] L6 Globale Ranglisten in der Lobby
 - [ ] L7 Varianten (Glowing, Gold, Shadow, Rainbow) und Eier mit Münzen
 - [ ] L8 Bezahltes (Wiederbeleben, Tränke, eventuell Glückseier), nach Richtlinienprüfung

@@ -284,3 +284,25 @@ Kopfgeld (zum Testen mit der Taste `B` in der Arena, im echten Spiel kommt das S
 - [ ] Ein zweites `B` auf denselben Spieler verlängert nur die Zeit und verdoppelt nichts.
 - [ ] Das Kopfgeld endet nach 120 Sekunden (Schild verschwindet, Log `bounty ended`), wenn der Markierte in die Lobby geht, die Runde verlässt oder gefressen wird.
 - [ ] Der Markierte wird nicht gewarnt: Das ist offen (eine Meldung „Anna put a bounty on you“ kommt mit dem Setzen in L8).
+
+## Ausbau L5: Autofarm
+
+Stand: noch nicht in Studio getestet. **Der unsicherste Teil ist das Laufen:** Roblox' eingebaute Steuerung kann den Laufbefehl des Skripts überschreiben. Bewegt sich der Dino bei eingeschaltetem Autofarm gar nicht oder ruckelt, bitte genau das melden, es gibt einen Plan B (die eingebaute Steuerung währenddessen ausschalten).
+
+Knopf und Schalter:
+- [ ] In der Arena sitzt ein runder Knopf „Auto“ direkt **über dem Sprint-Button**, rechts bündig, und überlappt weder ihn noch den Rand. In der Lobby ist er nicht zu sehen.
+- [ ] Tippen schaltet ein: Der Knopf wird grün und zeigt „Auto ON“ in zwei Zeilen. Nochmal tippen schaltet aus. Am PC schaltet die Taste `F` ebenfalls.
+- [ ] Im Log: `autofarm started` und `autofarm stopped` mit dem Grund (`player`, `time_over`, `reset`, `round`).
+
+Verhalten:
+- [ ] Eingeschaltet läuft der Dino von selbst zu Futter und sammelt es auf. Punkte und Münzen steigen wie beim normalen Spielen.
+- [ ] Große Futterstücke (gelb, rot) werden bevorzugt, auch wenn sie etwas weiter weg liegen. Es läuft nicht stur zum nächstliegenden kleinen Stück.
+- [ ] Mit einem zweiten, **größeren** Spieler (Test-Tab, `H` drücken): Kommt er nahe (etwa seine Fressreichweite plus 25 Studs), läuft der Autofarm-Dino in die Gegenrichtung, ohne gegen die Wand zu laufen. Futter in der Nähe des Größeren lässt er aus.
+- [ ] Ein **kleinerer** Spieler stört nicht.
+- [ ] Er bleibt stehen, wenn kein sicheres Futter da ist (zum Beispiel wenn überall ein Größerer ist).
+- [ ] **Selbst steuern** (WASD oder Touch-Stick) übernimmt sofort, der Autofarm schaltet sich aus.
+- [ ] Nach etwa 10 Minuten schaltet er sich selbst aus (zum Testen `maxSessionSeconds` in `Config/AutoFarm` auf 20 setzen). Danach geht Einschalten sofort wieder.
+- [ ] Stirbt der Dino, geht in die Lobby oder betritt die Arena neu, ist der Autofarm aus.
+- [ ] Die Tempo-Prüfung des Servers setzt den Dino nicht zurück (kein `movement rejected` im Log), auch nicht beim Sprinten von Hand und wieder Einschalten.
+- [ ] Mehrere Spieler gleichzeitig mit Autofarm: Es entstehen keine Fehler im Log, das Spiel läuft flüssig (450 Futterstücke werden alle 0,2 s gelesen).
+- [ ] Handy-Emulator (360 × 640): Knopf gut zu treffen, nicht über dem Joystick, die Zahl des Sprint-Knopfs bleibt lesbar.

@@ -78,6 +78,11 @@ return {
 	sprint = {
 		button = "Sprint",
 	},
+	autofarm = {
+		-- The autofarm button: off, and on (two lines, the button is small).
+		off = "Auto",
+		on = "Auto\nON",
+	},
 	status = {
 		-- Shown as "Raptor · 1.2K size" (the size is a short number, see NumberFormat).
 		points = "size",
