@@ -98,6 +98,36 @@ local function respawnDue(now: number)
 	end
 end
 
+-- Takes the pieces within reach of a dino at (x, z) with the given scale and returns the points
+-- they give for a dino whose food unit is `unit` (0 when there is nothing in reach).
+local function takeAround(x: number, z: number, scale: number, unit: number, now: number): number
+	local items = FoodField.inRange(field, x, z, FoodField.pickupRadius(FoodConfig, scale))
+	local total = 0
+	for _, item in items do
+		total += Progression.foodGain(unit, FoodConfig.kinds[item.kind].value)
+		releaseFood(item.id, now)
+	end
+	return total
+end
+
+-- The pieces within `radius` of a point, for a bot that looks for food. Each piece has its value.
+function FoodService.piecesNear(
+	x: number,
+	z: number,
+	radius: number
+): { { id: number, x: number, z: number, value: number } }
+	local found = {}
+	for _, item in FoodField.inRange(field, x, z, radius) do
+		table.insert(found, { id = item.id, x = item.x, z = item.z, value = FoodConfig.kinds[item.kind].value })
+	end
+	return found
+end
+
+-- A bot at (x, z) eats what is in its reach. Returns the points (0 when nothing was in reach).
+function FoodService.collectAt(x: number, z: number, scale: number, unit: number): number
+	return takeAround(x, z, scale, unit, ServerClock.now())
+end
+
 local function collectFor(player: Player, now: number)
 	if PlayerState.getMode(player) ~= "playing" then
 		return
@@ -109,25 +139,18 @@ local function collectFor(player: Player, now: number)
 		return
 	end
 
-	local radius = FoodField.pickupRadius(FoodConfig, character:GetScale())
-	local position = root.Position
-	local items = FoodField.inRange(field, position.X, position.Z, radius)
-	if #items == 0 then
-		return
-	end
-
 	-- A piece is worth more on a higher stage, so every stage takes about the same number of pieces.
 	local growth = PlayerState.get(player)
 	local unit = if growth ~= nil then Dinos[growth.stageIndex].foodUnit else Dinos[1].foodUnit
-	local total = 0
-	for _, item in items do
-		total += Progression.foodGain(unit, FoodConfig.kinds[item.kind].value)
-		releaseFood(item.id, now)
+	local position = root.Position
+	local total = takeAround(position.X, position.Z, character:GetScale(), unit, now)
+	if total <= 0 then
+		return
 	end
 	-- A running growth potion raises the points from food (not from eating players).
 	total *= OfferService.growthFactor(player)
 	PlayerState.addPoints(player, total)
-	log.debug("food eaten", { userId = player.UserId, pieces = #items, points = total })
+	log.debug("food eaten", { userId = player.UserId, points = total })
 end
 
 local function tick()

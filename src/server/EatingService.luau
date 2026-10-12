@@ -17,6 +17,7 @@ local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local CoinConfig = require(Shared:WaitForChild("Config"):WaitForChild("Coins"))
 
 local AppearanceService = require(script.Parent:WaitForChild("AppearanceService"))
+local BotService = require(script.Parent:WaitForChild("BotService"))
 local BountyService = require(script.Parent:WaitForChild("BountyService"))
 local CoinService = require(script.Parent:WaitForChild("CoinService"))
 local DeathService = require(script.Parent:WaitForChild("DeathService"))
@@ -57,56 +58,98 @@ local function notice(player: Player, kind: string, otherName: string, points: n
 	end
 end
 
+-- Who is eating or being eaten: a player or a bot, with what the rules need.
+type Party = { player: Player?, name: string, points: number, stageIndex: number, scale: number }
+
+local function partyOf(id: number, byId: { [number]: Player }): Party?
+	local player = byId[id]
+	if player ~= nil then
+		local state = PlayerState.get(player)
+		if state == nil then
+			return nil
+		end
+		return {
+			player = player,
+			name = player.DisplayName,
+			points = state.points,
+			stageIndex = state.stageIndex,
+			scale = PlayerState.scaleOf(player),
+		}
+	end
+	local info = BotService.info(id)
+	if info == nil then
+		return nil
+	end
+	return { player = nil, name = info.name, points = info.points, stageIndex = info.stageIndex, scale = info.scale }
+end
+
 local function execute(eat: Eat, byId: { [number]: Player })
-	local eater = byId[eat.eaterId]
-	local victim = byId[eat.victimId]
+	local eater = partyOf(eat.eaterId, byId)
+	local victim = partyOf(eat.victimId, byId)
 	if eater == nil or victim == nil then
 		return
 	end
-	local humanoid = livingParts(victim)
-	local victimState = PlayerState.get(victim)
-	local eaterState = PlayerState.get(eater)
-	if humanoid == nil or victimState == nil or eaterState == nil then
+	local eaterPlayer = eater.player
+	local victimPlayer = victim.player
+	if victimPlayer ~= nil and livingParts(victimPlayer) == nil then
 		return
 	end
 
-	local gained = EatRules.pointsGained(Arena.eatPointsShare, victimState.points)
-	-- Coins for the kill: more for a higher victim, and more with a bounty on the victim.
-	local multiplier = BountyService.claimMultiplier(victim)
-	local coins = Coins.forKill(victimState.stageIndex, CoinConfig.perKillFactor, multiplier)
+	local gained = EatRules.pointsGained(Arena.eatPointsShare, victim.points)
+	-- Coins for the kill: more for a higher victim, and more with a bounty on the victim (only
+	-- players have bounties).
+	local multiplier = if victimPlayer ~= nil then BountyService.claimMultiplier(victimPlayer) else 1
+	local coins = Coins.forKill(victim.stageIndex, CoinConfig.perKillFactor, multiplier)
 	log.info("player eaten", {
-		victimId = victim.UserId,
-		eaterId = eater.UserId,
-		victimPoints = victimState.points,
-		eaterPoints = eaterState.points,
-		victimScale = PlayerState.scaleOf(victim),
-		eaterScale = PlayerState.scaleOf(eater),
+		victimId = eat.victimId,
+		eaterId = eat.eaterId,
+		victimBot = victimPlayer == nil,
+		eaterBot = eaterPlayer == nil,
+		victimPoints = victim.points,
+		eaterPoints = eater.points,
+		victimScale = victim.scale,
+		eaterScale = eater.scale,
 		distance = eat.distance,
 		gained = gained,
 		coins = coins,
 		bounty = multiplier > 1,
 	})
 
-	local character = victim.Character
-	if character ~= nil then
-		AppearanceService.playCloud(character)
-		AppearanceService.removeLook(character)
+	if victimPlayer ~= nil then
+		local character = victimPlayer.Character
+		if character ~= nil then
+			AppearanceService.playCloud(character)
+			AppearanceService.removeLook(character)
+		end
+		-- Joints stay intact (see prepareCharacter), so the invisible body just stops;
+		-- the character comes back as the smallest dino after Players.RespawnTime.
+		local humanoid = livingParts(victimPlayer)
+		if humanoid ~= nil then
+			humanoid.Health = 0
+		end
+		-- Display only: the client counts down to this server time.
+		victimPlayer:SetAttribute("RespawnAt", ServerClock.now() + Arena.respawnSeconds)
+		if eaterPlayer ~= nil then
+			DeathService.open(victimPlayer, eaterPlayer, victim.points)
+		else
+			DeathService.openByBot(victimPlayer, eater.name, victim.points)
+		end
+		notice(victimPlayer, "eaten", eater.name, 0)
+	else
+		BotService.eaten(eat.victimId)
 	end
-	-- Joints stay intact (see prepareCharacter), so the invisible body just stops;
-	-- the character comes back as the smallest dino after Players.RespawnTime.
-	humanoid.Health = 0
-	-- Display only: the client counts down to this server time.
-	victim:SetAttribute("RespawnAt", ServerClock.now() + Arena.respawnSeconds)
 
-	PlayerState.addPoints(eater, gained)
-	StatsService.addKill(eater)
-	local earned = 0
-	if coins > 0 then
-		earned = CoinService.addEarned(eater, coins)
+	if eaterPlayer ~= nil then
+		PlayerState.addPoints(eaterPlayer, gained)
+		StatsService.addKill(eaterPlayer)
+		local earned = 0
+		if coins > 0 then
+			earned = CoinService.addEarned(eaterPlayer, coins)
+		end
+		notice(eaterPlayer, "ate", victim.name, gained, earned, multiplier > 1)
+	else
+		BotService.addPoints(eat.eaterId, gained)
 	end
-	DeathService.open(victim, eater, victimState.points)
-	notice(eater, "ate", victim.DisplayName, gained, earned, multiplier > 1)
-	notice(victim, "eaten", eater.DisplayName, 0)
 end
 
 local function tick()
@@ -132,6 +175,10 @@ local function tick()
 			})
 			byId[player.UserId] = player
 		end
+	end
+	-- Bots have negative ids, so they never clash with the user ids of players.
+	for _, bot in BotService.combatants() do
+		table.insert(combatants, bot)
 	end
 
 	for _, eat in EatRules.findEats(Arena, combatants, now) do

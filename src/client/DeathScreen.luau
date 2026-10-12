@@ -153,6 +153,10 @@ function DeathScreen.start()
 			makeEnabled(revive)
 			makeEnabled(bounty)
 		end
+		if player:GetAttribute("DeathKillerBot") == true then
+			bounty.Text = Strings.death.bountyBot
+			makeDisabled(bounty)
+		end
 		closing.Text = string.format(Strings.death.closing, math.ceil(left))
 		panel.Visible = true
 	end)

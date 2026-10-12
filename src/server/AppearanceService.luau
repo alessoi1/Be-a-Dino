@@ -193,6 +193,19 @@ local function weld(root: BasePart, part: BasePart)
 	constraint.Parent = part
 end
 
+-- Scales the look to the character, puts it on the root and welds every part to it.
+local function mountLook(character: Model, root: BasePart, look: Model)
+	look.Name = LOOK_NAME
+	look:ScaleTo(character:GetScale())
+	look:PivotTo(root.CFrame)
+	look.Parent = character
+	for _, descendant in look:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			weld(root, descendant)
+		end
+	end
+end
+
 local function attachLook(player: Player, character: Model, stageId: string)
 	local root = character:WaitForChild("HumanoidRootPart", CHARACTER_WAIT)
 	if root == nil or not root:IsA("BasePart") or character.Parent == nil then
@@ -219,17 +232,30 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		log.error("no look for stage", { userId = player.UserId, stage = stageId })
 		return
 	end
-	look.Name = LOOK_NAME
-	look:ScaleTo(character:GetScale())
-	look:PivotTo(root.CFrame)
-	look.Parent = character
-	for _, descendant in look:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			weld(root, descendant)
-		end
-	end
+	mountLook(character, root, look)
 	hideAvatar(character)
 	log.debug("look attached", { userId = player.UserId, stage = stageId })
+end
+
+-- Gives a bot (a model with a HumanoidRootPart and no player) the dino look of a stage.
+function AppearanceService.attachBotLook(model: Model, stageId: string): boolean
+	local root = model:FindFirstChild("HumanoidRootPart")
+	if root == nil or not root:IsA("BasePart") or model.Parent == nil then
+		log.warn("bot look not attached", { stage = stageId, reason = "no_root" })
+		return false
+	end
+	local old = model:FindFirstChild(LOOK_NAME)
+	if old ~= nil then
+		old:Destroy()
+	end
+	local look = loadLook(stageId, nil)
+	if look == nil then
+		log.error("no look for stage", { stage = stageId, bot = true })
+		return false
+	end
+	mountLook(model, root, look)
+	log.debug("bot look attached", { stage = stageId })
+	return true
 end
 
 -- Removes the dino look at once (used when a player is eaten).

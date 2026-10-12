@@ -28,6 +28,9 @@ local MIN_INTERVAL = 0.3
 -- Seconds between two checks for offers that ran out.
 local SWEEP_INTERVAL = 1
 
+-- The killer id of an offer when a bot ate the player (real user ids are above 0).
+local BOT_KILLER_ID = 0
+
 local log = Log.new("DeathService")
 
 local offers: { [Player]: DeathOffer.Offer } = {}
@@ -43,6 +46,8 @@ local function publish(player: Player)
 	local open = offer ~= nil and DeathOffer.isOpen(offer, ServerClock.now())
 	player:SetAttribute("DeathUntil", if open and offer ~= nil then offer.expiresAt else 0)
 	player:SetAttribute("DeathKiller", if open and offer ~= nil then offer.killerName else "")
+	-- Display only: a bounty cannot be put on a bot.
+	player:SetAttribute("DeathKillerBot", open and offer ~= nil and offer.killerId == BOT_KILLER_ID)
 end
 
 local function close(player: Player)
@@ -57,7 +62,9 @@ end
 -- The paid choices need a loaded profile (the credits live in it), so guests only have the lobby.
 local function availableFor(player: Player): { [string]: boolean }
 	local saved = DataService.getData(player) ~= nil
-	return { lobby = true, revive = saved, bounty = saved }
+	local offer = offers[player]
+	local byBot = offer ~= nil and offer.killerId == BOT_KILLER_ID
+	return { lobby = true, revive = saved, bounty = saved and not byBot }
 end
 
 local function notice(player: Player, kind: string, detail: string)
@@ -70,6 +77,13 @@ function DeathService.open(victim: Player, killer: Player, points: number)
 		DeathOffer.open(ServerClock.now(), DeathConfig.offerSeconds, killer.UserId, killer.DisplayName, points)
 	publish(victim)
 	log.info("death offer opened", { userId = victim.UserId, killerId = killer.UserId })
+end
+
+-- Opens the window for a player who was just eaten by a bot (no bounty is possible then).
+function DeathService.openByBot(victim: Player, botName: string, points: number)
+	offers[victim] = DeathOffer.open(ServerClock.now(), DeathConfig.offerSeconds, BOT_KILLER_ID, botName, points)
+	publish(victim)
+	log.info("death offer opened", { userId = victim.UserId, killer = "bot" })
 end
 
 -- Uses a saved revive: the offer is used up first (so it cannot run twice), the player goes back
