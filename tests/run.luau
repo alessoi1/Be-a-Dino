@@ -97,6 +97,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/DeathOffer.spec")
 	end,
+	function()
+		require("./specs/AutoFarm.spec")
+	end,
 }
 
 local passed = 0
