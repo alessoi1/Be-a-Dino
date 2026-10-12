@@ -340,8 +340,30 @@ local function weld(root: BasePart, part: BasePart)
 	constraint.Parent = part
 end
 
--- Scales the look to the character, puts it on the root and welds every part to it.
+-- Building a look can take a while (the meshes may still be loading), and several requests for
+-- the same character can overlap (for example the two state resets at the start). The newest
+-- request wins: an older one that finishes later drops its look instead of adding a second dino.
+local latestRequest: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+local requestCounter = 0
+
+local function claimRequest(character: Model): number
+	requestCounter += 1
+	latestRequest[character] = requestCounter
+	return requestCounter
+end
+
+local function isCurrent(character: Model, request: number): boolean
+	return latestRequest[character] == request and character.Parent ~= nil
+end
+
+-- Scales the look to the character, puts it on the root and welds every part to it. Looks that
+-- are already on the character are removed first, so there is never more than one.
 local function mountLook(character: Model, root: BasePart, look: Model)
+	for _, child in character:GetChildren() do
+		if child.Name == LOOK_NAME then
+			child:Destroy()
+		end
+	end
 	look.Name = LOOK_NAME
 	look:ScaleTo(character:GetScale())
 	look:PivotTo(root.CFrame)
@@ -360,10 +382,7 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		return
 	end
 
-	local old = character:FindFirstChild(LOOK_NAME)
-	if old ~= nil then
-		old:Destroy()
-	end
+	local request = claimRequest(character)
 
 	local variantId: string? = nil
 	if variantProvider ~= nil then
@@ -379,6 +398,11 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		log.error("no look for stage", { userId = player.UserId, stage = stageId })
 		return
 	end
+	if not isCurrent(character, request) then
+		log.debug("look dropped, a newer request exists", { userId = player.UserId, stage = stageId })
+		look:Destroy()
+		return
+	end
 	mountLook(character, root, look)
 	hideAvatar(character)
 	log.debug("look attached", { userId = player.UserId, stage = stageId })
@@ -391,13 +415,14 @@ function AppearanceService.attachBotLook(model: Model, stageId: string): boolean
 		log.warn("bot look not attached", { stage = stageId, reason = "no_root" })
 		return false
 	end
-	local old = model:FindFirstChild(LOOK_NAME)
-	if old ~= nil then
-		old:Destroy()
-	end
+	local request = claimRequest(model)
 	local look = loadLook(stageId, nil)
 	if look == nil then
 		log.error("no look for stage", { stage = stageId, bot = true })
+		return false
+	end
+	if not isCurrent(model, request) then
+		look:Destroy()
 		return false
 	end
 	mountLook(model, root, look)
