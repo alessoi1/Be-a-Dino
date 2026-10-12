@@ -24,6 +24,26 @@ Vor dem Bau von L8 gilt: aktuelle Roblox-Richtlinien prüfen, die Produkte im Cr
 - **Tränke:** Wachstums-Trank, Münzen-Trank, Tempo-Trank und Schutz-Trank, alle zeitlich begrenzt und nur in der Arena wirksam. Tempo- und Schutz-Trank wirken direkt im PvP und sind damit die stärksten bezahlten Vorteile; sie sind vom Spielentwickler freigegeben, die genauen Werte stehen aber noch aus (siehe Plan).
 - **Glückseier gegen Robux werden nicht gebaut.** Damit entfallen die Pflichten für bezahlte Zufallsobjekte. Eier bleiben nur mit Münzen (Münzen gibt es nie gegen Robux). Ein Trank darf die Chancen im Ei nie verändern, sonst wäre es ein „Odds-Booster“ mit Pflichten.
 
+### Werte (Vorschläge, vom Spielentwickler am 12. Oktober 2026 übernommen, noch Startwerte)
+
+- Wachstums-Trank: 2× Punkte vom Futter, 10 Minuten. Münzen-Trank: 2× Münzen, 10 Minuten.
+- Tempo-Trank: +15 % Tempo, 10 Minuten. Schutz-Trank: +5 Sekunden Schutzzeit nach dem Start.
+- Revive: gleiche Größe und Stufe, sichere Startstelle, normale Schutzzeit danach, nur im 15-Sekunden-Fenster nach dem Gefressenwerden.
+- Kopfgeld auf den Killer: Münzen ×3 für den, der ihn frisst (wie schon im Gerüst).
+
+### Developer Products, die im Creator Hub anzulegen sind (6 Stück, zum Testen je 1 Robux)
+
+| Name im Creator Hub | Zweck |
+| --- | --- |
+| Revive | Wiederbeleben in gleicher Größe |
+| Bounty | Kopfgeld auf den Killer |
+| Growth Potion | 2× Punkte, 10 Minuten |
+| Coin Potion | 2× Münzen, 10 Minuten |
+| Speed Potion | +15 % Tempo, 10 Minuten |
+| Shield Potion | +5 s Schutzzeit |
+
+Alle sechs ohne Listung im Shop anlegen (nur im Spiel verkaufen).
+
 ## Richtlinienprüfung (Roblox-Dokumentation, 12. Oktober 2026 gelesen)
 
 - **Developer Products:** `ProcessReceipt` genau einmal in einem Server-Skript, `PurchaseGranted` erst nach dem Vergeben, sonst `NotProcessedYet`. `PromptProductPurchase(player, productId)` wird auf der Seite noch ohne Warnung als der Weg zum Auslösen genannt, vom Client nach einem Tipp. Roblox speichert keinen Kaufverlauf pro Spieler; das Merken (Idempotenz) liegt bei uns. Produkte nicht im Shop listen (nur im Spiel verkaufen). Verkauf zwischen Spielen ist seit 30. Mai 2026 abgeschaltet.
