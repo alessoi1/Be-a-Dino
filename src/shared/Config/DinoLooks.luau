@@ -102,20 +102,22 @@ local looks: { [string]: Look } = {
 	},
 }
 
--- Colors for the planned dinos: the main color and the second color (claws, crests, plates ...).
+-- Colors for the planned dinos, in the natural tones of the films: the skin color (the pattern
+-- of the real shapes is multiplied with it, so it is a little lighter than it shows) and the
+-- second color (claws, teeth, horns, plates; mostly ivory).
 local palette: { { body: Color, accent: Color } } = {
-	{ body = { r = 100, g = 170, b = 90 }, accent = { r = 235, g = 215, b = 100 } },
-	{ body = { r = 225, g = 140, b = 60 }, accent = { r = 250, g = 230, b = 190 } },
-	{ body = { r = 110, g = 125, b = 150 }, accent = { r = 80, g = 190, b = 170 } },
-	{ body = { r = 140, g = 100, b = 70 }, accent = { r = 220, g = 190, b = 140 } },
-	{ body = { r = 190, g = 70, b = 60 }, accent = { r = 60, g = 50, b = 50 } },
-	{ body = { r = 120, g = 140, b = 70 }, accent = { r = 240, g = 160, b = 60 } },
-	{ body = { r = 130, g = 90, b = 170 }, accent = { r = 240, g = 160, b = 210 } },
-	{ body = { r = 80, g = 130, b = 200 }, accent = { r = 235, g = 240, b = 250 } },
-	{ body = { r = 210, g = 180, b = 120 }, accent = { r = 130, g = 90, b = 60 } },
-	{ body = { r = 60, g = 150, b = 150 }, accent = { r = 190, g = 230, b = 90 } },
-	{ body = { r = 150, g = 150, b = 155 }, accent = { r = 200, g = 70, b = 70 } },
-	{ body = { r = 60, g = 110, b = 80 }, accent = { r = 170, g = 230, b = 190 } },
+	{ body = { r = 150, g = 140, b = 85 }, accent = { r = 232, g = 222, b = 190 } },
+	{ body = { r = 172, g = 142, b = 98 }, accent = { r = 235, g = 225, b = 195 } },
+	{ body = { r = 118, g = 134, b = 104 }, accent = { r = 220, g = 210, b = 180 } },
+	{ body = { r = 150, g = 104, b = 72 }, accent = { r = 225, g = 210, b = 175 } },
+	{ body = { r = 108, g = 88, b = 66 }, accent = { r = 200, g = 185, b = 150 } },
+	{ body = { r = 110, g = 126, b = 142 }, accent = { r = 225, g = 225, b = 215 } },
+	{ body = { r = 188, g = 128, b = 72 }, accent = { r = 235, g = 215, b = 170 } },
+	{ body = { r = 162, g = 160, b = 150 }, accent = { r = 235, g = 230, b = 215 } },
+	{ body = { r = 96, g = 108, b = 68 }, accent = { r = 225, g = 215, b = 180 } },
+	{ body = { r = 142, g = 94, b = 58 }, accent = { r = 230, g = 215, b = 175 } },
+	{ body = { r = 138, g = 128, b = 118 }, accent = { r = 225, g = 215, b = 195 } },
+	{ body = { r = 82, g = 112, b = 78 }, accent = { r = 225, g = 220, b = 185 } },
 }
 
 local function plan(template: string, paletteIndex: number, length: number, height: number, feature: number): Plan

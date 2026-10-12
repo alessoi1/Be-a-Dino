@@ -1,7 +1,27 @@
 # Dino-Modelle: von Blender ins Spiel
 
-Bis echte Modelle da sind, baut der Server Platzhalter aus Parts (`src/shared/Config/DinoLooks.luau`).
-Sobald in `assets/models/` ein passendes Modell liegt, wird es ohne Codeänderung benutzt.
+Reihenfolge, in der der Server das Aussehen eines Dinos wählt:
+
+1. Ein fertiges Modell in `assets/models/<stufe>.rbxm` (siehe unten), falls vorhanden.
+2. Die **echte Form** aus Blender (Abschnitt „Die echten Formen“), falls für die Körperform des Dinos schon eine Vorlage existiert.
+3. Sonst der Platzhalter aus Parts (`src/shared/Config/DinoLooks.luau`).
+
+## Die echten Formen (Blender)
+
+Stil: realistisch, in Richtung Jurassic Park, mit natürlichen Filmfarben. Es gibt sechs Körperformen (`runner`, `biped`, `duckbill`, `armored`, `horned`, `longneck`). Eine Form ist **ein** Satz Meshes; jeder Dino, der sie nutzt, bekommt seine eigenen Farben (aus seinem Plan in `Config/DinoLooks` oder aus `Config/DinoMeshes`). Fertig ist bisher nur `runner` (Compy, Raptor und alle Dinos mit dieser Form).
+
+Eine Form besteht aus vier Teilen: **Body** (Haut, die Zeichnung steckt als Vertex-Farben im Mesh: dunkle Streifen, hellerer Bauch), **Accent** (Krallen, Zähne, Hörner), **Eyes** (immer bernsteinfarben) und **Dark** (Pupillen, Mundlinie, Nüstern; fast schwarz). Body und Accent nehmen die Farben des Dinos und der Varianten an, Eyes und Dark bleiben immer gleich.
+
+### Neue Form bauen
+
+1. `tools/blender/dinos.py` in Blender ausführen (zum Beispiel über die MCP-Verbindung mit `exec`), `build("<form>")` baut die Meshes, `preview(...)` rendert Bilder, `export_fbx("<form>", "assets/blender/<form>.fbx")` schreibt die FBX-Datei. Der Export dreht das Modell um 180 Grad und skaliert mit 0,01: Roblox behält die Blender-Richtung (Blender +Y wird Roblox +Z) und liest Blender-Einheiten als Zentimeter.
+2. In Studio: Asset Manager, **Bulk Import**, die FBX-Datei wählen. Es entsteht ein Model mit einem MeshPart pro Teil, die Meshes werden in das Konto hochgeladen (Moderation abwarten).
+3. Prüfen: Größe passt zur Figur (Compy-Läufer ist 9,47 Studs lang), die Füße stehen 3 Studs unter dem Pivot, die Augen liegen bei −Z.
+4. Mesh-IDs, Größen und Versatz jedes Teils (Mitte des Teils relativ zum Pivot) in `Config/DinoMeshes` eintragen. Das Studio-Beispiel:
+   `local pivot = model:GetPivot(); print(pivot:PointToObjectSpace(part.Position), part.Size, part.MeshId)`.
+5. Das Testmodell im Workspace wieder löschen (es gehört nicht ins Spiel).
+
+Der `AppearanceService` lädt die Meshes beim Start mit `AssetService:CreateMeshPartAsync` und klont sie pro Dino. Schlägt das Laden fehl (falsche ID, keine Berechtigung), steht `mesh not loaded` im Log und die Dinos behalten ihren Platzhalter.
 
 ## So findet das Spiel ein Modell
 
@@ -23,7 +43,7 @@ Sobald in `assets/models/` ein passendes Modell liegt, wird es ohne Codeänderun
 | Was | Grenze | Wer prüft |
 | --- | --- | --- |
 | Teile (Parts und MeshParts) | höchstens 12 | Server beim Laden (`maxParts` in `Config/DinoLooks`) |
-| Dreiecke | höchstens 1500 | von Hand in Blender, zur Laufzeit nicht zuverlässig messbar |
+| Dreiecke | höchstens 3000 (der Läufer hat 2664) | von Hand in Blender, zur Laufzeit nicht zuverlässig messbar |
 | Texturen | höchstens 512 × 512 | von Hand |
 
 ## Weg von Blender nach `.rbxm`

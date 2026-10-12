@@ -115,6 +115,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/BotBrain.spec")
 	end,
+	function()
+		require("./specs/DinoMesh.spec")
+	end,
 }
 
 local passed = 0

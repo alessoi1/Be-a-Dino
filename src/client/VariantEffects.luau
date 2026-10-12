@@ -34,7 +34,8 @@ function VariantEffects.start()
 				if look ~= nil and look:IsA("Model") and look:GetAttribute("Variant") == "rainbow" then
 					local parts: { BasePart } = {}
 					for _, descendant in look:GetDescendants() do
-						if descendant:IsA("BasePart") then
+						-- Eyes and dark details keep their colors (the server marks them).
+						if descendant:IsA("BasePart") and descendant:GetAttribute("NoVariant") ~= true then
 							table.insert(parts, descendant)
 						end
 					end
