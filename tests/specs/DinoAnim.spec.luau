@@ -46,6 +46,18 @@ test("DinoAnim: the step cycle advances with the distance walked", function()
 	assertNear(half.phase, math.pi, 0.0001)
 end)
 
+test("DinoAnim: running faster never takes quicker steps than the limit", function()
+	local state = DinoAnim.newState()
+	local dt = 0.01
+	local limit = 2 * math.pi * config.maxCyclesPerSecond * dt
+	local fast = DinoAnim.step(config, state, 33, 1, dt)
+	local faster = DinoAnim.step(config, state, 300, 1, dt)
+	assertNear(faster.phase, limit, 0.0001)
+	assertTrue(fast.phase <= limit + 0.0001)
+	-- Even a slow frame (10 fps) stays below a quarter cycle, so the limbs never skip across it.
+	assertTrue(2 * math.pi * config.maxCyclesPerSecond * 0.1 < math.pi)
+end)
+
 test("DinoAnim: a bigger dino takes longer steps", function()
 	local state = DinoAnim.newState()
 	local small = DinoAnim.step(config, state, 10, 1, 0.1)

@@ -4,6 +4,7 @@
 
 export type Config = {
 	strideLength: number,
+	maxCyclesPerSecond: number,
 	fullSpeed: number,
 	standSpeed: number,
 	legSwing: number,
@@ -40,13 +41,17 @@ function DinoAnim.amount(config: Config, speed: number): number
 end
 
 -- The next state after `dt` seconds at `speed` for a dino of the given scale. The step cycle
--- advances with the distance walked (a bigger dino takes longer steps), so the feet do not slide.
+-- advances with the distance walked (a bigger dino takes longer steps), so the feet do not slide,
+-- but never faster than `maxCyclesPerSecond`: running faster takes longer strides.
 function DinoAnim.step(config: Config, state: State, speed: number, scale: number, dt: number): State
 	if not isFinite(dt) or dt <= 0 or not isFinite(scale) or scale <= 0 then
 		return state
 	end
-	local walked = if isFinite(speed) and speed > config.standSpeed then speed * dt else 0
-	local phase = (state.phase + TWO_PI * walked / (config.strideLength * scale)) % TWO_PI
+	local cycles = 0
+	if isFinite(speed) and speed > config.standSpeed then
+		cycles = math.min(speed / (config.strideLength * scale), config.maxCyclesPerSecond)
+	end
+	local phase = (state.phase + TWO_PI * cycles * dt) % TWO_PI
 	local idle = (state.idle + dt) % config.tailIdleSeconds
 	return { phase = phase, idle = idle }
 end
@@ -71,7 +76,7 @@ end
 -- Returns a list of problems (empty when the values are usable).
 function DinoAnim.validate(config: Config): { string }
 	local errors: { string } = {}
-	for _, key in { "strideLength", "fullSpeed", "tailIdleSeconds" } do
+	for _, key in { "strideLength", "maxCyclesPerSecond", "fullSpeed", "tailIdleSeconds" } do
 		local value = (config :: any)[key]
 		if not isFinite(value) or value <= 0 then
 			table.insert(errors, key .. " must be above 0")

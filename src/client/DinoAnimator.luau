@@ -125,22 +125,15 @@ function DinoAnimator.start()
 		end
 	end
 
-	local sinceUpdate = 0
 	local sinceSearch = AnimationConfig.searchInterval
 	-- PreSimulation comes after the animation update of the characters (which sets every joint of
 	-- the character back to straight) and before the physics apply the joints, so the angles stay.
 	RunService.PreSimulation:Connect(function(dt: number)
-		sinceUpdate += dt
 		sinceSearch += dt
 		if sinceSearch >= AnimationConfig.searchInterval then
 			sinceSearch = 0
 			search()
 		end
-		if sinceUpdate < AnimationConfig.updateInterval then
-			return
-		end
-		sinceUpdate = 0
-
 		local camera = workspace.CurrentCamera
 		if camera == nil then
 			return
@@ -159,7 +152,9 @@ function DinoAnimator.start()
 				end
 				entry.lastPosition = entry.root.Position
 				entry.lastTime = now
-			else
+			elseif
+				distance <= AnimationConfig.nearDistance or now - entry.lastTime >= AnimationConfig.updateInterval
+			then
 				local ok, err = pcall(update, entry, now)
 				if not ok then
 					log.error("animation failed", { name = entry.container.Name, error = tostring(err) })
