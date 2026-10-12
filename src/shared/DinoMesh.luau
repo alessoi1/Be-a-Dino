@@ -12,12 +12,15 @@ type Spec = {
 	role: string,
 	size: { x: number, y: number, z: number },
 	offset: { x: number, y: number, z: number },
+	limb: string?,
+	joint: { x: number, y: number, z: number }?,
 }
-type Template = { parts: { Spec } }
+type Template = { root: string, parts: { Spec } }
 export type Entry = { template: string, body: Color, accent: Color }
 type Plan = { template: string, body: Color, accent: Color }
 
 local ROLES: { [string]: boolean } = { body = true, accent = true, eyes = true, dark = true }
+local LIMBS: { [string]: boolean } = { legLeft = true, legRight = true, tail = true }
 
 local DinoMesh = {}
 
@@ -75,7 +78,8 @@ end
 
 -- Returns a list of problems (empty when the config is usable): every template has between 1
 -- and `maxParts` parts with unique names, valid roles, a body part, positive sizes, finite
--- offsets and a mesh id; every hand-written dino names a known template.
+-- offsets and a mesh id; a moving part has a known limb (once per template) and a joint, and the
+-- root part exists and does not move; every hand-written dino names a known template.
 function DinoMesh.validate(
 	templates: { [string]: Template },
 	entries: { [string]: Entry },
@@ -90,6 +94,8 @@ function DinoMesh.validate(
 		end
 		local names: { [string]: boolean } = {}
 		local hasBody = false
+		local rootFound = false
+		local limbs: { [string]: boolean } = {}
 		for _, spec in template.parts do
 			local where = name .. "/" .. spec.name
 			if names[spec.name] then
@@ -101,6 +107,33 @@ function DinoMesh.validate(
 			end
 			if spec.role == "body" then
 				hasBody = true
+			end
+			if spec.name == template.root then
+				rootFound = true
+				if spec.limb ~= nil then
+					table.insert(errors, where .. ": the root part cannot be a moving part")
+				end
+			end
+			if spec.limb ~= nil then
+				if LIMBS[spec.limb] ~= true then
+					table.insert(errors, where .. ": unknown limb " .. tostring(spec.limb))
+				elseif limbs[spec.limb] then
+					table.insert(errors, where .. ": limb " .. spec.limb .. " is used twice")
+				end
+				limbs[spec.limb] = true
+				local joint = spec.joint
+				if joint == nil then
+					table.insert(errors, where .. ": a moving part needs a joint")
+				else
+					for _, value in { joint.x, joint.y, joint.z } do
+						if not isFinite(value) then
+							table.insert(errors, where .. ": joint must be finite")
+							break
+						end
+					end
+				end
+			elseif spec.joint ~= nil then
+				table.insert(errors, where .. ": a joint needs a limb")
 			end
 			if not isFinite(spec.meshId) or spec.meshId <= 0 then
 				table.insert(errors, where .. ": mesh id must be a positive number")
@@ -120,6 +153,9 @@ function DinoMesh.validate(
 		end
 		if not hasBody then
 			table.insert(errors, name .. ": no body part to color")
+		end
+		if not rootFound then
+			table.insert(errors, name .. ": the root part " .. tostring(template.root) .. " does not exist")
 		end
 	end
 	for id, entry in entries do

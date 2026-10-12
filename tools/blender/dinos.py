@@ -11,6 +11,8 @@ import math
 import mathutils
 
 COLLECTION = "Dinos"
+# Flat shading gives the faceted low-poly look; False would give smooth surfaces.
+FLAT = True
 FLOOR = -3.0
 
 # Preview colors only; the game colors the meshes (MeshPart.Color) per dino.
@@ -46,7 +48,7 @@ def _finish(obj, name):
     obj.select_set(True)
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
     for polygon in obj.data.polygons:
-        polygon.use_smooth = True
+        polygon.use_smooth = not FLAT
     return obj
 
 
@@ -176,14 +178,14 @@ def tube(name, points, sides=8, caps=True):
     bpy.ops.mesh.normals_make_consistent(inside=False)
     bpy.ops.object.mode_set(mode="OBJECT")
     for polygon in mesh.polygons:
-        polygon.use_smooth = True
+        polygon.use_smooth = not FLAT
     return obj
 
 
 def eyes(prefix, x, y, z, radius):
     """A pair of amber eyes with slit pupils on the sides of the head."""
     whites = [
-        sphere("e%d" % i, (side * x, y, z), (radius * 0.8, radius, radius), 10, 7) for i, side in enumerate((-1, 1))
+        sphere("e%d" % i, (side * x, y, z), (radius * 0.8, radius, radius), 6, 4) for i, side in enumerate((-1, 1))
     ]
     slits = [
         sphere(
@@ -208,73 +210,81 @@ def spine_top(spine, y):
     return spine[0][2]
 
 
-def paint_body(obj, tint, neutral=False, stripes=None):
-    """Paints the skin pattern into the vertex colors: a lighter belly, darker back and dark
-    stripes across the back and tail. `neutral` paints grey values only (what the export keeps;
-    the game multiplies them with the color of the dino), otherwise the values are tinted."""
+def paint_faces(obj, tint, neutral=False, stripes=True):
+    """Paints the skin pattern face by face (flat colors, matching the faceted look): a lighter
+    belly, a darker back and, on the body and tail, dark stripes across the back. `neutral` paints
+    grey values only (what the export keeps; the game multiplies them with the color of the dino),
+    otherwise the values are tinted for the preview."""
     mesh = obj.data
     if "Pattern" in mesh.color_attributes:
         mesh.color_attributes.remove(mesh.color_attributes["Pattern"])
-    attribute = mesh.color_attributes.new(name="Pattern", type="BYTE_COLOR", domain="POINT")
-    stripe_from, stripe_to, period, duty = stripes or (1.1, -4.2, 0.9, 0.5)
-    for vertex in mesh.vertices:
+    attribute = mesh.color_attributes.new(name="Pattern", type="BYTE_COLOR", domain="CORNER")
+    stripe_from, stripe_to, period, duty = 1.1, -4.2, 1.1, 0.5
+    for polygon in mesh.polygons:
         value = 0.82
-        if vertex.normal.z < -0.25:
+        if polygon.normal.z < -0.25:
             value = 1.0
-        elif vertex.normal.z > 0.1 and stripe_to < vertex.co.y < stripe_from and vertex.co.z > -1.5:
-            phase = ((stripe_from - vertex.co.y) / period) % 1.0
+        elif stripes and polygon.normal.z > 0.1 and stripe_to < polygon.center.y < stripe_from and polygon.center.z > -1.5:
+            phase = ((stripe_from - polygon.center.y) / period) % 1.0
             if phase < duty:
                 value = 0.45
-        color = (value, value, value, 1.0) if neutral else (value * tint[0], value * tint[1], value * tint[2], 1.0)
+        color = (value, value, value) if neutral else (value * tint[0], value * tint[1], value * tint[2])
         # The numbers above are display values (sRGB); Blender stores linear colors.
-        attribute.data[vertex.index].color = (color[0] ** 2.2, color[1] ** 2.2, color[2] ** 2.2, 1.0)
+        linear = (color[0] ** 2.2, color[1] ** 2.2, color[2] ** 2.2, 1.0)
+        for loop_index in polygon.loop_indices:
+            attribute.data[loop_index].color = linear
     mesh.color_attributes.active_color = attribute
     mesh.color_attributes.render_color_index = mesh.color_attributes.find("Pattern")
 
 
+# The meshes that carry the skin pattern, and whether they get stripes.
+PAINTED = {"Body": True, "Tail": True, "LegL": False, "LegR": False}
+
+
+def paint_shape(prefix, neutral=False):
+    for suffix, stripes in PAINTED.items():
+        obj = bpy.data.objects.get(prefix + "_" + suffix)
+        if obj is not None:
+            paint_faces(obj, SKIN, neutral=neutral, stripes=stripes)
+
+
+# Where the limbs turn, in Blender coordinates (the game turns them into figure coordinates:
+# x stays, y becomes -z, z becomes y). The tail turns at its start, each leg at its hip.
+RUNNER_JOINTS = {"Tail": (0, -1.6, -1.1), "LegL": (-0.66, -0.8, -1.1), "LegR": (0.66, -0.8, -1.1)}
+
+
 def build_runner(prefix="runner"):
-    """Two-legged raptor-like runner (Compy, Raptor and the other light dinos): a long wedge
-    head, a muscular S-shaped neck, a horizontal body with a stiff tail, strong bent legs with
-    three toes (the second toe has the big sickle claw) and short arms with three claws."""
+    """Two-legged raptor-like runner (Compy, Raptor and the other light dinos) in the faceted
+    low-poly style. Moving parts are separate meshes (Tail, LegL, LegR) so the game can animate
+    them; everything else is one Body mesh."""
     remove_shape(prefix)
-    # Snout tip to tail tip: x, y, z, width, height.
+    # Snout tip to hips: x, y, z, width, height.
     spine = [
-        (0, 3.95, -0.15, 0.07, 0.07),
-        (0, 3.7, -0.1, 0.17, 0.18),
-        (0, 3.1, -0.05, 0.25, 0.28),
-        (0, 2.55, 0.12, 0.4, 0.46),
-        (0, 2.1, 0.1, 0.4, 0.44),
-        (0, 1.7, -0.1, 0.34, 0.4),
-        (0, 1.25, -0.4, 0.45, 0.5),
-        (0, 0.75, -0.7, 0.7, 0.76),
-        (0, 0.0, -1.0, 0.82, 0.9),
-        (0, -0.9, -1.05, 0.78, 0.82),
+        (0, 3.95, -0.15, 0.08, 0.08),
+        (0, 3.5, -0.1, 0.22, 0.24),
+        (0, 2.9, -0.05, 0.3, 0.34),
+        (0, 2.5, 0.12, 0.44, 0.5),
+        (0, 2.0, 0.08, 0.42, 0.46),
+        (0, 1.45, -0.2, 0.36, 0.42),
+        (0, 0.8, -0.65, 0.7, 0.75),
+        (0, 0.0, -1.0, 0.85, 0.9),
+        (0, -0.9, -1.05, 0.8, 0.84),
         (0, -1.8, -1.1, 0.55, 0.58),
-        (0, -3.0, -1.2, 0.35, 0.36),
-        (0, -4.3, -1.25, 0.2, 0.2),
-        (0, -5.5, -1.3, 0.04, 0.04),
     ]
-    parts = [tube("spine", smooth(spine, 0.4), sides=12)]
+    tail = [(0, -1.6, -1.1, 0.55, 0.58), (0, -3.0, -1.2, 0.35, 0.36), (0, -4.3, -1.25, 0.2, 0.2), (0, -5.5, -1.3, 0.04, 0.04)]
+    body_parts = [tube("spine", spine, sides=6)]
     dark = []
     teeth = []
     jaw = [(0, 3.75, -0.27, 0.1, 0.07), (0, 3.0, -0.3, 0.2, 0.12), (0, 2.4, -0.28, 0.3, 0.16), (0, 2.1, -0.2, 0.3, 0.16)]
-    parts.append(tube("jaw", smooth(jaw, 0.4), sides=8))
-    for side in (-1, 1):
-        brow = [(side * 0.34, 2.75, 0.4, 0.07, 0.06), (side * 0.4, 2.45, 0.47, 0.09, 0.07), (side * 0.38, 2.15, 0.44, 0.07, 0.06)]
-        parts.append(tube("brow", smooth(brow, 0.2), sides=5))
-        cheek = [(side * 0.4, 2.85, -0.02, 0.05, 0.07), (side * 0.46, 2.5, -0.05, 0.1, 0.12), (side * 0.42, 2.15, -0.05, 0.07, 0.1)]
-        parts.append(tube("cheek", smooth(cheek, 0.2), sides=5))
-        dark.append(sphere("nostril", (side * 0.07, 3.8, 0.04), (0.035, 0.07, 0.03), 6, 4))
+    body_parts.append(tube("jaw", jaw, sides=6))
+    legs = {}
+    for side, suffix in ((-1, "LegL"), (1, "LegR")):
+        dark.append(sphere("nostril", (side * 0.07, 3.8, 0.04), (0.035, 0.07, 0.03), 4, 3))
         mouth = [(side * 0.17, 3.68, -0.19, 0.02, 0.02), (side * 0.27, 3.1, -0.17, 0.025, 0.025), (side * 0.4, 2.45, -0.12, 0.025, 0.025)]
-        dark.append(tube("mouth", smooth(mouth, 0.3), sides=4))
-        for index, y in enumerate((3.6, 3.45, 3.3, 3.15, 3.0, 2.85, 2.7, 2.55)):
+        dark.append(tube("mouth", mouth, sides=3))
+        for y in (3.55, 3.3, 3.05, 2.8, 2.55):
             reach = 0.16 + (3.65 - y) * 0.2
-            size = 0.17 if index % 2 == 0 else 0.12
-            teeth.append(cone("tooth", (side * reach, y, -0.26), 0.04, 0.0, size, rotation=(math.radians(180), 0, 0), vertices=4))
-        for y in (3.5, 3.25, 3.0, 2.75):
-            reach = 0.15 + (3.65 - y) * 0.2
-            teeth.append(cone("tooth", (side * reach, y, -0.33), 0.035, 0.0, 0.11, vertices=4))
-        # Legs: hip, knee (forward), ankle (back), then three toes with claws.
+            teeth.append(cone("tooth", (side * reach, y, -0.26), 0.05, 0.0, 0.15, rotation=(math.radians(180), 0, 0), vertices=3))
         x = side * 0.66
         leg = [
             (x, -0.8, -1.1, 0.55, 0.62),
@@ -283,43 +293,47 @@ def build_runner(prefix="runner"):
             (x, -0.25, -2.55, 0.2, 0.26),
             (x, -0.3, -2.88, 0.2, 0.12),
         ]
-        parts.append(tube("leg", smooth(leg, 0.4), sides=8))
-        thigh = [(side * 0.78, -1.0, -1.0, 0.3, 0.38), (side * 0.82, -0.55, -1.45, 0.34, 0.4), (side * 0.7, -0.15, -1.85, 0.24, 0.26)]
-        parts.append(tube("thigh", smooth(thigh, 0.4), sides=7))
+        pieces = [tube("leg", leg, sides=6)]
         for toe, spread in ((-1, -0.2), (0, 0.0), (1, 0.2)):
             tip = 0.85 if toe != 0 else 0.8
-            path = [(x, -0.3, -2.9, 0.1, 0.09), (x + spread * 0.7, 0.3, -2.92, 0.08, 0.075), (x + spread * 1.2, tip, -2.94, 0.05, 0.05)]
-            parts.append(tube("toe", smooth(path, 0.4), sides=5))
+            path = [(x, -0.3, -2.9, 0.1, 0.09), (x + spread * 1.2, tip, -2.94, 0.05, 0.05)]
+            pieces.append(tube("toe", path, sides=4))
             claw_length = 0.5 if toe == 0 else 0.28
-            teeth.append(
+            pieces.append(
                 cone(
                     "claw",
                     (x + spread * 1.2, tip + claw_length / 2, -2.94 - (0.05 if toe == 0 else 0.0)),
-                    0.055,
+                    0.06,
                     0.0,
                     claw_length,
                     rotation=(math.radians(-90 if toe != 0 else -110), 0, 0),
-                    vertices=5,
+                    vertices=4,
                 )
             )
+        legs[suffix] = join(pieces, prefix + "_" + suffix)
         arm = [(side * 0.7, 0.65, -1.0, 0.2, 0.22), (side * 0.85, 0.95, -1.45, 0.14, 0.15), (side * 0.78, 1.5, -1.5, 0.1, 0.09)]
-        parts.append(tube("arm", smooth(arm, 0.3), sides=6))
+        body_parts.append(tube("arm", arm, sides=5))
         for spread in (-0.07, 0.0, 0.07):
             teeth.append(
-                cone("handclaw", (side * 0.78 + spread, 1.62, -1.52), 0.04, 0.0, 0.32, rotation=(math.radians(-90), 0, 0), vertices=5)
+                cone("handclaw", (side * 0.78 + spread, 1.62, -1.52), 0.045, 0.0, 0.32, rotation=(math.radians(-90), 0, 0), vertices=3)
             )
-    # Small scutes along the back (skin colored, they only break up the outline).
-    for y in (1.0, 0.5, 0.0, -0.5, -1.0, -1.5, -2.1, -2.7, -3.3):
-        parts.append(cone("scute", (0, y, spine_top(spine, y) + 0.02), 0.09, 0.0, 0.16, vertices=5))
-    body_obj = join(parts, prefix + "_Body")
+    # Small spikes along the back (the second color).
+    for y in (1.0, 0.3, -0.4, -1.1, -1.8):
+        teeth.append(cone("spike", (0, y, spine_top(spine, y) + 0.05), 0.13, 0.0, 0.34, vertices=4))
+    body_obj = join(body_parts, prefix + "_Body")
+    tail_obj = tube("tail", tail, sides=6)
+    tail_obj.name = prefix + "_Tail"
+    tail_obj.data.name = prefix + "_Tail"
     accent_obj = join(teeth, prefix + "_Accent")
-    eyes_obj, slits = eyes(prefix, 0.4, 2.55, 0.3, 0.17)
+    eyes_obj, slits = eyes(prefix, 0.4, 2.55, 0.3, 0.19)
     dark_obj = join(dark + slits, prefix + "_Dark")
 
-    paint_body(body_obj, SKIN)
-    for obj, kind in ((body_obj, "Body"), (accent_obj, "Accent"), (eyes_obj, "Eyes"), (dark_obj, "Dark")):
+    paint_shape(prefix)
+    result = [body_obj, tail_obj, legs["LegL"], legs["LegR"], accent_obj, eyes_obj, dark_obj]
+    kinds = ("Body", "Body", "Body", "Body", "Accent", "Eyes", "Dark")
+    for obj, kind in zip(result, kinds):
         material(obj, kind)
-    return [body_obj, accent_obj, eyes_obj, dark_obj]
+    return result
 
 
 SHAPES = {"runner": build_runner}
@@ -377,8 +391,7 @@ def export_fbx(shape, path):
     The Roblox importer keeps the Blender direction (Blender +Y ends up as Roblox +Z), but the
     front of a Roblox figure is -Z. So the meshes are turned by 180 degrees around the vertical
     axis for the export and turned back afterwards."""
-    body = bpy.data.objects[shape + "_Body"]
-    paint_body(body, SKIN, neutral=True)
+    paint_shape(shape, neutral=True)
     bpy.ops.object.select_all(action="DESELECT")
     meshes = [obj for obj in bpy.data.objects if obj.name.startswith(shape + "_")]
     for obj in meshes:
@@ -405,5 +418,46 @@ def export_fbx(shape, path):
     finally:
         for obj in meshes:
             obj.data.transform(turn)
-    paint_body(body, SKIN)
-    return [obj.name for obj in meshes]
+    paint_shape(shape)
+    return sorted(obj.name for obj in meshes)
+
+
+def dump_parts(shape, path):
+    """Writes the geometry of a shape as JSON for the direct upload from Studio (see
+    docs/MODELLE.md). Coordinates are Roblox figure coordinates in studs: x stays, y is Blender z,
+    z is minus Blender y (so the front is -Z). Every triangle has its three corners and one grey
+    value (the neutral skin pattern, 1 where the part has no pattern). Also gives the center of the
+    bounding box of every part: that is where the part sits relative to the figure center."""
+    import json
+
+    paint_shape(shape, neutral=True)
+    parts = {}
+    for obj in bpy.data.objects:
+        if not obj.name.startswith(shape + "_"):
+            continue
+        mesh = obj.data
+        attribute = mesh.color_attributes.get("Pattern")
+        triangles = []
+        low = [math.inf] * 3
+        high = [-math.inf] * 3
+        for polygon in mesh.polygons:
+            corners = [mesh.vertices[index].co for index in polygon.vertices]
+            grey = 1.0
+            if attribute is not None:
+                linear = attribute.data[polygon.loop_indices[0]].color[0]
+                grey = round(linear ** (1 / 2.2), 3)
+            converted = [(round(c.x, 4), round(c.z, 4), round(-c.y, 4)) for c in corners]
+            for axis in range(3):
+                for corner in converted:
+                    low[axis] = min(low[axis], corner[axis])
+                    high[axis] = max(high[axis], corner[axis])
+            # Triangle fan; the winding follows Blender (counter clockwise seen from outside).
+            for index in range(1, len(converted) - 1):
+                triangles.append([converted[0], converted[index], converted[index + 1], grey])
+        center = [round((low[axis] + high[axis]) / 2, 4) for axis in range(3)]
+        size = [round(high[axis] - low[axis], 4) for axis in range(3)]
+        parts[obj.name[len(shape) + 1 :]] = {"center": center, "size": size, "triangles": triangles}
+    paint_shape(shape)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"shape": shape, "parts": parts}, handle, separators=(",", ":"))
+    return {name: (len(part["triangles"]), part["center"], part["size"]) for name, part in parts.items()}

@@ -24,7 +24,9 @@ local function spec(name: string, role: string): any
 end
 
 local function templates(): any
-	return { runner = { parts = { spec("Body", "body"), spec("Accent", "accent"), spec("Eyes", "eyes") } } }
+	return {
+		runner = { root = "Body", parts = { spec("Body", "body"), spec("Accent", "accent"), spec("Eyes", "eyes") } },
+	}
 end
 
 local function contains(errors: { string }, text: string): boolean
@@ -97,7 +99,9 @@ test("DinoMesh: a valid template has no errors", function()
 end)
 
 test("DinoMesh: the part count must stay in the budget", function()
-	assertTrue(contains(DinoMesh.validate({ runner = { parts = {} } }, {}, fixed, 12), "needs 1 to 12 parts"))
+	assertTrue(
+		contains(DinoMesh.validate({ runner = { root = "Body", parts = {} } }, {}, fixed, 12), "needs 1 to 12 parts")
+	)
 	assertTrue(contains(DinoMesh.validate(templates(), {}, fixed, 2), "needs 1 to 2 parts"))
 end)
 
@@ -117,7 +121,7 @@ test("DinoMesh: bad parts are reported", function()
 end)
 
 test("DinoMesh: a template needs a body part to color", function()
-	local noBody: any = { runner = { parts = { spec("Eyes", "eyes") } } }
+	local noBody: any = { runner = { root = "Eyes", parts = { spec("Eyes", "eyes") } } }
 	assertTrue(contains(DinoMesh.validate(noBody, {}, fixed, 12), "no body part"))
 end)
 
@@ -126,4 +130,60 @@ test("DinoMesh: colors outside 0 to 255 are reported", function()
 	assertTrue(contains(DinoMesh.validate(templates(), entries, fixed, 12), "colors must be between 0 and 255"))
 	local brokenFixed = { eyes = { r = 0, g = -1, b = 0 }, dark = fixed.dark }
 	assertTrue(contains(DinoMesh.validate(templates(), {}, brokenFixed, 12), "fixed colors"))
+end)
+
+local function withLimbs(): any
+	local template = templates()
+	template.runner.parts[2].limb = "legLeft"
+	template.runner.parts[2].joint = { x = 0, y = 0, z = 0 }
+	return template
+end
+
+test("DinoMesh: a moving part with a joint is valid", function()
+	assertEquals(#DinoMesh.validate(withLimbs(), {}, fixed, 12), 0)
+end)
+
+test("DinoMesh: a moving part needs a known limb, a joint and a root to hang on", function()
+	local noJoint = withLimbs()
+	noJoint.runner.parts[2].joint = nil
+	assertTrue(contains(DinoMesh.validate(noJoint, {}, fixed, 12), "needs a joint"))
+
+	local unknown = withLimbs()
+	unknown.runner.parts[2].limb = "wing"
+	assertTrue(contains(DinoMesh.validate(unknown, {}, fixed, 12), "unknown limb"))
+
+	local badJoint = withLimbs()
+	badJoint.runner.parts[2].joint = { x = 0, y = 0 / 0, z = 0 }
+	assertTrue(contains(DinoMesh.validate(badJoint, {}, fixed, 12), "joint must be finite"))
+
+	local lonely = templates()
+	lonely.runner.parts[2].joint = { x = 0, y = 0, z = 0 }
+	assertTrue(contains(DinoMesh.validate(lonely, {}, fixed, 12), "joint needs a limb"))
+end)
+
+test("DinoMesh: a limb is used once and the root part does not move", function()
+	local twice = withLimbs()
+	twice.runner.parts[3].limb = "legLeft"
+	twice.runner.parts[3].joint = { x = 0, y = 0, z = 0 }
+	assertTrue(contains(DinoMesh.validate(twice, {}, fixed, 12), "used twice"))
+
+	local moving = withLimbs()
+	moving.runner.root = "Accent"
+	moving.runner.parts[3].limb = "tail"
+	moving.runner.parts[3].joint = { x = 0, y = 0, z = 0 }
+	assertTrue(contains(DinoMesh.validate(moving, {}, fixed, 12), "root part cannot be a moving part"))
+
+	local missing = templates()
+	missing.runner.root = "Nothing"
+	assertTrue(contains(DinoMesh.validate(missing, {}, fixed, 12), "does not exist"))
+end)
+
+test("DinoMesh: the real runner moves its legs and its tail", function()
+	local limbs: { [string]: boolean } = {}
+	for _, part in DinoMeshes.templates.runner.parts do
+		if part.limb ~= nil then
+			limbs[part.limb] = true
+		end
+	end
+	assertTrue(limbs.legLeft and limbs.legRight and limbs.tail)
 end)

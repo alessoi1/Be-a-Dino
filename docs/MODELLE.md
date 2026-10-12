@@ -8,16 +8,20 @@ Reihenfolge, in der der Server das Aussehen eines Dinos wählt:
 
 ## Die echten Formen (Blender)
 
-Stil: realistisch, in Richtung Jurassic Park, mit natürlichen Filmfarben. Es gibt sechs Körperformen (`runner`, `biped`, `duckbill`, `armored`, `horned`, `longneck`). Eine Form ist **ein** Satz Meshes; jeder Dino, der sie nutzt, bekommt seine eigenen Farben (aus seinem Plan in `Config/DinoLooks` oder aus `Config/DinoMeshes`). Fertig ist bisher nur `runner` (Compy, Raptor und alle Dinos mit dieser Form).
+Stil: kantiges Low-Poly (flach schattiert, große Flächen, wie die Quaternius-Dinos) mit realistischen Proportionen und natürlichen Filmfarben. Das spart Dreiecke (der Läufer hat 774) und sieht auf dem Handy klar aus. Es gibt sechs Körperformen (`runner`, `biped`, `duckbill`, `armored`, `horned`, `longneck`). Eine Form ist **ein** Satz Meshes; jeder Dino, der sie nutzt, bekommt seine eigenen Farben (aus seinem Plan in `Config/DinoLooks` oder aus `Config/DinoMeshes`). Fertig ist bisher nur `runner` (Compy, Raptor und alle Dinos mit dieser Form).
 
-Eine Form besteht aus vier Teilen: **Body** (Haut, die Zeichnung steckt als Vertex-Farben im Mesh: dunkle Streifen, hellerer Bauch), **Accent** (Krallen, Zähne, Hörner), **Eyes** (immer bernsteinfarben) und **Dark** (Pupillen, Mundlinie, Nüstern; fast schwarz). Body und Accent nehmen die Farben des Dinos und der Varianten an, Eyes und Dark bleiben immer gleich.
+Eine Form besteht aus Teilen: den Hautteilen (**Body** und die beweglichen Teile, zum Beispiel **Tail**, **LegLeft**, **LegRight**; die Zeichnung steckt als Vertex-Farben im Mesh: dunkle Streifen, hellerer Bauch), **Accent** (Zähne, Stacheln, Krallen), **Eyes** (immer bernsteinfarben) und **Dark** (Pupillen, Mundlinie, Nüstern; fast schwarz). Haut und Accent nehmen die Farben des Dinos und der Varianten an, Eyes und Dark bleiben immer gleich.
+
+### Laufen (Animation)
+
+Die beweglichen Teile hängen mit einem Motor6D am festen Körper (`root` der Vorlage in `Config/DinoMeshes`; `limb` und `joint` pro Teil). Der Client (`DinoAnimator`) dreht die Gelenke nach `DinoAnim`: die Beine schwingen gegeneinander, der Schwanz pendelt, und die Schrittlänge hängt vom Tempo und der Größe ab, damit die Füße nicht rutschen. Im Stand pendelt nur der Schwanz leicht. Die Werte stehen in `Config/Animation`. Das läuft nur auf dem Client, nur nahe an der Kamera (`maxDistance`), und der Server wird nicht belastet. Die Winkel werden in `PreSimulation` geschrieben: Der Animator des Charakters setzt jedes Bild alle Gelenke gerade, danach gelten unsere Werte. Dinos mit Platzhalter-Look haben keine Gelenke und bleiben starr.
 
 ### Neue Form bauen
 
-1. `tools/blender/dinos.py` in Blender ausführen (zum Beispiel über die MCP-Verbindung mit `exec`), `build("<form>")` baut die Meshes, `preview(...)` rendert Bilder, `export_fbx("<form>", "assets/blender/<form>.fbx")` schreibt die FBX-Datei. Der Export dreht das Modell um 180 Grad und skaliert mit 0,01: Roblox behält die Blender-Richtung (Blender +Y wird Roblox +Z) und liest Blender-Einheiten als Zentimeter.
-2. In Studio: Asset Manager, **Bulk Import**, die FBX-Datei wählen. Es entsteht ein Model mit einem MeshPart pro Teil, die Meshes werden in das Konto hochgeladen (Moderation abwarten).
-3. Prüfen: Größe passt zur Figur (Compy-Läufer ist 9,47 Studs lang), die Füße stehen 3 Studs unter dem Pivot, die Augen liegen bei −Z.
-4. Mesh-IDs, Größen und Versatz jedes Teils (Mitte des Teils relativ zum Pivot) in `Config/DinoMeshes` eintragen. Das Studio-Beispiel:
+1. `tools/blender/dinos.py` in Blender ausführen (zum Beispiel über die MCP-Verbindung mit `exec`), `build("<form>")` baut die Meshes, `preview(...)` rendert Bilder, `export_fbx("<form>", "assets/blender/<form>.fbx")` schreibt die FBX-Datei. Der Export dreht das Modell um 180 Grad und skaliert mit 0,01: Roblox behält die Blender-Richtung (Blender +Y wird Roblox +Z) und liest Blender-Einheiten als Zentimeter. `dump_parts("<form>", pfad)` schreibt die Geometrie und die Mitte jedes Teils als JSON (Mitte = Versatz im Spiel; ein späterer Direkt-Upload aus Studio könnte darauf aufbauen, `AssetService:CreateAssetAsync` ist aber noch „not available yet").
+2. In Studio: Asset Manager, **Bulk Import**, die FBX-Datei wählen (von Hand: aus Claudes Verbindung heraus geht es nicht, siehe oben). Es entsteht ein Model mit einem MeshPart pro Teil, die Meshes werden in das Konto hochgeladen (Moderation abwarten).
+3. Prüfen: Größe passt zur Figur (der Läufer ist 9,46 Studs lang), die Füße stehen 3 Studs unter dem Pivot, die Augen liegen bei −Z.
+4. Mesh-IDs, Größen und Versatz jedes Teils (Mitte des Teils relativ zum Pivot) in `Config/DinoMeshes` eintragen, bei beweglichen Teilen auch `limb` und `joint` (Gelenk relativ zur Figurmitte; bei der Hüfte des Läufers (±0,66, −1,1, 0,8), beim Schwanzansatz (0, −1,1, 1,6)). Das Studio-Beispiel:
    `local pivot = model:GetPivot(); print(pivot:PointToObjectSpace(part.Position), part.Size, part.MeshId)`.
 5. Das Testmodell im Workspace wieder löschen (es gehört nicht ins Spiel).
 
@@ -43,7 +47,7 @@ Der `AppearanceService` lädt die Meshes beim Start mit `AssetService:CreateMesh
 | Was | Grenze | Wer prüft |
 | --- | --- | --- |
 | Teile (Parts und MeshParts) | höchstens 12 | Server beim Laden (`maxParts` in `Config/DinoLooks`) |
-| Dreiecke | höchstens 3000 (der Läufer hat 2664) | von Hand in Blender, zur Laufzeit nicht zuverlässig messbar |
+| Dreiecke | höchstens 3000 (der kantige Läufer hat 774) | von Hand in Blender, zur Laufzeit nicht zuverlässig messbar |
 | Texturen | höchstens 512 × 512 | von Hand |
 
 ## Weg von Blender nach `.rbxm`

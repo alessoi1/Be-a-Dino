@@ -7,12 +7,18 @@
 -- scale 1: the offset is the center of the part relative to the figure center, the front is -Z and
 -- the feet stand 3 studs below the center. The skin pattern (stripes, lighter belly) is inside the
 -- mesh as vertex colors; the color of the part tints it.
+--
+-- Moving parts (legs, tail) have a `limb` and a `joint`: the point where the part turns, relative
+-- to the figure center. They hang on the `root` part with a Motor6D, and the client turns them
+-- while the dino walks (see DinoAnim). All other parts are fixed to the root.
 
 export type Color = { r: number, g: number, b: number }
 
 -- "body" and "accent" take the colors of the dino (and the variants); "eyes" and "dark" always
 -- have the fixed colors below.
 export type Role = "body" | "accent" | "eyes" | "dark"
+
+export type Limb = "legLeft" | "legRight" | "tail"
 
 export type MeshSpec = {
 	name: string,
@@ -21,43 +27,78 @@ export type MeshSpec = {
 	role: Role,
 	size: { x: number, y: number, z: number },
 	offset: { x: number, y: number, z: number },
+	-- Set for a moving part: which limb it is and where it turns.
+	limb: Limb?,
+	joint: { x: number, y: number, z: number }?,
 }
 
-export type Template = { parts: { MeshSpec } }
+export type Template = {
+	-- The name of the part the moving parts hang on (the fixed body).
+	root: string,
+	parts: { MeshSpec },
+}
 
 -- A dino with a hand-written look that uses a template: its own colors.
 export type Entry = { template: string, body: Color, accent: Color }
 
 local templates: { [string]: Template } = {
 	runner = {
+		root = "Body",
 		parts = {
 			{
 				name = "Body",
-				meshId = 129551064444340,
+				meshId = 123925490386633,
 				role = "body",
-				size = { x = 2.42, y = 3.5879, z = 9.4654 },
-				offset = { x = 0, y = -1.1975, z = 0.769 },
+				size = { x = 1.9524, y = 2.3249, z = 5.7855 },
+				offset = { x = 0.0133, y = -0.6139, z = -1.0649 },
+			},
+			{
+				name = "Tail",
+				meshId = 84757090943199,
+				role = "body",
+				size = { x = 1.1, y = 1.002, z = 3.9372 },
+				offset = { x = 0, y = -1.1, z = 3.5328 },
+				limb = "tail",
+				joint = { x = 0, y = -1.1, z = 1.6 },
+			},
+			{
+				name = "LegLeft",
+				meshId = 86995604553438,
+				role = "body",
+				size = { x = 1.1, y = 2.2326, z = 2.5563 },
+				offset = { x = -0.66, y = -1.9592, z = -0.0068 },
+				limb = "legLeft",
+				joint = { x = -0.66, y = -1.1, z = 0.8 },
+			},
+			{
+				name = "LegRight",
+				meshId = 89153016392730,
+				role = "body",
+				size = { x = 1.1, y = 2.2326, z = 2.5563 },
+				offset = { x = 0.66, y = -1.9592, z = -0.0068 },
+				limb = "legRight",
+				joint = { x = 0.66, y = -1.1, z = 0.8 },
 			},
 			{
 				name = "Accent",
-				meshId = 78367756158135,
+				meshId = 95715589319009,
 				role = "accent",
-				size = { x = 1.9046, y = 2.9005, z = 2.8437 },
-				offset = { x = 0, y = -1.6253, z = -2.2181 },
+				size = { x = 1.7779, y = 1.9219, z = 5.505 },
+				offset = { x = 0, y = -0.604, z = -0.8225 },
 			},
 			{
 				name = "Eyes",
-				meshId = 115515115980455,
+				meshId = 113978924112501,
 				role = "eyes",
-				size = { x = 1.0522, y = 0.34, z = 0.3315 },
+				size = { x = 1.0633, y = 0.38, z = 0.38 },
 				offset = { x = 0, y = 0.3, z = -2.55 },
 			},
 			{
 				name = "Dark",
-				meshId = 84654792256588,
+				meshId = 129209504376245,
 				role = "dark",
-				size = { x = 1.0461, y = 0.646, z = 1.425 },
-				offset = { x = 0, y = 0.113, z = -3.1575 },
+				size = { x = 1.0751, y = 0.6594, z = 1.4155 },
+				offset = { x = 0, y = 0.1223, z = -3.1529 },
 			},
 		},
 	},

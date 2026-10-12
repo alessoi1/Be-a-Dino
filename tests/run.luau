@@ -118,6 +118,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/DinoMesh.spec")
 	end,
+	function()
+		require("./specs/DinoAnim.spec")
+	end,
 }
 
 local passed = 0

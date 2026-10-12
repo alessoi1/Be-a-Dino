@@ -27,6 +27,8 @@ local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 local LOOK_NAME = "DinoLook"
+-- Set on the parts that move; the client turns their joints (see DinoAnimator).
+local LIMB_ATTRIBUTE = "Limb"
 local MODELS_FOLDER = "Models"
 -- Seconds to wait for the parts of a new character.
 local CHARACTER_WAIT = 5
@@ -202,6 +204,7 @@ local function buildMeshLook(stageId: string, variantId: string?): Model?
 		model:SetAttribute("Variant", variant.id)
 	end
 	local variedIndex = 0
+	local created: { [string]: MeshPart } = {}
 	for _, spec in template.parts do
 		local source = loaded[spec.name]
 		if source == nil then
@@ -209,6 +212,10 @@ local function buildMeshLook(stageId: string, variantId: string?): Model?
 		end
 		local part = source:Clone()
 		part.Name = spec.name
+		if spec.limb ~= nil and spec.joint ~= nil then
+			part:SetAttribute(LIMB_ATTRIBUTE, spec.limb)
+		end
+		created[spec.name] = part
 		part.CFrame = CFrame.new(spec.offset.x, spec.offset.y, spec.offset.z)
 		local color = DinoMesh.colorFor(spec.role, entry, DinoMeshes.fixed)
 		if DinoMesh.isVaried(spec.role) then
@@ -233,6 +240,24 @@ local function buildMeshLook(stageId: string, variantId: string?): Model?
 		end
 		part.Color = colorOf(color)
 		part.Parent = model
+	end
+	-- The moving parts turn around their joint, relative to the fixed root part.
+	local rootPart = created[template.root]
+	if rootPart ~= nil then
+		for _, spec in template.parts do
+			local part = created[spec.name]
+			local joint = spec.joint
+			if part ~= nil and spec.limb ~= nil and joint ~= nil then
+				local jointFrame = CFrame.new(joint.x, joint.y, joint.z)
+				local motor = Instance.new("Motor6D")
+				motor.Name = spec.limb
+				motor.Part0 = rootPart
+				motor.Part1 = part
+				motor.C0 = rootPart.CFrame:ToObjectSpace(jointFrame)
+				motor.C1 = part.CFrame:ToObjectSpace(jointFrame)
+				motor.Parent = part
+			end
+		end
 	end
 	model.WorldPivot = CFrame.new()
 	return model
@@ -305,6 +330,10 @@ local function weld(root: BasePart, part: BasePart)
 	part.CanTouch = false
 	part.CanQuery = false
 	part.Massless = true
+	-- A moving part (leg, tail) hangs on a Motor6D of the look instead (see buildMeshLook).
+	if part:GetAttribute(LIMB_ATTRIBUTE) ~= nil then
+		return
+	end
 	local constraint = Instance.new("WeldConstraint")
 	constraint.Part0 = root
 	constraint.Part1 = part
