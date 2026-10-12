@@ -1,7 +1,7 @@
 --!strict
--- Simple "coming soon" windows for the shop and the boosters. Each one is open while the
--- player stands in its circle in the lobby (the server publishes the zone). They get their
--- real content in later steps. Only checkable in Roblox Studio.
+-- Simple "coming soon" window for the boosters (the shop has the egg window). It is open while
+-- the player stands in its circle in the lobby (the server publishes the zone). It gets its
+-- real content in a later step. Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -52,7 +52,6 @@ end
 
 function WindowPlaceholder.start()
 	local gui = UiKit.newGui("LobbyWindows")
-	create(gui, "shop", Strings.lobby.shopTitle)
 	create(gui, "boost", Strings.lobby.boostTitle)
 end
 

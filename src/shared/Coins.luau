@@ -44,6 +44,18 @@ function Coins.forKill(victimStageIndex: number, factor: number, multiplier: num
 	return math.floor(math.floor(victimStageIndex) * factor * multiplier)
 end
 
+-- Pays `price` from `coins`. Returns the new amount, or nil when there are not enough coins (or
+-- the input is invalid), so nothing is taken then.
+function Coins.spend(coins: number, price: number): number?
+	if not isFinite(coins) or not isFinite(price) or coins < 0 or price <= 0 or price % 1 ~= 0 then
+		return nil
+	end
+	if coins < price then
+		return nil
+	end
+	return math.floor(coins) - price
+end
+
 -- Returns the new amount: `coins` plus `amount`, never above `max`. Invalid or non-positive
 -- amounts change nothing.
 function Coins.add(coins: number, amount: number, max: number): number

@@ -50,6 +50,23 @@ function CoinService.add(player: Player, amount: number)
 	publish(player)
 end
 
+-- Takes `price` coins. Returns false (and takes nothing) when there are not enough.
+function CoinService.spend(player: Player, price: number): boolean
+	local data = DataService.getData(player)
+	local current = if data ~= nil then data.coins else sessionCoins[player] or 0
+	local left = Coins.spend(current, price)
+	if left == nil then
+		return false
+	end
+	if data ~= nil then
+		data.coins = left
+	else
+		sessionCoins[player] = left
+	end
+	publish(player)
+	return true
+end
+
 function CoinService.start()
 	PlayerState.onGrow(function(player: Player, fromIndex: number, toIndex: number)
 		local amount = Coins.forStages(fromIndex, toIndex, CoinConfig.perStageFactor)
