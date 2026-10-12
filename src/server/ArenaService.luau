@@ -1,5 +1,5 @@
 --!strict
--- Builds the arena (floor, walls and the oasis from parts) and finds a spawn spot inside it
+-- Builds the arena (floor and walls from parts, the look comes from the SceneryService) and finds a spawn spot inside it
 -- for players who enter from the lobby. Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
@@ -14,6 +14,7 @@ local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
 local Build = require(script.Parent:WaitForChild("Build"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local SceneryService = require(script.Parent:WaitForChild("SceneryService"))
 
 local log = Log.new("ArenaService")
 
@@ -55,33 +56,20 @@ local function removeTemplateParts()
 	end
 end
 
--- The oasis in the middle: a flat disc just above the floor and a thin light column that
--- shows from afar where the middle is (looks only, no collision).
-local OASIS_THICKNESS = 0.2
+-- A thin light column in the middle shows from afar where the waterhole is (looks only, no
+-- collision). The waterhole itself is built by the SceneryService.
+local BEACON_BOTTOM = 0.6
 local BEACON_HEIGHT = 80
 local BEACON_DIAMETER = 3
 local BEACON_TRANSPARENCY = 0.6
 
-local function buildOasis(folder: Instance)
-	local radius = FoodConfig.zones.center.radius
-	Build.cylinder(
-		folder,
-		"Oasis",
-		OASIS_THICKNESS,
-		radius * 2,
-		0,
-		0,
-		0,
-		Color3.fromRGB(70, 140, 210),
-		Enum.Material.SmoothPlastic,
-		0
-	)
+local function buildBeacon(folder: Instance)
 	Build.cylinder(
 		folder,
 		"OasisBeacon",
 		BEACON_HEIGHT,
 		BEACON_DIAMETER,
-		OASIS_THICKNESS,
+		BEACON_BOTTOM,
 		0,
 		0,
 		Color3.fromRGB(150, 220, 255),
@@ -120,7 +108,8 @@ local function build()
 	makePart(folder, "WallWest", Vector3.new(thick, height, size), Vector3.new(-offset, height / 2, 0), wallColor)
 	makePart(folder, "WallEast", Vector3.new(thick, height, size), Vector3.new(offset, height / 2, 0), wallColor)
 
-	buildOasis(folder)
+	buildBeacon(folder)
+	SceneryService.build(folder)
 
 	folder.Parent = workspace
 	log.info("arena built", { size = size, wallHeight = height })
@@ -163,6 +152,16 @@ function ArenaService.spawnPosition(spawning: Player?): Vector3
 	local allowed = SpawnPick.outsideDisc(candidates, 0, 0, oasis.radius + oasis.spawnClearance)
 	if #allowed == 0 then
 		allowed = candidates
+	end
+	-- ... and not in or right next to a tree, rock or plant.
+	local clear = {}
+	for _, candidate in allowed do
+		if SceneryService.isClearForSpawn(candidate.x, candidate.z) then
+			table.insert(clear, candidate)
+		end
+	end
+	if #clear > 0 then
+		allowed = clear
 	end
 	local best = SpawnPick.best(allowed, others) or randomPoint()
 	return Vector3.new(best.x, SPAWN_HEIGHT, best.z)

@@ -1,0 +1,200 @@
+--!strict
+-- Pure placement of the arena scenery: props spread evenly, rock blocks along the walls, dirt
+-- paths and ground patches. No Roblox services, no logging. `rng` returns numbers in [0, 1).
+
+export type Rng = () -> number
+export type Disc = { x: number, z: number, r: number }
+export type Kind = { id: string, count: number, radius: number }
+export type Placed = { id: string, x: number, z: number, yaw: number, radius: number }
+export type Point = { x: number, z: number }
+export type Patch = { x: number, z: number, radius: number, tone: number }
+export type WallRock = {
+	side: string,
+	-- Position along the wall, from -half to half.
+	along: number,
+	yaw: number,
+	width: number,
+	height: number,
+	depth: number,
+	tone: number,
+}
+export type RockSpec = {
+	spacing: number,
+	minWidth: number,
+	maxWidth: number,
+	minHeight: number,
+	maxHeight: number,
+	minDepth: number,
+	maxDepth: number,
+	jitter: number,
+	yaw: number,
+	tones: number,
+}
+
+local TWO_PI = math.pi * 2
+local MAX_PATH_STEPS = 200
+-- How strongly a path is pulled back to its original direction (0 = not at all, 1 = straight).
+local PATH_PULL = 0.3
+
+local ScenerySpawn = {}
+
+local function between(rng: Rng, low: number, high: number): number
+	return low + (high - low) * rng()
+end
+
+-- Free space of a spot (studs) to the nearest disc and to the nearest placed prop. Negative
+-- means it overlaps.
+local function gaps(x: number, z: number, radius: number, discs: { Disc }, placed: { Placed }): (number, number)
+	local toDisc = math.huge
+	for _, disc in discs do
+		local dx, dz = x - disc.x, z - disc.z
+		toDisc = math.min(toDisc, math.sqrt(dx * dx + dz * dz) - disc.r - radius)
+	end
+	local toProp = math.huge
+	for _, other in placed do
+		local dx, dz = x - other.x, z - other.z
+		toProp = math.min(toProp, math.sqrt(dx * dx + dz * dz) - other.radius - radius)
+	end
+	return toDisc, toProp
+end
+
+-- Places `count` props of each kind inside the square (side 2 * half) with `margin` to the
+-- walls. Big props first. Of `candidates` random spots the valid one with the most free space to
+-- the other props wins, so the props spread evenly. A prop that finds no valid spot is left out.
+function ScenerySpawn.scatter(
+	half: number,
+	margin: number,
+	exclusions: { Disc },
+	kinds: { Kind },
+	candidates: number,
+	rng: Rng
+): { Placed }
+	local placed: { Placed } = {}
+	local order = table.clone(kinds)
+	table.sort(order, function(a: Kind, b: Kind): boolean
+		if a.radius ~= b.radius then
+			return a.radius > b.radius
+		end
+		return a.id < b.id
+	end)
+	for _, kind in order do
+		local limit = half - margin - kind.radius
+		if limit > 0 then
+			for _ = 1, kind.count do
+				local best: Placed? = nil
+				local bestGap = -math.huge
+				for _ = 1, candidates do
+					local x = between(rng, -limit, limit)
+					local z = between(rng, -limit, limit)
+					local toDisc, toProp = gaps(x, z, kind.radius, exclusions, placed)
+					if toDisc >= 0 and toProp >= 0 and toProp > bestGap then
+						best = { id = kind.id, x = x, z = z, yaw = between(rng, 0, TWO_PI), radius = kind.radius }
+						bestGap = toProp
+					end
+				end
+				if best ~= nil then
+					table.insert(placed, best)
+				end
+			end
+		end
+	end
+	return placed
+end
+
+-- Rock blocks standing in front of the four walls, one every `spacing` studs (shifted by a
+-- random share of it). Sizes and tones are random inside the spec.
+function ScenerySpawn.wallRocks(half: number, spec: RockSpec, rng: Rng): { WallRock }
+	local rocks: { WallRock } = {}
+	local sides = { "north", "south", "east", "west" }
+	local count = math.max(1, math.floor(2 * half / spec.spacing))
+	for _, side in sides do
+		for index = 1, count do
+			local along = -half + (index - 0.5) * (2 * half / count)
+			along += between(rng, -spec.jitter, spec.jitter) * spec.spacing
+			table.insert(rocks, {
+				side = side,
+				along = math.clamp(along, -half, half),
+				yaw = between(rng, -spec.yaw, spec.yaw),
+				width = between(rng, spec.minWidth, spec.maxWidth),
+				height = between(rng, spec.minHeight, spec.maxHeight),
+				depth = between(rng, spec.minDepth, spec.maxDepth),
+				tone = math.floor(rng() * spec.tones) + 1,
+			})
+		end
+	end
+	return rocks
+end
+
+-- Points of a dirt path that runs from `startRadius` (distance from the middle) in direction
+-- `angle` until it is closer than `inset` to a wall. It wobbles by at most `wobble` radians
+-- per step but is pulled back to the original direction.
+function ScenerySpawn.pathPoints(
+	angle: number,
+	startRadius: number,
+	half: number,
+	inset: number,
+	step: number,
+	wobble: number,
+	rng: Rng
+): { Point }
+	local limit = half - inset
+	local points: { Point } = {}
+	local x = math.cos(angle) * startRadius
+	local z = math.sin(angle) * startRadius
+	if math.abs(x) > limit or math.abs(z) > limit then
+		return points
+	end
+	table.insert(points, { x = x, z = z })
+	local heading = angle
+	for _ = 1, MAX_PATH_STEPS do
+		heading += between(rng, -wobble, wobble)
+		heading = angle + (heading - angle) * (1 - PATH_PULL)
+		x += math.cos(heading) * step
+		z += math.sin(heading) * step
+		if math.abs(x) > limit or math.abs(z) > limit then
+			break
+		end
+		table.insert(points, { x = x, z = z })
+	end
+	return points
+end
+
+-- Round ground patches of random size and tone, fully inside the square with `margin` to the walls.
+function ScenerySpawn.patches(
+	half: number,
+	margin: number,
+	count: number,
+	minRadius: number,
+	maxRadius: number,
+	tones: number,
+	rng: Rng
+): { Patch }
+	local patches: { Patch } = {}
+	for _ = 1, count do
+		local radius = between(rng, minRadius, maxRadius)
+		local limit = half - margin - radius
+		if limit > 0 then
+			table.insert(patches, {
+				x = between(rng, -limit, limit),
+				z = between(rng, -limit, limit),
+				radius = radius,
+				tone = math.floor(rng() * tones) + 1,
+			})
+		end
+	end
+	return patches
+end
+
+-- Whether a spot is at least `gap` studs away from every prop (its own radius counts).
+function ScenerySpawn.clearOfProps(x: number, z: number, props: { Placed }, gap: number): boolean
+	for _, prop in props do
+		local dx, dz = x - prop.x, z - prop.z
+		local reach = prop.radius + gap
+		if dx * dx + dz * dz < reach * reach then
+			return false
+		end
+	end
+	return true
+end
+
+return ScenerySpawn

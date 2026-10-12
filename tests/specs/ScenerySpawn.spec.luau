@@ -1,0 +1,178 @@
+--!strict
+local Framework = require("../Framework")
+local ScenerySpawn = require("../../src/shared/ScenerySpawn")
+local Scenery = require("../../src/shared/Config/Scenery")
+
+local test = Framework.test
+local assertEquals = Framework.assertEquals
+local assertTrue = Framework.assertTrue
+
+local HALF = 250
+
+local function kinds(): { ScenerySpawn.Kind }
+	local list: { ScenerySpawn.Kind } = {}
+	for _, prop in Scenery.props do
+		table.insert(list, { id = prop.id, count = prop.count, radius = prop.radius })
+	end
+	return list
+end
+
+local function scatterAll(seed: number): { ScenerySpawn.Placed }
+	local discs = { { x = 0, z = 0, r = 90 } }
+	return ScenerySpawn.scatter(
+		HALF,
+		Scenery.placement.wallMargin,
+		discs,
+		kinds(),
+		Scenery.placement.candidates,
+		Framework.seededRng(seed)
+	)
+end
+
+test("ScenerySpawn: scatter places every prop of the config in the real arena", function()
+	local expected = 0
+	for _, prop in Scenery.props do
+		expected += prop.count
+	end
+	assertEquals(#scatterAll(1), expected)
+end)
+
+test("ScenerySpawn: props keep away from the waterhole, the walls and each other", function()
+	local placed = scatterAll(2)
+	for index, prop in placed do
+		assertTrue(math.sqrt(prop.x * prop.x + prop.z * prop.z) >= 90 + prop.radius, "inside the waterhole clearance")
+		local limit = HALF - Scenery.placement.wallMargin - prop.radius
+		assertTrue(math.abs(prop.x) <= limit + 1e-9 and math.abs(prop.z) <= limit + 1e-9, "too close to a wall")
+		for other = index + 1, #placed do
+			local dx, dz = prop.x - placed[other].x, prop.z - placed[other].z
+			assertTrue(math.sqrt(dx * dx + dz * dz) >= prop.radius + placed[other].radius, "props overlap")
+		end
+	end
+end)
+
+test("ScenerySpawn: the same seed gives the same arena", function()
+	local first, second = scatterAll(3), scatterAll(3)
+	assertEquals(#first, #second)
+	for index, prop in first do
+		assertEquals(prop.x, second[index].x)
+		assertEquals(prop.z, second[index].z)
+	end
+end)
+
+test("ScenerySpawn: a prop without room is left out", function()
+	local placed = ScenerySpawn.scatter(
+		20,
+		5,
+		{},
+		{ { id = "Big", count = 5, radius = 9 } },
+		10,
+		Framework.seededRng(4)
+	)
+	assertTrue(#placed < 5, "should not fit")
+	assertEquals(
+		#ScenerySpawn.scatter(10, 8, {}, { { id = "Big", count = 1, radius = 5 } }, 10, Framework.seededRng(4)),
+		0
+	)
+end)
+
+test("ScenerySpawn: props spread over all four quarters of the arena", function()
+	local quarters = { 0, 0, 0, 0 }
+	for _, prop in scatterAll(5) do
+		local index = (prop.x < 0 and 1 or 0) + (prop.z < 0 and 2 or 0) + 1
+		quarters[index] += 1
+	end
+	for _, count in quarters do
+		assertTrue(count > 20, "a quarter is nearly empty")
+	end
+end)
+
+test("ScenerySpawn: clearOfProps respects radius and gap", function()
+	local props: { ScenerySpawn.Placed } = { { id = "Tree", x = 0, z = 0, yaw = 0, radius = 5 } }
+	assertEquals(ScenerySpawn.clearOfProps(7, 0, props, 3), false)
+	assertEquals(ScenerySpawn.clearOfProps(8, 0, props, 3), true)
+	assertEquals(ScenerySpawn.clearOfProps(0, 0, {}, 3), true)
+end)
+
+local function rockSpec(): ScenerySpawn.RockSpec
+	local walls = Scenery.walls
+	return {
+		spacing = walls.rockSpacing,
+		minWidth = walls.rockMinWidth,
+		maxWidth = walls.rockMaxWidth,
+		minHeight = walls.rockMinHeight,
+		maxHeight = walls.rockMaxHeight,
+		minDepth = walls.rockMinDepth,
+		maxDepth = walls.rockMaxDepth,
+		jitter = walls.rockJitter,
+		yaw = walls.rockYaw,
+		tones = #walls.rockColors,
+	}
+end
+
+test("ScenerySpawn: wall rocks stand along all four walls inside the size limits", function()
+	local spec = rockSpec()
+	local rocks = ScenerySpawn.wallRocks(HALF, spec, Framework.seededRng(6))
+	local perSide = math.floor(2 * HALF / spec.spacing)
+	assertEquals(#rocks, perSide * 4)
+	local sides: { [string]: number } = {}
+	for _, rock in rocks do
+		sides[rock.side] = (sides[rock.side] or 0) + 1
+		assertTrue(math.abs(rock.along) <= HALF)
+		assertTrue(rock.width >= spec.minWidth and rock.width <= spec.maxWidth)
+		assertTrue(rock.height >= spec.minHeight and rock.height <= spec.maxHeight)
+		assertTrue(rock.depth >= spec.minDepth and rock.depth <= spec.maxDepth)
+		assertTrue(rock.tone >= 1 and rock.tone <= spec.tones)
+	end
+	for _, side in { "north", "south", "east", "west" } do
+		assertEquals(sides[side], perSide, side)
+	end
+end)
+
+test("ScenerySpawn: a path runs outward from the start and stays inside the walls", function()
+	local ground = Scenery.ground
+	local limit = HALF - ground.pathWallInset
+	for angle = 0, 5 do
+		local points = ScenerySpawn.pathPoints(
+			angle,
+			70,
+			HALF,
+			ground.pathWallInset,
+			ground.pathStep,
+			ground.pathWobble,
+			Framework.seededRng(10 + angle)
+		)
+		assertTrue(#points >= 2, "path too short")
+		local first, last = points[1], points[#points]
+		assertTrue(math.abs(math.sqrt(first.x * first.x + first.z * first.z) - 70) < 1e-6, "wrong start")
+		assertTrue(
+			last.x * last.x + last.z * last.z > first.x * first.x + first.z * first.z,
+			"path does not go outward"
+		)
+		for _, point in points do
+			assertTrue(math.abs(point.x) <= limit and math.abs(point.z) <= limit, "path leaves the arena")
+		end
+	end
+end)
+
+test("ScenerySpawn: a path that would start outside is empty", function()
+	assertEquals(#ScenerySpawn.pathPoints(0, 300, HALF, 10, 18, 0.2, Framework.seededRng(1)), 0)
+end)
+
+test("ScenerySpawn: patches lie fully inside the arena", function()
+	local ground = Scenery.ground
+	local patches = ScenerySpawn.patches(
+		HALF,
+		ground.patchMargin,
+		ground.patchCount,
+		ground.patchMinRadius,
+		ground.patchMaxRadius,
+		#ground.patchColors,
+		Framework.seededRng(7)
+	)
+	assertEquals(#patches, ground.patchCount)
+	for _, patch in patches do
+		assertTrue(math.abs(patch.x) + patch.radius <= HALF - ground.patchMargin + 1e-9)
+		assertTrue(math.abs(patch.z) + patch.radius <= HALF - ground.patchMargin + 1e-9)
+		assertTrue(patch.tone >= 1 and patch.tone <= #ground.patchColors)
+	end
+end)
