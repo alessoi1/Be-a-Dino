@@ -16,6 +16,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Zones = require(Shared:WaitForChild("Zones"))
 local Lobby = require(Shared:WaitForChild("Config"):WaitForChild("Lobby"))
+local DeathConfig = require(Shared:WaitForChild("Config"):WaitForChild("Death"))
 
 local ArenaService = require(script.Parent:WaitForChild("ArenaService"))
 local Build = require(script.Parent:WaitForChild("Build"))
@@ -41,6 +42,8 @@ local RAILING_COLOR = Color3.fromRGB(180, 220, 255)
 local RAILING_TRANSPARENCY = 0.6
 -- Minimum seconds between two leave requests of one player.
 local LEAVE_MIN_INTERVAL = 0.3
+-- Seconds between two checks while a revive waits for the new character.
+local REVIVE_POLL_SECONDS = 0.2
 
 local log = Log.new("LobbyService")
 local random = Random.new()
@@ -227,7 +230,7 @@ local function setPublished(player: Player, zone: string, zoneUntil: number, ful
 end
 
 -- Tries to put the player into the arena. Returns whether it worked.
-local function enterArena(player: Player): boolean
+local function enterArena(player: Player, startPoints: number?): boolean
 	local playing = PlayerState.countPlaying()
 	local ok, reason = PlayMode.canEnter(playing, Lobby.maxPlaying)
 	if not ok then
@@ -237,7 +240,7 @@ local function enterArena(player: Player): boolean
 	if not ArenaService.placeInArena(player) then
 		return false
 	end
-	PlayerState.beginRound(player)
+	PlayerState.beginRound(player, startPoints)
 	MovementService.noteTeleport(player)
 	log.info("entered the arena", { userId = player.UserId, playing = playing + 1 })
 	return true
@@ -355,6 +358,29 @@ local function onPlayerAdded(player: Player)
 	if player.Character ~= nil then
 		placeInLobby(player)
 	end
+end
+
+-- A revive: waits for the new character in the lobby, then puts the player back into the arena
+-- with the points they had (same dino, protected for a few seconds). Returns false when it is not
+-- possible (no character in time, arena full). Called by the DeathService after a paid revive.
+function LobbyService.revive(player: Player, points: number): boolean
+	local deadline = ServerClock.now() + DeathConfig.reviveWaitSeconds
+	while player.Parent ~= nil and (livingRoot(player) == nil or PlayerState.getMode(player) ~= "lobby") do
+		if ServerClock.now() >= deadline then
+			log.warn("revive timed out", { userId = player.UserId })
+			return false
+		end
+		task.wait(REVIVE_POLL_SECONDS)
+	end
+	if player.Parent == nil then
+		return false
+	end
+	-- The lobby spawn of the new character must be done before the player is moved again.
+	task.wait(DeathConfig.reviveSettleSeconds)
+	if livingRoot(player) == nil or PlayerState.getMode(player) ~= "lobby" then
+		return false
+	end
+	return enterArena(player, points)
 end
 
 function LobbyService.start(limiter: Limiter)

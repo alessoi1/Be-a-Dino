@@ -118,6 +118,15 @@ return {
 		eaten = "%s ate you",
 		-- %s = dino name
 		evolved = "You are now a %s!",
+		revived = "You are back!",
+		reviveFailed = "Revive not possible now. It is saved for your next time.",
+		-- %s = name of the player who has the bounty now
+		bountyPlaced = "Bounty placed on %s",
+		-- %s = name; the bounty is saved for later
+		bountyFailed = "%s is not in the arena. Your bounty is saved.",
+		-- %s = potion name
+		potion = "%s potion added",
+		potionEnded = "%s potion ended",
 	},
 	data = {
 		-- The profile could not be loaded; the player keeps playing without saving.
@@ -141,9 +150,32 @@ return {
 		leave = "Lobby",
 		-- %d = seconds left; tapping again cancels
 		leaving = "Leaving in %d (tap to cancel)",
-		comingSoon = "Coming soon",
-		shopTitle = "Shop",
-		boostTitle = "Boosters",
+	},
+	potions = {
+		title = "Potions",
+		-- Names of the potions by id (see Config/Offers).
+		names = {
+			growth = "Growth",
+			coin = "Coin",
+			speed = "Speed",
+			shield = "Shield",
+		},
+		-- What a potion does, by id; %s = the factor or the seconds.
+		effects = {
+			growth = "%sx points from food",
+			coin = "%sx coins",
+			speed = "+%s%% speed",
+			shield = "+%ss protection at the start",
+		},
+		-- %s = time (for example 10m)
+		duration = "%s in the arena",
+		-- %s = time left
+		left = "%s left",
+		offer = "View offer",
+		full = "Full",
+		unavailable = "Your progress must be saved to use potions.",
+		-- The potions only run while you are in the arena.
+		hint = "Potions run only in the arena.",
 	},
 	eggs = {
 		title = "Dino egg",
@@ -189,9 +221,17 @@ return {
 		title = "You were eaten by %s",
 		-- %d = seconds until the window closes
 		closing = "Closing in %d",
-		reviveSoon = "Revive at your size (soon)",
+		revive = "Revive at your size",
+		-- %d = saved revives
+		reviveSaved = "Revive at your size (saved: %d)",
 		-- %s = name of the one who ate you
-		bountySoon = "Bounty on %s (soon)",
+		bounty = "Bounty on %s",
+		-- %d = saved bounties
+		bountySaved = "Bounty on %s (saved: %d)",
+		-- Second line of a paid choice that opens the purchase dialog.
+		offer = "View offer",
+		-- Shown on a paid choice that cannot be used (guest, or the profile is not loaded).
+		needsSave = "Needs saved progress",
 		lobby = "Back to lobby",
 	},
 	respawn = {

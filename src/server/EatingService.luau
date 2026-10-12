@@ -100,11 +100,12 @@ local function execute(eat: Eat, byId: { [number]: Player })
 
 	PlayerState.addPoints(eater, gained)
 	StatsService.addKill(eater)
+	local earned = 0
 	if coins > 0 then
-		CoinService.add(eater, coins)
+		earned = CoinService.addEarned(eater, coins)
 	end
-	DeathService.open(victim, eater)
-	notice(eater, "ate", victim.DisplayName, gained, coins, multiplier > 1)
+	DeathService.open(victim, eater, victimState.points)
+	notice(eater, "ate", victim.DisplayName, gained, earned, multiplier > 1)
 	notice(victim, "eaten", eater.DisplayName, 0)
 end
 

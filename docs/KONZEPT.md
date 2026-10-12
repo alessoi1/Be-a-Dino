@@ -185,7 +185,7 @@ Nach dem erfolgreichen ersten Studio-Test (Schritte 2 bis 7, Oase, Baseplate-Fix
 5. **L5 Autofarm.**
 6. **L6 Globale Ranglisten** (Kills, größte Größe, Spielzeit) auf Tafeln in der Lobby.
 7. **L7 Varianten und Eier** mit Münzen.
-8. **L8 Bezahltes:** Wiederbeleben, Tränke, eventuell Glückseier, nach Richtlinienprüfung (`docs/MONETARISIERUNG.md`).
+8. **L8 Bezahltes (gebaut):** Wiederbeleben in gleicher Größe, Kopfgeld auf den Killer und vier Tränke (Wachstum, Münzen, Tempo, Schutz) über Developer Products; Glückseier gegen Robux werden nicht gebaut. Ein gekauftes Revive oder Kopfgeld wird als gespeicherter Anspruch im Profil (Version 6) geführt und sofort genutzt, wenn das Todes-Fenster offen ist, sonst beim nächsten Tod. Tränke laufen nur in der Arena. Werte und Produkte in `Config/Offers`, Regeln in `docs/MONETARISIERUNG.md`.
 
 ## Weiterhin offen
 

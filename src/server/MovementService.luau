@@ -15,6 +15,7 @@ local Stamina = require(Shared:WaitForChild("Stamina"))
 local MoveCheck = require(Shared:WaitForChild("MoveCheck"))
 local Movement = require(Shared:WaitForChild("Config"):WaitForChild("Movement"))
 
+local OfferService = require(script.Parent:WaitForChild("OfferService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
@@ -104,7 +105,7 @@ local function processPlayer(player: Player, data: PlayerData, dt: number)
 	local newStamina, sprinting = Stamina.step(Movement, data.stamina, data.wantsSprint, dt)
 	data.stamina = newStamina
 
-	local baseSpeed = PlayerState.speedFor(player)
+	local baseSpeed = PlayerState.speedFor(player) * OfferService.speedFactor(player)
 	local speed = if sprinting then baseSpeed * Movement.sprintFactor else baseSpeed
 	humanoid.WalkSpeed = speed
 

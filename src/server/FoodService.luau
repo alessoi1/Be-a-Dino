@@ -17,6 +17,7 @@ local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
+local OfferService = require(script.Parent:WaitForChild("OfferService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
@@ -123,6 +124,8 @@ local function collectFor(player: Player, now: number)
 		total += Progression.foodGain(unit, FoodConfig.kinds[item.kind].value)
 		releaseFood(item.id, now)
 	end
+	-- A running growth potion raises the points from food (not from eating players).
+	total *= OfferService.growthFactor(player)
 	PlayerState.addPoints(player, total)
 	log.debug("food eaten", { userId = player.UserId, pieces = #items, points = total })
 end

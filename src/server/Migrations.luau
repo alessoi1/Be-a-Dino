@@ -32,4 +32,12 @@ return {
 		data.version = 5
 		return data
 	end,
+	-- 5 -> 6: paid offers (potion time, saved revives and bounties, remembered purchase ids).
+	function(data: any): any
+		data.potionSeconds = {}
+		data.credits = {}
+		data.receipts = {}
+		data.version = 6
+		return data
+	end,
 }

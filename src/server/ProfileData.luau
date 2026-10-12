@@ -21,6 +21,12 @@ export type Data = {
 	kills: number,
 	-- Seconds in the arena in total (autofarm counts).
 	playSeconds: number,
+	-- Seconds left per potion id (counted down in the arena only).
+	potionSeconds: { [string]: number },
+	-- Saved revives and bounties that could not be used at once: kind -> count.
+	credits: { [string]: number },
+	-- The most recent purchase ids, oldest first (a repeated receipt is not granted again).
+	receipts: { string },
 }
 
 export type Limits = {
@@ -29,6 +35,12 @@ export type Limits = {
 	maxVariantsPerDino: number,
 	maxCoins: number,
 	maxStat: number,
+	maxPotionKinds: number,
+	maxPotionSeconds: number,
+	maxCreditKinds: number,
+	maxCredits: number,
+	maxReceipts: number,
+	maxReceiptLength: number,
 }
 
 -- Turns data of version n into data of version n + 1 (and sets `version`).
@@ -37,7 +49,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 5
+ProfileData.VERSION = 6
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -65,6 +77,9 @@ function ProfileData.new(now: number): Data
 		coins = 0,
 		kills = 0,
 		playSeconds = 0,
+		potionSeconds = {},
+		credits = {},
+		receipts = {},
 	}
 end
 
@@ -143,6 +158,59 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 		if not isFiniteNumber(value) or value < 0 or value % 1 ~= 0 or value > limits.maxStat then
 			return false, field .. " must be a whole number between 0 and the limit"
 		end
+	end
+
+	if type(data.potionSeconds) ~= "table" then
+		return false, "potionSeconds must be a table"
+	end
+	local potionKinds = 0
+	for potionId, seconds in data.potionSeconds do
+		if
+			type(potionId) ~= "string"
+			or not isFiniteNumber(seconds)
+			or seconds <= 0
+			or seconds > limits.maxPotionSeconds
+		then
+			return false, "potionSeconds holds only potion ids with seconds between 0 and the limit"
+		end
+		potionKinds += 1
+	end
+	if potionKinds > limits.maxPotionKinds then
+		return false, "too many potions"
+	end
+
+	if type(data.credits) ~= "table" then
+		return false, "credits must be a table"
+	end
+	local creditKinds = 0
+	for kind, amount in data.credits do
+		if
+			type(kind) ~= "string"
+			or not isFiniteNumber(amount)
+			or amount < 1
+			or amount % 1 ~= 0
+			or amount > limits.maxCredits
+		then
+			return false, "credits holds only kinds with a whole count between 1 and the limit"
+		end
+		creditKinds += 1
+	end
+	if creditKinds > limits.maxCreditKinds then
+		return false, "too many credit kinds"
+	end
+
+	if type(data.receipts) ~= "table" or #data.receipts > limits.maxReceipts then
+		return false, "receipts must be a list within the limit"
+	end
+	local receiptCount = 0
+	for index, purchaseId in data.receipts do
+		if type(index) ~= "number" or type(purchaseId) ~= "string" or #purchaseId > limits.maxReceiptLength then
+			return false, "receipts holds only purchase ids as text"
+		end
+		receiptCount += 1
+	end
+	if receiptCount ~= #data.receipts then
+		return false, "receipts must be a list without gaps"
 	end
 	return true, nil
 end

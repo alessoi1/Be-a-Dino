@@ -67,6 +67,18 @@ function NoticeToast.start()
 			end
 		elseif kind == "eaten" then
 			show(string.format(Strings.notice.eaten, otherName))
+		elseif kind == "revived" then
+			show(Strings.notice.revived)
+		elseif kind == "reviveFailed" then
+			show(Strings.notice.reviveFailed)
+		elseif kind == "bountyPlaced" then
+			show(string.format(Strings.notice.bountyPlaced, otherName))
+		elseif kind == "bountyFailed" then
+			show(string.format(Strings.notice.bountyFailed, otherName))
+		elseif kind == "potion" then
+			show(string.format(Strings.notice.potion, Strings.potions.names[otherName] or otherName))
+		elseif kind == "potionEnded" then
+			show(string.format(Strings.notice.potionEnded, Strings.potions.names[otherName] or otherName))
 		end
 	end)
 

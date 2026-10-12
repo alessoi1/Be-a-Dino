@@ -38,6 +38,8 @@ local growHandlers: { GrowHandler } = {}
 local protectedUntil: { [number]: number } = {}
 -- The scale last applied to the character, to skip tiny rescales.
 local appliedScale: { [number]: number } = {}
+-- Extra seconds of spawn protection for a player (a shield potion); set by the offer service.
+local protectionBonus: ((player: Player) -> number)? = nil
 
 local PlayerState = {}
 
@@ -168,12 +170,22 @@ end
 
 -- Starts a fresh state (smallest dino, no points) in the given mode. A round in the arena
 -- starts with the spawn protection. `rescale` sets the character back to the smallest size.
-local function startState(player: Player, mode: Mode, reason: "reset" | "round", rescale: boolean)
+local function startState(player: Player, mode: Mode, reason: "reset" | "round", rescale: boolean, startPoints: number?)
 	local state = Growth.newState()
+	if startPoints ~= nil and startPoints > 0 then
+		state = Growth.addPoints(Dinos, state, startPoints)
+	end
 	states[player.UserId] = state
 	modes[player.UserId] = mode
 	appliedScale[player.UserId] = Growth.scaleFor(Dinos, state)
-	protectedUntil[player.UserId] = if mode == "playing" then ServerClock.now() + Arena.spawnProtectionSeconds else 0
+	local protection = 0
+	if mode == "playing" then
+		protection = Arena.spawnProtectionSeconds
+		if protectionBonus ~= nil then
+			protection += math.max(0, protectionBonus(player))
+		end
+	end
+	protectedUntil[player.UserId] = if mode == "playing" then ServerClock.now() + protection else 0
 	player:SetAttribute("Mode", mode)
 	publish(player, state)
 	-- The respawn countdown (set when eaten) is over once the state starts over.
@@ -185,23 +197,29 @@ local function startState(player: Player, mode: Mode, reason: "reset" | "round",
 	log.info("state started", { userId = player.UserId, mode = mode })
 end
 
--- The player enters the arena: new round, protected for a few seconds.
-function PlayerState.beginRound(player: Player)
-	startState(player, "playing", "round", true)
+-- Sets the function that gives the extra protection seconds of a player (shield potion).
+function PlayerState.setProtectionBonus(provider: (player: Player) -> number)
+	protectionBonus = provider
+end
+
+-- The player enters the arena: new round, protected for a few seconds. `startPoints` (a revive)
+-- starts with the points and the dino the player had.
+function PlayerState.beginRound(player: Player, startPoints: number?)
+	startState(player, "playing", "round", true, startPoints)
 end
 
 -- The round ends (left the arena): back to the lobby as the smallest dino.
 function PlayerState.endRound(player: Player)
-	startState(player, "lobby", "reset", true)
+	startState(player, "lobby", "reset", true, nil)
 end
 
 local function onPlayerAdded(player: Player)
 	log.info("player joined", { userId = player.UserId })
-	startState(player, "lobby", "reset", false)
+	startState(player, "lobby", "reset", false, nil)
 	player.CharacterAdded:Connect(function()
 		-- A fresh character has scale 1 already, and it always starts in the lobby (also after
 		-- being eaten), so only the state is reset.
-		startState(player, "lobby", "reset", false)
+		startState(player, "lobby", "reset", false, nil)
 	end)
 end
 
