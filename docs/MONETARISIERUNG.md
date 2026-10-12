@@ -18,6 +18,18 @@ Vom Spielentwickler am 10. Oktober 2026 ausdrücklich freigegeben, siehe `docs/K
 
 Vor dem Bau von L8 gilt: aktuelle Roblox-Richtlinien prüfen, die Produkte im Creator Hub anlegen und jeden weiteren bezahlten Vorteil erneut mit dem Spielentwickler abstimmen.
 
+## Entscheidungen für L8 (12. Oktober 2026)
+
+- **Ein Branch** für alles: Wiederbeleben, Kopfgeld und Tränke.
+- **Tränke:** Wachstums-Trank, Münzen-Trank, Tempo-Trank und Schutz-Trank, alle zeitlich begrenzt und nur in der Arena wirksam. Tempo- und Schutz-Trank wirken direkt im PvP und sind damit die stärksten bezahlten Vorteile; sie sind vom Spielentwickler freigegeben, die genauen Werte stehen aber noch aus (siehe Plan).
+- **Glückseier gegen Robux werden nicht gebaut.** Damit entfallen die Pflichten für bezahlte Zufallsobjekte. Eier bleiben nur mit Münzen (Münzen gibt es nie gegen Robux). Ein Trank darf die Chancen im Ei nie verändern, sonst wäre es ein „Odds-Booster“ mit Pflichten.
+
+## Richtlinienprüfung (Roblox-Dokumentation, 12. Oktober 2026 gelesen)
+
+- **Developer Products:** `ProcessReceipt` genau einmal in einem Server-Skript, `PurchaseGranted` erst nach dem Vergeben, sonst `NotProcessedYet`. `PromptProductPurchase(player, productId)` wird auf der Seite noch ohne Warnung als der Weg zum Auslösen genannt, vom Client nach einem Tipp. Roblox speichert keinen Kaufverlauf pro Spieler; das Merken (Idempotenz) liegt bei uns. Produkte nicht im Shop listen (nur im Spiel verkaufen). Verkauf zwischen Spielen ist seit 30. Mai 2026 abgeschaltet.
+- **Bezahlte Zufallsobjekte** (nur relevant, falls Glückseier doch kommen): alle Chancen als Prozent, Summe genau 100 %, vor dem Kauf; `ArePaidRandomItemsRestricted` per `PolicyService` pro Spieler prüfen und dann Ersatzweg anbieten oder ausblenden; kein Handel mit den Ergebnissen. Zufall, der nur durch Spielen oder mit Münzen (nie mit Robux gekauft) entsteht, braucht keine Offenlegung.
+- Weiterhin offen und von einem Menschen zu lesen: die Community Standards und Nutzungsbedingungen zu Druck-Praktiken und Ausgaben von Minderjährigen (siehe unten).
+
 ## Wie ein Kauf ablaufen soll
 
 1. Der Spieler tippt auf ein Angebot („View offer“). Den Preis zeigt Roblox im Kaufdialog, er steht nicht im Spiel. Das geht nur, wenn das Profil geladen ist (Attribut `DataReady`), und höchstens alle paar Sekunden. Gäste können nicht kaufen.
