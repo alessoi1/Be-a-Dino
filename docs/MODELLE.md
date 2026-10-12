@@ -34,9 +34,9 @@ Sobald in `assets/models/` ein passendes Modell liegt, wird es ohne Codeänderun
 4. In Studio ein `Model` daraus machen, benennen (Stufen-ID), Pivot setzen, im Explorer rechtsklicken, „Speichern in Datei“ und als `.rbxm` unter `assets/models/<stufe>.rbxm` ablegen.
 5. Mit `rojo serve` oder `rojo build` testen. Im Output erscheint beim Wechsel kein `model rejected`.
 
-## Skins und echte Modelle
+## Varianten und echte Modelle
 
-Die Skins aus `src/shared/Config/Skins.luau` färben bisher nur die Platzhalter um (Rollen `body` und `accent` pro Teil). Ein echtes Modell wird noch nicht umgefärbt: Es erscheint immer mit seinen eigenen Farben. Wie Skins für echte Modelle funktionieren (zum Beispiel Textur-Varianten pro Skin im Modell), legen wir fest, sobald die ersten echten Modelle da sind. Skins dürfen dabei nie Hitbox, Größe oder Werte ändern.
+Die Varianten (Glowing, Gold, Shadow, Rainbow, siehe `src/shared/Config/Variants.luau`) färben und beschichten bisher nur die Platzhalter (Rollen `body` und `accent` pro Teil, Material pro Variante). Ein echtes Modell wird noch nicht verändert: Es erscheint immer mit seinen eigenen Farben und ohne Rainbow-Animation. Wie Varianten bei echten Modellen funktionieren (zum Beispiel ein anderes Material und eine Tönung auf den MeshParts, oder Textur-Varianten im Modell), legen wir fest, sobald die ersten echten Modelle da sind. Varianten dürfen dabei nie Hitbox, Größe oder Werte ändern.
 
 ## Offene Punkte
 

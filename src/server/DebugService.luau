@@ -16,6 +16,7 @@ local DebugConfig = require(Shared:WaitForChild("Config"):WaitForChild("Debug"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 
 local BountyService = require(script.Parent:WaitForChild("BountyService"))
+local VariantService = require(script.Parent:WaitForChild("VariantService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
@@ -85,6 +86,21 @@ function DebugService.start(limiter: Limiter)
 				BountyService.place(other)
 			end
 		end
+	end)
+
+	-- V: gives a variant of the dino the player is now and shows it (to test the looks).
+	Remotes.event(Remotes.names.debugVariant).OnServerEvent:Connect(function(player: Player)
+		local now = ServerClock.now()
+		local previous = lastCall[player.UserId]
+		if previous ~= nil and now - previous < MIN_INTERVAL then
+			limiter.reject(player.UserId, "DebugVariant", "rate_limited")
+			return
+		end
+		lastCall[player.UserId] = now
+		if PlayerState.getMode(player) ~= "playing" then
+			return
+		end
+		VariantService.debugGrant(player)
 	end)
 	log.warn("studio debug helper is active")
 end

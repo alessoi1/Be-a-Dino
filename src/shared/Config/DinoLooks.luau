@@ -11,7 +11,7 @@ export type PartSpec = {
 	size: { x: number, y: number, z: number },
 	offset: { x: number, y: number, z: number },
 	color: { r: number, g: number, b: number },
-	-- Which skin color replaces the color of this part: the main color or the second one.
+	-- Which variant color replaces the color of this part: the main color or the second one.
 	role: "body" | "accent",
 }
 

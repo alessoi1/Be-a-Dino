@@ -5,7 +5,7 @@ Zum Prüfen auf dem Handy: Studio Test-Tab, Geräte-Emulator.
 
 Vorbereitung, Reihenfolge und Fehlerberichte stehen in `docs/STUDIO-TEST.md`.
 
-**Seit der Lobby (Ausbau L1) startet jeder Spieler in der Lobby.** Für alle Tests mit Arena zuerst in den grünen Play-Kreis stellen (2 Sekunden). Dinodex, Skins und Shop öffnen nur über ihre Kreise in der Lobby, die Taste `G` (Debug) wirkt nur in der Arena.
+**Seit der Lobby (Ausbau L1) startet jeder Spieler in der Lobby.** Für alle Tests mit Arena zuerst in den grünen Play-Kreis stellen (2 Sekunden). Dinodex und Shop öffnen nur über ihre Kreise in der Lobby, die Taste `G` (Debug) wirkt nur in der Arena.
 
 **Seit L2 (große Zahlen) sind die Stufen weit auseinander** (Compy ab 0, Raptor ab 1K, Stego ab 1M, T-Rex ab 1B). Die Zahlen in den älteren Abschnitten dieser Datei („50 Punkte“, „+25“) stammen aus der Zeit davor: Ein Druck auf `G` gibt jetzt 25 % der Strecke bis zur nächsten Stufe, und das Futter ist auf höheren Stufen mehr wert.
 
@@ -138,43 +138,9 @@ Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen a
 - [ ] Die Karten sind lesbar, der Bereich scrollt bei kleinen Bildschirmen. Geräte wie in Schritt 6 (360 × 640, 375 × 667, 390 × 844, Tablet, jeweils Hoch- und Querformat).
 - [ ] Das Fenster verdeckt nicht den Joystick und den Sprint-Button zu sehr (kann man mit dem Daumen am Rand weiterspielen).
 
-## Schritt 7c: Skins
+## Schritt 7c und 7d (Skins, Shop): entfallen
 
-Stand: noch nicht in Studio getestet. Zum Speichern gelten die Voraussetzungen aus Schritt 7a. Das Profil wird mit diesem Schritt auf Version 2 migriert: Ein bereits gespeichertes Profil aus 7a sollte beim nächsten Laden `status = migrated` im Log zeigen und danach normal funktionieren.
-
-- [ ] Output zeigt `SkinService started`, kein `skin config invalid`.
-- [ ] Sammlung öffnen und auf eine erreichte Dino-Karte tippen: Es erscheint die Skin-Liste mit dem Dino-Namen als Titel und einer Zurück-Taste (`<`). Nicht erreichte Karten reagieren nicht.
-- [ ] Beim Compy: „Default“ (Equipped) und „Mint“ (Locked: reach the Raptor). Bezahlte Skins (Berry, Midnight, Volcano, Frost) sind nicht zu sehen.
-- [ ] Raptor erreichen (Taste `G`): „Mint“ wird zu „Equip“. Tippen wechselt zu Mint, der Compy-Platzhalter ändert die Farbe (wenn man gerade Compy ist, sofort sichtbar), die Zeile zeigt „Equipped“, und „Default“ wieder „Equip“.
-- [ ] Als Raptor: Der Compy-Skin ist weiterhin wählbar, ändert aber nicht den aktuellen Raptor. Beim nächsten Neustart als Compy erscheint der gewählte Compy-Skin.
-- [ ] Nach einem Stufenwechsel hat der neue Dino den dort gewählten Skin.
-- [ ] Die anderen Spieler sehen den gewählten Skin (Test-Tab mit 2 Spielern).
-- [ ] „Sunset“ (Stego erreichen), „Moss“ (T-Rex erreichen) und „Gold“ (Bestwert 1000 Punkte) bleiben bis dahin gesperrt, mit der passenden Bedingung als Text.
-- [ ] Skins ändern kein Tempo, keine Größe und kein Fressverhalten.
-- [ ] Spiel beenden und neu starten: Der gewählte Skin ist wieder da (nur mit Speichern, siehe 7a). Als Gast gilt die Wahl nur für die Sitzung.
-- [ ] Schnelles Tippen auf „Equip“ erzeugt keine Fehler. Im Log erscheinen höchstens `remote call rejected`-Zeilen mit `rate_limited`, höchstens alle 5 Sekunden pro Grund.
-- [ ] Skin-Liste auf kleinen Geräten (360 × 640, Querformat): Zeilen lesbar, Status-Text bricht um, die Liste scrollt, die Zeilen sind gut zu treffen.
-
-## Schritt 7d: Shop
-
-Stand: noch nicht in Studio getestet. Voraussetzungen und Ablauf der Produktanlage stehen in `docs/MONETARISIERUNG.md`. Ohne Produkt-IDs in `Config/Skins.luau` (alle `0`) bleiben die bezahlten Skins unsichtbar, dann gibt es nichts zu kaufen.
-
-Vorbereitung:
-- [ ] Place veröffentlicht, Studio-API-Zugriff an (siehe 7a), vier Developer Products mit 1 Robux angelegt, die IDs in `Config/Skins.luau` eingetragen.
-- [ ] Output zeigt `Receipts started` und `handler registered skins`, kein `skin config invalid`.
-
-Test (nimm zuerst ein Konto, bei dem 1 Robux nichts ausmacht, und sieh dir im Dialog den Preis an):
-- [ ] In der Sammlung bei einem erreichten Dino erscheint der bezahlte Skin mit „View offer“. Bezahlte Skins mit ID 0 sind nicht zu sehen.
-- [ ] Tippen öffnet den Roblox-Kaufdialog mit dem richtigen Namen und Preis. Der Dialog öffnet sich nicht von selbst, und schnelles Doppeltippen öffnet ihn nur einmal.
-- [ ] Abbrechen: nichts passiert, kein Fehler, der Skin bleibt „View offer“.
-- [ ] Kaufen: Im Log `receipt processed` (Spieler, Produkt, Beleg, `outcome = granted`), danach erscheint „New skin: …“, die Zeile zeigt „Equip“ und der Skin lässt sich ausrüsten.
-- [ ] Spiel beenden und neu starten: Der Skin ist noch da (nur mit Speichern).
-- [ ] Kein Kaufknopf als Gast: Ohne Speichern steht „Not available without saving“, und es öffnet sich kein Dialog.
-- [ ] Kurz nach dem Betreten (Profil lädt noch) ist der Kaufknopf gesperrt und wird mit dem Laden freigeschaltet.
-- [ ] Beleg bleibt offen, wenn der Spieler vor dem Vergeben geht (`receipt for an absent player`), und wird beim nächsten Betreten vergeben.
-- [ ] Zweiter Beleg für denselben Skin vergibt nicht doppelt (`outcome = duplicate`), wird aber bestätigt.
-- [ ] Skins ändern kein Tempo, keine Größe und kein Fressverhalten (Werte vor und nach dem Kauf vergleichen).
-- [ ] Kaufdialog und Texte sind auf kleinen Geräten gut zu bedienen (360 × 640, Querformat).
+Die Skins und der Skin-Shop wurden durch die Varianten ersetzt (siehe „Ausbau L7a“ unten). Der Beleg-Dienst bleibt für L8, siehe `docs/MONETARISIERUNG.md`.
 
 ## Oase in der Mitte
 
@@ -202,7 +168,7 @@ Start und Lobby:
 
 Kreise:
 - [ ] **Shop** und **Boosters**: Im Kreis öffnet sich ein Fenster mit „Coming soon“, beim Verlassen schließt es sich.
-- [ ] **Dinodex**: Im Kreis öffnet sich die Sammlung mit den Karten und Skins (wie vorher). Mit dem X schließt man sie, beim erneuten Betreten öffnet sie sich wieder. Ohne Kreis ist sie nicht erreichbar.
+- [ ] **Dinodex**: Im Kreis öffnet sich die Sammlung mit den Karten und, nach einem Tipp auf einen Dino, seinen Varianten. Mit dem X schließt man sie, beim erneuten Betreten öffnet sie sich wieder. Ohne Kreis ist sie nicht erreichbar.
 - [ ] **Play**: Im Kreis erscheint „Entering the arena in 2“, dann 1. Wer vorher hinausgeht, bricht ab.
 
 Arena betreten und zurück:
@@ -230,7 +196,7 @@ Zahlen:
 - [ ] Taste `G`: Jeder Druck bringt 25 % der Strecke bis zur nächsten Stufe (vier Drücke = nächste Stufe).
 - [ ] Die Figur wächst weiter fließend zwischen den Stufen, die Fortschrittsleiste füllt sich gleichmäßig pro Stück.
 - [ ] Fressen: Wer einen Spieler frisst, bekommt die Hälfte von dessen Größe. Die Meldung zeigt „You ate Anna (+1.5K)“ mit kurzer Zahl.
-- [ ] Dinodex: „Best size: 12.3K“ und bei gesperrten Karten „Reach 1K size“ (kurze Zahlen). Skin „Gold“ (T-Rex): „Locked: best size 5B“.
+- [ ] Dinodex: „Best size: 12.3K“ und bei gesperrten Karten „Reach 1K size“ (kurze Zahlen).
 
 Münzen:
 - [ ] Oben links steht ein Zähler „Coins 0“. In der Arena sitzt er direkt unter dem Statusfeld und überlappt es nicht, in der Lobby in der Ecke.
@@ -260,7 +226,7 @@ Zahlen und Tempo:
 Dinodex:
 - [ ] Zeigt 50 Karten in zwei Spalten, oben „N of 50 dinos“, erreichte farbig mit Namen, die anderen als „???“ mit „Reach 1.54K size“ und so weiter. Scrollen geht flüssig (auch auf dem Handy-Emulator, 360 × 640).
 - [ ] Beim Erreichen eines Dinos wird die Karte freigeschaltet (nach `H` sofort sichtbar).
-- [ ] Ein Tipp auf einen Dino ohne Skins zeigt „No skins for this dino yet“. Compy, Raptor, Stego und T-Rex zeigen ihre Skins wie vorher.
+- [ ] Ein Tipp auf einen erreichten Dino zeigt seine Varianten (siehe „Ausbau L7a“).
 - [ ] Alte Spielstände mit den Dinos `compy`, `raptor`, `stego`, `trex` bleiben erhalten.
 
 ## Ausbau L4: Todes-Bildschirm, Kopfgeld, Münzen fürs Fressen
@@ -326,3 +292,24 @@ Zählen und Eintragen:
 - [ ] Nach einem Neustart sind Kills und Spielzeit wieder da (Profil Version 4, bestehende Profile werden mit `status = migrated` geladen).
 - [ ] Mit zwei Spielern stehen beide auf den Tafeln, richtig sortiert (höchster Wert oben), mit ihren Roblox-Benutzernamen.
 - [ ] Kurzzeitiger Ausfall des Speichers (zum Beispiel API-Zugriff ausschalten): Die Tafeln bleiben stehen, das Spiel läuft weiter, im Log stehen Warnungen, aber keine Fehlerflut.
+
+## Ausbau L7a: Varianten
+
+Stand: noch nicht in Studio getestet. Zum Testen: in der Arena Taste `V` (nur Studio) gibt eine noch nicht besessene Variante des Dinos, der du gerade bist, und zeigt sie sofort. Taste `H` springt zum nächsten Dino. Das Profil wird auf **Version 5** migriert (die Skin-Felder entfallen, Log `status = migrated`).
+
+Aussehen (am besten bei mehreren Dinos mit `H` prüfen):
+- [ ] Output zeigt `VariantService started dinos=50 variants=4`, kein `variant config invalid`.
+- [ ] **Glowing:** Der Dino leuchtet (Neon) und ist heller als normal.
+- [ ] **Gold:** Der Dino ist golden und glänzt (Metall), auch an den Akzentteilen (Kamm, Klauen, Platten).
+- [ ] **Shadow:** Der Dino ist fast schwarz, die Akzentteile sind lila.
+- [ ] **Rainbow:** Die Farben wechseln fließend im Kreis (jedes Teil hat eine andere Farbe). Bei mehr als 8 Rainbow-Dinos in der Nähe bewegen sich nur die nächsten 8, die anderen stehen in den Anfangsfarben. Weiter als 150 Studs weg bewegt sich nichts. Das Spiel bleibt auf dem Handy-Emulator flüssig.
+- [ ] Die Variante gilt auch für andere Spieler (zwei Spieler im Test-Tab).
+- [ ] Ein Wechsel der Variante baut den Dino sofort neu auf (ohne Wolke), Größe und Position bleiben gleich. Kein anderer Wert ändert sich (Tempo, Größe, Fressen).
+
+Dinodex:
+- [ ] Ein Tipp auf einen erreichten Dino zeigt fünf Zeilen: „Normal“ und „Glowing“, „Gold“, „Shadow“, „Rainbow“, jeweils mit zwei Farbpunkten als Vorschau. Besessene sind „Equip“, gesperrte zeigen „Find it in eggs“, die gerade gezeigte „Equipped“.
+- [ ] „Equip“ wechselt die Variante (sichtbar am Dino, wenn man genau dieser Dino ist), „Normal“ bringt das alte Aussehen zurück.
+- [ ] Unter „Best size“ steht „Variants: N of 200 (tap a dino)“ und zählt hoch, wenn man Varianten bekommt. Gäste sehen „Not saved“.
+- [ ] Neustart als Compy nach dem Gefressenwerden: Der Compy trägt seine gewählte Variante wieder. Nach einem Stufenwechsel trägt der neue Dino die dort gewählte Variante.
+- [ ] Spiel beenden und neu starten: Besitz und Auswahl sind wieder da (nur mit Speichern, siehe 7a).
+- [ ] Schnelles Tippen auf „Equip“ erzeugt keine Fehler, im Log höchstens `remote call rejected` mit `rate_limited` (höchstens alle 5 Sekunden).

@@ -117,40 +117,57 @@ test("ProfileData: a failing or missing migration stops the load", function()
 	assertEquals((ProfileData.migrate({ version = 1 }, wrongVersion, 2)), nil, "step must set the next version")
 end)
 
-test("ProfileData: a new profile has empty skin lists", function()
+test("ProfileData: a new profile has empty variant lists", function()
 	local data = ProfileData.new(1)
-	assertEquals(next(data.ownedSkins), nil)
-	assertEquals(next(data.equippedSkins), nil)
+	assertEquals(next(data.variants), nil)
+	assertEquals(next(data.equippedVariants), nil)
 end)
 
-test("ProfileData: validate rejects broken skin fields", function()
+test("ProfileData: validate rejects broken variant fields", function()
 	local function rejects(change: (data: any) -> (), label: string)
 		local data: any = ProfileData.new(1000)
 		change(data)
 		assertTrue(not ProfileData.validate(data, Profile), label)
 	end
 	rejects(function(data)
-		data.ownedSkins = "none"
-	end, "ownedSkins type")
+		data.variants = "none"
+	end, "variants type")
 	rejects(function(data)
-		data.ownedSkins = { compy_berry = "yes" }
-	end, "ownedSkins value")
+		data.variants = { compy = "gold" }
+	end, "variants of a dino must be a table")
 	rejects(function(data)
-		data.equippedSkins = { compy = 5 }
-	end, "equippedSkins value")
+		data.variants = { compy = { gold = "yes" } }
+	end, "variant value")
 	rejects(function(data)
-		data.equippedSkins = { [1] = "compy_mint" }
-	end, "equippedSkins key")
+		data.variants = { [1] = { gold = true } }
+	end, "variants key")
 	rejects(function(data)
-		for index = 1, Profile.maxOwnedSkins + 1 do
-			data.ownedSkins["skin" .. index] = true
+		data.equippedVariants = { compy = 5 }
+	end, "equippedVariants value")
+	rejects(function(data)
+		data.equippedVariants = { [1] = "gold" }
+	end, "equippedVariants key")
+	rejects(function(data)
+		local owned = {}
+		for index = 1, Profile.maxVariantsPerDino + 1 do
+			owned["variant" .. index] = true
 		end
-	end, "too many owned skins")
+		data.variants = { compy = owned }
+	end, "too many variants for one dino")
 	rejects(function(data)
-		for index = 1, Profile.maxEquippedSkins + 1 do
-			data.equippedSkins["dino" .. index] = "skin"
+		for index = 1, Profile.maxVariantDinos + 1 do
+			data.variants["dino" .. index] = { gold = true }
 		end
-	end, "too many equipped skins")
+	end, "variants for too many dinos")
+	rejects(function(data)
+		for index = 1, Profile.maxVariantDinos + 1 do
+			data.equippedVariants["dino" .. index] = "gold"
+		end
+	end, "too many equipped variants")
+	local ok: any = ProfileData.new(1000)
+	ok.variants = { compy = { gold = true, rainbow = true } }
+	ok.equippedVariants = { compy = "gold" }
+	assertTrue((ProfileData.validate(ok, Profile)))
 end)
 
 test("ProfileData: a version 1 profile is migrated to the current version", function()
@@ -161,10 +178,10 @@ test("ProfileData: a version 1 profile is migrated to the current version", func
 	assertEquals(data.version, ProfileData.VERSION)
 	assertEquals(data.bestPoints, 7)
 	assertTrue(data.reachedStages.raptor)
-	assertTrue(data.ownedSkins ~= nil and data.equippedSkins ~= nil)
+	assertTrue(data.variants ~= nil and data.equippedVariants ~= nil)
 	assertTrue((ProfileData.validate(data, Profile)))
 	assertEquals(raw.version, 1, "input stays untouched")
-	assertEquals(raw.ownedSkins, nil)
+	assertEquals(raw.variants, nil)
 end)
 
 test("ProfileData: a new profile has no coins and invalid coins are rejected", function()
@@ -198,8 +215,9 @@ test("ProfileData: a version 2 profile is migrated and keeps everything", functi
 	assertEquals(migrated.version, ProfileData.VERSION)
 	assertEquals(migrated.coins, 0)
 	assertEquals(migrated.bestPoints, 12)
-	assertTrue(migrated.ownedSkins.compy_berry)
-	assertEquals(migrated.equippedSkins.compy, "compy_berry")
+	assertEquals(migrated.ownedSkins, nil, "the old skin fields are gone")
+	assertEquals(migrated.equippedSkins, nil)
+	assertTrue(migrated.variants ~= nil and migrated.equippedVariants ~= nil)
 	assertEquals(raw.version, 2, "input stays untouched")
 	assertEquals(raw.coins, nil)
 	assertTrue((ProfileData.validate(migrated, Profile)))
@@ -241,5 +259,28 @@ test("ProfileData: a version 3 profile is migrated and keeps everything", functi
 	assertEquals(migrated.kills, 0)
 	assertEquals(migrated.playSeconds, 0)
 	assertEquals(raw.kills, nil, "input stays untouched")
+	assertTrue((ProfileData.validate(migrated, Profile)))
+end)
+
+test("ProfileData: a version 4 profile is migrated, the skin fields are dropped", function()
+	local raw: any = {
+		version = 4,
+		createdAt = 9,
+		reachedStages = { compy = true },
+		bestPoints = 12,
+		ownedSkins = { compy_berry = true },
+		equippedSkins = { compy = "compy_berry" },
+		coins = 40,
+		kills = 3,
+		playSeconds = 600,
+	}
+	local migrated: any = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	assertEquals(migrated.version, ProfileData.VERSION)
+	assertEquals(migrated.coins, 40)
+	assertEquals(migrated.kills, 3)
+	assertEquals(migrated.ownedSkins, nil)
+	assertEquals(next(migrated.variants), nil)
+	assertEquals(raw.ownedSkins.compy_berry, true, "input stays untouched")
 	assertTrue((ProfileData.validate(migrated, Profile)))
 end)

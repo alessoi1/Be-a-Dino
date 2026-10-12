@@ -62,15 +62,6 @@ local specs: { () -> () } = {
 		require("./specs/CollectionView.spec")
 	end,
 	function()
-		require("./specs/Skins.spec")
-	end,
-	function()
-		require("./specs/SkinView.spec")
-	end,
-	function()
-		require("./specs/Purchases.spec")
-	end,
-	function()
 		require("./specs/Zones.spec")
 	end,
 	function()

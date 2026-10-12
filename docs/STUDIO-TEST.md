@@ -43,8 +43,7 @@ Server:
 [BeDino][ArenaService] started
 [BeDino][AppearanceService] started
 [BeDino][Receipts] started
-[BeDino][Receipts] handler registered name=skins
-[BeDino][SkinService] started
+[BeDino][VariantService] started dinos=50 variants=4
 [BeDino][MovementService] started
 [BeDino][LobbyService] lobby built ...
 [BeDino][LobbyService] started
@@ -95,7 +94,7 @@ Jeweils den passenden Abschnitt in `docs/TESTLISTE.md` abarbeiten und Häkchen s
 | 4 | Schritt 7a: Speichern | veröffentlichtes Place nötig |
 | 5 | Schritt 5: Fressen | **zwei Spieler** (siehe Abschnitt 5) |
 | 6 | Schritt 6: Oberfläche | Geräte-Emulator (siehe Abschnitt 5) |
-| 7 | Schritt 7b: Sammlung, 7c: Skins | nach 7a |
+| 7 | Schritt 7b: Sammlung, Ausbau L7a: Varianten | nach 7a |
 | 8 | Schritt 7d: Shop | erst nach dem Anlegen der Produkte, `docs/MONETARISIERUNG.md` |
 
 Tipp: Die Schritte 5 und 7d sind am heikelsten. Nimm dir dafür Zeit.
@@ -105,7 +104,7 @@ Tipp: Die Schritte 5 und 7d sind am heikelsten. Nimm dir dafür Zeit.
 **Zwei Spieler:** Reiter Test → Clients and Servers → **Players: 2** → Start. Es öffnen sich zwei Client-Fenster und ein Server.
 - Fressen testen: Im ersten Fenster `G` mehrmals drücken (zum Beispiel 5-mal, dann bist du schon Raptor und deutlich größer). Im zweiten Fenster als Compy stehen bleiben. Der Raptor muss nah an den Compy laufen. Erwartung: Der Compy verschwindet mit einer Wolke, nach etwa 3 Sekunden erscheint er wieder (4 Sekunden weißes Leuchten als Schutz), und beide sehen kurz eine Meldung.
 - Schutzzeit: Direkt nach dem Respawn darf der Raptor den Compy nicht fressen.
-- Skins: Im zweiten Fenster einen Skin wählen und im ersten prüfen, ob er sichtbar ist.
+- Varianten: Mit Taste `V` eine Variante für den aktuellen Dino geben lassen und im zweiten Fenster prüfen, ob sie sichtbar ist.
 
 **Handy-Emulator:** Im laufenden Test im Reiter Test das Gerätemenü (Emulation) öffnen und ein Gerät wählen (360 × 640, 375 × 667, 390 × 844, ein Tablet, dann gedreht). Joystick, Sprint-Button, Status, Bestenliste, „Dinos“-Button und Fenster müssen sich vertragen. Touch-Gefühl und Leistung musst du zusätzlich auf einem echten Handy prüfen.
 
@@ -120,7 +119,7 @@ game.Players:GetPlayers()[1].Character.Humanoid.Health = 0
 -- Teleport-Test: Der Server muss die Figur zurücksetzen, im Log steht "movement rejected"
 game.Players:GetPlayers()[1].Character.HumanoidRootPart.CFrame += Vector3.new(100, 0, 0)
 
--- Alle Attribute des Spielers ansehen (Punkte, Stufe, Sammlung, Skins ...)
+-- Alle Attribute des Spielers ansehen (Punkte, Stufe, Sammlung, Varianten ...)
 for name, value in game.Players:GetPlayers()[1]:GetAttributes() do print(name, value) end
 
 -- Debug-Zeilen im Log einschalten (sehr gesprächig: jedes gefressene Futter)

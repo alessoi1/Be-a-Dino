@@ -14,9 +14,11 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local DinoBody = require(Shared:WaitForChild("DinoBody"))
 local DinoLook = require(Shared:WaitForChild("DinoLook"))
+local Variants = require(Shared:WaitForChild("Variants"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
+local VariantConfig = require(Shared:WaitForChild("Config"):WaitForChild("Variants"))
 
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 
@@ -36,18 +38,24 @@ local PROTECTION_OUTLINE_TRANSPARENCY = 0.3
 
 local log = Log.new("AppearanceService")
 
-type Color = { r: number, g: number, b: number }
-type SkinColors = { body: Color, accent: Color }
--- Gives the skin colors for a player and a dino stage (nil keeps the original colors).
-type SkinProvider = (player: Player, stageId: string) -> SkinColors?
+-- Gives the id of the variant shown on a dino of a player (nil is the normal look).
+type VariantProvider = (player: Player, stageId: string) -> string?
 
-local skinProvider: SkinProvider? = nil
+local variantProvider: VariantProvider? = nil
+
+-- The Roblox materials of the variants (the config names them as text).
+local MATERIALS: { [string]: Enum.Material } = {
+	Neon = Enum.Material.Neon,
+	Metal = Enum.Material.Metal,
+	SmoothPlastic = Enum.Material.SmoothPlastic,
+	Plastic = Enum.Material.Plastic,
+}
 
 local AppearanceService = {}
 
--- Registers where the skin colors come from (set by the SkinService at the start).
-function AppearanceService.setSkinProvider(provider: SkinProvider)
-	skinProvider = provider
+-- Registers where the variants come from (set by the VariantService at the start).
+function AppearanceService.setVariantProvider(provider: VariantProvider)
+	variantProvider = provider
 end
 
 -- Looks built from plans are made once and kept.
@@ -72,24 +80,42 @@ local function lookFor(stageId: string): { parts: { any } }?
 	return built
 end
 
-local function buildPlaceholder(stageId: string, colors: SkinColors?): Model?
+local function buildPlaceholder(stageId: string, variantId: string?): Model?
 	local look = lookFor(stageId)
 	if look == nil then
 		return nil
 	end
+	local variant = if variantId ~= nil then Variants.find(VariantConfig.variants, variantId) else nil
 	local model = Instance.new("Model")
 	model.Name = stageId
-	for _, spec in look.parts do
+	if variant ~= nil then
+		-- The client animates the rainbow variant near the camera (see VariantEffects).
+		model:SetAttribute("Variant", variant.id)
+	end
+	local count = #look.parts
+	for index, spec in look.parts do
 		local part = Instance.new("Part")
 		part.Name = spec.name
 		part.Shape = if spec.shape == "Ball" then Enum.PartType.Ball else Enum.PartType.Block
 		part.Size = Vector3.new(spec.size.x, spec.size.y, spec.size.z)
 		local color = spec.color
-		if colors ~= nil then
-			color = if spec.role == "accent" then colors.accent else colors.body
+		local material = Enum.Material.SmoothPlastic
+		if variant ~= nil then
+			local appearance = Variants.appearance(
+				variant,
+				spec.color,
+				spec.role,
+				index,
+				count,
+				VariantConfig.rainbowSaturation,
+				VariantConfig.rainbowValue
+			)
+			color = appearance.color
+			material = MATERIALS[appearance.material] or material
+			part.Transparency = appearance.transparency
 		end
 		part.Color = Color3.fromRGB(color.r, color.g, color.b)
-		part.Material = Enum.Material.SmoothPlastic
+		part.Material = material
 		part.CFrame = CFrame.new(spec.offset.x, spec.offset.y, spec.offset.z)
 		part.Parent = model
 	end
@@ -122,7 +148,7 @@ local function checkModel(stageId: string, model: Model): boolean
 	return true
 end
 
-local function loadLook(stageId: string, colors: SkinColors?): Model?
+local function loadLook(stageId: string, variantId: string?): Model?
 	local models = ServerStorage:FindFirstChild(MODELS_FOLDER)
 	local template = models and models:FindFirstChild(stageId)
 	if template ~= nil and template:IsA("Model") and checkModel(stageId, template) then
@@ -133,7 +159,7 @@ local function loadLook(stageId: string, colors: SkinColors?): Model?
 	if template ~= nil and not template:IsA("Model") then
 		log.error("model rejected", { stage = stageId, reason = "not_a_model", class = template.ClassName })
 	end
-	return buildPlaceholder(stageId, colors)
+	return buildPlaceholder(stageId, variantId)
 end
 
 -- Makes the avatar invisible; the dino look is skipped.
@@ -179,16 +205,16 @@ local function attachLook(player: Player, character: Model, stageId: string)
 		old:Destroy()
 	end
 
-	local colors = nil
-	if skinProvider ~= nil then
-		local provided, result = pcall(skinProvider, player, stageId)
+	local variantId: string? = nil
+	if variantProvider ~= nil then
+		local provided, result = pcall(variantProvider, player, stageId)
 		if provided then
-			colors = result
+			variantId = result
 		else
-			log.error("skin provider failed", { userId = player.UserId, stage = stageId, error = tostring(result) })
+			log.error("variant provider failed", { userId = player.UserId, stage = stageId, error = tostring(result) })
 		end
 	end
-	local look = loadLook(stageId, colors)
+	local look = loadLook(stageId, variantId)
 	if look == nil then
 		log.error("no look for stage", { userId = player.UserId, stage = stageId })
 		return
@@ -275,7 +301,7 @@ local function onStage(player: Player, stageId: string, reason: "reset" | "grow"
 	end)
 end
 
--- Builds the look of the current dino again (for example after another skin was chosen).
+-- Builds the look of the current dino again (for example after another variant was chosen).
 function AppearanceService.refresh(player: Player, stageId: string)
 	local character = player.Character
 	if character == nil then

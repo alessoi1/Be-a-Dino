@@ -23,4 +23,13 @@ return {
 		data.version = 4
 		return data
 	end,
+	-- 4 -> 5: variants of the dinos replace the skins (the skins were never sold; a skin choice is lost).
+	function(data: any): any
+		data.variants = {}
+		data.equippedVariants = {}
+		data.ownedSkins = nil
+		data.equippedSkins = nil
+		data.version = 5
+		return data
+	end,
 }

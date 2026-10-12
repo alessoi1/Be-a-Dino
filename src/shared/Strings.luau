@@ -55,20 +55,13 @@ local dinos: { [string]: string } = {
 	titanosaur = "Titanosaur",
 }
 
--- Skin names by skin id (see Config/Skins).
-local skinNames: { [string]: string } = {
-	compy_default = "Default",
-	compy_mint = "Mint",
-	compy_berry = "Berry",
-	raptor_default = "Default",
-	raptor_sunset = "Sunset",
-	raptor_midnight = "Midnight",
-	stego_default = "Default",
-	stego_moss = "Moss",
-	stego_volcano = "Volcano",
-	trex_default = "Default",
-	trex_gold = "Gold",
-	trex_frost = "Frost",
+-- Variant names by variant id (see Config/Variants), and the normal look.
+local variantNames: { [string]: string } = {
+	normal = "Normal",
+	glowing = "Glowing",
+	gold = "Gold",
+	shadow = "Shadow",
+	rainbow = "Rainbow",
 }
 
 return {
@@ -109,21 +102,13 @@ return {
 		guest = "Not saved",
 		close = "X",
 		back = "<",
-		-- Shown below the best round while the progress is saved.
-		skinsHint = "Tap a dino to see its skins",
-		noSkins = "No skins for this dino yet",
-		skinEquipped = "Equipped",
-		skinEquip = "Equip",
-		-- %s = dino name
-		lockedReach = "Locked: reach the %s",
-		-- %s = size (short number)
-		lockedBest = "Locked: best size %s",
-		lockedOther = "Locked",
-		-- Neutral wording for a skin that can be bought (the Roblox dialog shows the price).
-		skinOffer = "View offer",
-		skinOfferNeedsSaving = "Not available without saving",
+		-- Shown below the best size while the progress is saved: %d of %d variants found.
+		variantsLine = "Variants: %d of %d (tap a dino)",
+		variantEquipped = "Equipped",
+		variantEquip = "Equip",
+		variantLocked = "Find it in eggs",
 	},
-	skins = skinNames,
+	variants = variantNames,
 	-- Messages when eating or being eaten (%s = name, then the size gained as a short number).
 	notice = {
 		ate = "You ate %s (+%s)",
@@ -133,8 +118,6 @@ return {
 		eaten = "%s ate you",
 		-- %s = dino name
 		evolved = "You are now a %s!",
-		-- %s = skin name
-		skinUnlocked = "New skin: %s",
 	},
 	data = {
 		-- The profile could not be loaded; the player keeps playing without saving.
