@@ -12,8 +12,9 @@ return {
 	fullSpeed = 22,
 	-- Below this speed the dino counts as standing still.
 	standSpeed = 0.5,
-	-- How far a leg swings forward and back.
+	-- How far a leg swings forward and back (two-legged dinos), and for the four-legged ones.
 	legSwing = 0.75,
+	quadLegSwing = 0.5,
 	-- How far the tail sways left and right while walking, and while standing.
 	tailSwing = 0.3,
 	tailIdleSwing = 0.12,

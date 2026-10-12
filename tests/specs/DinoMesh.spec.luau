@@ -187,3 +187,32 @@ test("DinoMesh: the real runner moves its legs and its tail", function()
 	end
 	assertTrue(limbs.legLeft and limbs.legRight and limbs.tail)
 end)
+
+test("DinoMesh: every shape of the plans has a template and moves its legs and tail", function()
+	local shapes: { [string]: boolean } = {}
+	for _, plan in DinoLooks.plans do
+		shapes[plan.template] = true
+	end
+	for shape in shapes do
+		local template = DinoMeshes.templates[shape]
+		assertTrue(template ~= nil, "no template for " .. shape)
+		local limbs = 0
+		local tail = false
+		for _, part in template.parts do
+			if part.limb == "tail" then
+				tail = true
+			elseif part.limb ~= nil then
+				limbs += 1
+			end
+		end
+		assertTrue(tail, shape .. " has no tail joint")
+		assertTrue(limbs == 2 or limbs == 4, shape .. " has " .. limbs .. " legs")
+	end
+end)
+
+test("DinoMesh: every dino of the game has a real shape", function()
+	for _, stage in Dinos do
+		local entry = DinoMesh.resolve(stage.id, DinoLooks.plans, DinoMeshes.dinos, DinoMeshes.templates)
+		assertTrue(entry ~= nil, stage.id .. " has no shape")
+	end
+end)

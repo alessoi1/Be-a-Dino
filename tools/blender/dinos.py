@@ -19,6 +19,17 @@ FLOOR = -3.0
 # Skin color of the film raptor (olive tan); the game tints the neutral pattern with its own colors.
 SKIN = (0.6, 0.56, 0.34)
 
+# Skin color of every shape in the preview (the same as the first color of its family in
+# src/shared/Config/DinoLooks.luau, divided by 255).
+SKINS = {
+    "runner": (0.6, 0.56, 0.34),
+    "biped": (0.62, 0.30, 0.24),
+    "duckbill": (0.30, 0.58, 0.54),
+    "armored": (0.52, 0.50, 0.46),
+    "horned": (0.80, 0.55, 0.32),
+    "longneck": (0.44, 0.52, 0.64),
+}
+
 PREVIEW_COLORS = {
     "Body": (1.0, 1.0, 1.0, 1.0),
     "Accent": (0.88, 0.82, 0.66, 1.0),
@@ -241,11 +252,15 @@ def paint_faces(obj, tint, neutral=False, stripes=True):
 PAINTED = {"Body": True, "Tail": True, "LegL": False, "LegR": False}
 
 
+# Which shapes get dark stripes across the back (the heavy ones keep a plain skin).
+STRIPED = {"runner": True, "biped": True, "duckbill": True, "armored": False, "horned": False, "longneck": False}
+
+
 def paint_shape(prefix, neutral=False):
     for suffix, stripes in PAINTED.items():
         obj = bpy.data.objects.get(prefix + "_" + suffix)
         if obj is not None:
-            paint_faces(obj, SKIN, neutral=neutral, stripes=stripes)
+            paint_faces(obj, SKINS.get(prefix, SKIN), neutral=neutral, stripes=stripes and STRIPED.get(prefix, True))
 
 
 # Where the limbs turn, in Blender coordinates (the game turns them into figure coordinates:
@@ -420,6 +435,291 @@ def export_fbx(shape, path):
             obj.data.transform(turn)
     paint_shape(shape)
     return sorted(obj.name for obj in meshes)
+
+
+# ---------------------------------------------------------------------------------------------
+# The other body shapes. Same rules as the runner: Blender coordinates (front +Y, up +Z), the
+# feet stand at z = -3, every shape has Body, Tail, the legs, Accent, Eyes and Dark.
+# ---------------------------------------------------------------------------------------------
+
+PAINTED.update({"LegFL": False, "LegFR": False, "LegBL": False, "LegBR": False})
+
+SHAPE_JOINTS = {"runner": RUNNER_JOINTS}
+
+
+def join_or_rename(objects, name):
+    if len(objects) == 1:
+        objects[0].name = name
+        objects[0].data.name = name
+        return objects[0]
+    return join(objects, name)
+
+
+def assemble(prefix, body_parts, tail_points, tail_extra, legs, accent, dark, eye, joints):
+    """Joins the pieces of a shape into its meshes, paints them and gives them materials. `legs` maps
+    the mesh name (LegL, LegFR ...) to its pieces."""
+    body_obj = join_or_rename(body_parts, prefix + "_Body")
+    tail_obj = join_or_rename([tube("tail", tail_points, sides=6)] + tail_extra, prefix + "_Tail")
+    leg_objs = [join_or_rename(pieces, prefix + "_" + suffix) for suffix, pieces in legs.items()]
+    accent_obj = join_or_rename(accent, prefix + "_Accent")
+    eyes_obj, slits = eyes(prefix, *eye)
+    dark_obj = join_or_rename(dark + slits, prefix + "_Dark")
+    paint_shape(prefix)
+    result = [body_obj, tail_obj] + leg_objs + [accent_obj, eyes_obj, dark_obj]
+    kinds = ["Body", "Body"] + ["Body"] * len(leg_objs) + ["Accent", "Eyes", "Dark"]
+    for obj, kind in zip(result, kinds):
+        material(obj, kind)
+    SHAPE_JOINTS[prefix] = joints
+    return result
+
+
+def pillar(x, y, hip_z, width, depth, sides=6):
+    """A thick leg of the four-legged dinos: hip, knee, ankle and a flat foot pointing forward."""
+    middle = (hip_z - 2.7) / 2
+    path = [
+        (x, y, hip_z, width, depth),
+        (x, y + 0.05, middle, width * 0.85, depth * 0.85),
+        (x, y, -2.7, width * 0.8, 0.25),
+        (x, y + 0.1, -2.9, width * 0.85, 0.1),
+        (x, y + 0.6, -2.92, width * 0.7, 0.08),
+    ]
+    pieces = [tube("leg", path, sides=sides)]
+    for spread in (-0.45, 0.0, 0.45):
+        pieces.append(
+            cone(
+                "claw",
+                (x + spread * width, y + 0.82, -2.93),
+                0.07,
+                0.0,
+                0.25,
+                rotation=(math.radians(-90), 0, 0),
+                vertices=4,
+            )
+        )
+    return pieces
+
+
+def quad_legs(front_y, back_y, x, hip_z, width, depth):
+    """The four legs: front and back, left and right."""
+    return {
+        "LegFL": pillar(-x, front_y, hip_z, width, depth),
+        "LegFR": pillar(x, front_y, hip_z, width, depth),
+        "LegBL": pillar(-x, back_y, hip_z, width, depth),
+        "LegBR": pillar(x, back_y, hip_z, width, depth),
+    }
+
+
+def quad_joints(front_y, back_y, x, hip_z, tail_y, tail_z):
+    return {
+        "Tail": (0, tail_y, tail_z),
+        "LegFL": (-x, front_y, hip_z),
+        "LegFR": (x, front_y, hip_z),
+        "LegBL": (-x, back_y, hip_z),
+        "LegBR": (x, back_y, hip_z),
+    }
+
+
+def teeth_row(count, start_y, end_y, reach, z, size, side, accent):
+    for index in range(count):
+        y = start_y + (end_y - start_y) * index / max(1, count - 1)
+        accent.append(
+            cone("tooth", (side * reach(y), y, z), 0.06, 0.0, size, rotation=(math.radians(180), 0, 0), vertices=3)
+        )
+
+
+def dark_details(dark, side, nostril, mouth):
+    dark.append(sphere("nostril", (side * nostril[0], nostril[1], nostril[2]), (0.04, 0.08, 0.035), 4, 3))
+    dark.append(tube("mouth", [(side * m[0], m[1], m[2], 0.025, 0.025) for m in mouth], sides=3))
+
+
+def build_biped(prefix="biped"):
+    """Big two-legged hunter (T-Rex and the other heavy meat eaters): a huge head with strong jaws,
+    thick legs, tiny arms and a heavy tail."""
+    remove_shape(prefix)
+    spine = [
+        (0, 4.6, -0.1, 0.12, 0.14),
+        (0, 4.1, -0.05, 0.3, 0.34),
+        (0, 3.2, 0.1, 0.55, 0.62),
+        (0, 2.5, 0.35, 0.62, 0.78),
+        (0, 1.9, 0.2, 0.55, 0.7),
+        (0, 1.3, -0.1, 0.55, 0.65),
+        (0, 0.6, -0.5, 0.85, 0.95),
+        (0, -0.4, -0.7, 1.1, 1.15),
+        (0, -1.4, -0.75, 1.0, 1.05),
+        (0, -2.4, -0.8, 0.8, 0.85),
+    ]
+    tail = [(0, -2.2, -0.8, 0.8, 0.85), (0, -4.0, -1.0, 0.5, 0.55), (0, -5.8, -1.2, 0.25, 0.25), (0, -7.4, -1.4, 0.05, 0.05)]
+    body = [tube("spine", spine, sides=6)]
+    body.append(tube("jaw", [(0, 4.3, -0.4, 0.2, 0.12), (0, 3.4, -0.5, 0.45, 0.22), (0, 2.6, -0.45, 0.55, 0.28)], sides=6))
+    legs, accent, dark = {}, [], []
+    for side, suffix in ((-1, "LegL"), (1, "LegR")):
+        x = side * 0.8
+        leg = [
+            (x, -1.4, -1.0, 0.7, 0.8),
+            (x, -1.0, -1.7, 0.6, 0.7),
+            (x, -0.4, -2.1, 0.45, 0.5),
+            (x, -1.0, -2.6, 0.35, 0.4),
+            (x, -1.0, -2.88, 0.4, 0.14),
+        ]
+        pieces = [tube("leg", leg, sides=6)]
+        for spread in (-0.28, 0.0, 0.28):
+            pieces.append(tube("toe", [(x, -1.0, -2.9, 0.13, 0.1), (x + spread, 0.1, -2.94, 0.07, 0.06)], sides=4))
+            pieces.append(
+                cone("claw", (x + spread, 0.4, -2.94), 0.08, 0.0, 0.45, rotation=(math.radians(-90), 0, 0), vertices=4)
+            )
+        legs[suffix] = pieces
+        body.append(tube("arm", [(side * 0.9, 1.0, -1.3, 0.14, 0.16), (side * 0.95, 1.4, -1.6, 0.1, 0.1)], sides=4))
+        for spread in (-0.05, 0.05):
+            accent.append(
+                cone("handclaw", (side * 0.95 + spread, 1.6, -1.65), 0.04, 0.0, 0.3, rotation=(math.radians(-90), 0, 0), vertices=3)
+            )
+        teeth_row(6, 4.0, 2.9, lambda y: 0.3 + (4.1 - y) * 0.18, -0.46, 0.26, side, accent)
+        dark_details(dark, side, (0.1, 4.62, 0.0), [(0.25, 4.3, -0.28), (0.45, 3.4, -0.25), (0.6, 2.6, -0.2)])
+    for y in (0.4, -0.5, -1.4):
+        accent.append(cone("spike", (0, y, spine_top(spine, y) + 0.05), 0.14, 0.0, 0.3, vertices=4))
+    joints = {"Tail": (0, -2.2, -0.8), "LegL": (-0.8, -1.4, -1.0), "LegR": (0.8, -1.4, -1.0)}
+    return assemble(prefix, body, tail, [], legs, accent, dark, (0.58, 3.0, 0.62, 0.2), joints)
+
+
+def build_duckbill(prefix="duckbill"):
+    """Plant eater with a flat beak and a crest (Parasaurolophus, Edmontosaurus ...): a long body
+    on strong hind legs and slimmer front legs."""
+    remove_shape(prefix)
+    spine = [
+        (0, 4.0, -0.2, 0.28, 0.1),
+        (0, 3.5, -0.15, 0.34, 0.14),
+        (0, 2.9, 0.0, 0.36, 0.3),
+        (0, 2.4, 0.3, 0.4, 0.45),
+        (0, 1.8, 0.1, 0.35, 0.4),
+        (0, 1.2, -0.2, 0.4, 0.5),
+        (0, 0.5, -0.6, 0.8, 0.85),
+        (0, -0.6, -0.7, 1.0, 1.0),
+        (0, -1.8, -0.75, 0.9, 0.95),
+    ]
+    tail = [(0, -1.6, -0.75, 0.9, 0.95), (0, -3.2, -0.9, 0.55, 0.6), (0, -4.8, -1.0, 0.3, 0.3), (0, -6.2, -1.05, 0.05, 0.05)]
+    body = [tube("spine", spine, sides=6)]
+    legs = quad_legs(0.6, -1.2, 0.8, -0.95, 0.5, 0.55)
+    accent, dark = [], []
+    accent.append(tube("crest", [(0, 2.9, 0.5, 0.07, 0.05), (0, 2.3, 1.0, 0.09, 0.18), (0, 1.6, 1.1, 0.07, 0.1)], sides=4))
+    for side in (-1, 1):
+        dark_details(dark, side, (0.12, 4.0, -0.1), [(0.2, 3.6, -0.2), (0.3, 3.0, -0.1), (0.38, 2.5, 0.0)])
+    for y in (0.6, -0.2, -1.0):
+        accent.append(cone("spike", (0, y, spine_top(spine, y) + 0.03), 0.1, 0.0, 0.22, vertices=4))
+    joints = quad_joints(0.6, -1.2, 0.8, -0.95, -1.6, -0.75)
+    return assemble(prefix, body, tail, [], legs, accent, dark, (0.4, 2.7, 0.35, 0.17), joints)
+
+
+def build_armored(prefix="armored"):
+    """Low, wide armored dino (Ankylosaurus, Stegosaurus ...): small head, plates and spikes on the
+    back and sides, short strong legs and a tail with a club."""
+    remove_shape(prefix)
+    spine = [
+        (0, 3.4, -1.3, 0.18, 0.14),
+        (0, 3.0, -1.25, 0.4, 0.3),
+        (0, 2.4, -1.2, 0.55, 0.45),
+        (0, 1.8, -1.2, 0.6, 0.5),
+        (0, 1.0, -1.0, 1.3, 0.95),
+        (0, -0.5, -0.85, 1.6, 1.15),
+        (0, -1.8, -0.9, 1.5, 1.1),
+        (0, -2.8, -1.05, 1.1, 0.9),
+    ]
+    tail = [(0, -2.6, -1.05, 1.0, 0.8), (0, -4.2, -1.3, 0.6, 0.45), (0, -5.6, -1.5, 0.4, 0.3)]
+    club = [sphere("club", (0, -6.2, -1.5), (0.8, 0.8, 0.6), 6, 4)]
+    body = [tube("spine", spine, sides=6)]
+    legs = quad_legs(0.8, -1.8, 1.1, -1.5, 0.5, 0.55)
+    accent, dark = [], []
+    for index, y in enumerate((1.0, 0.1, -0.8, -1.7, -2.5)):
+        top = spine_top(spine, y)
+        for side in (-1, 1):
+            accent.append(cone("plate", (side * 0.7, y, top - 0.1), 0.3, 0.0, 0.75, vertices=5))
+        accent.append(cone("plate", (0, y - 0.3, top - 0.05), 0.25, 0.0, 0.6, vertices=5))
+    for y in (0.6, -0.6, -1.8):
+        for side in (-1, 1):
+            accent.append(cone("sidespike", (side * 1.55, y, -0.9), 0.2, 0.0, 0.7, rotation=(0, math.radians(side * 90), 0), vertices=4))
+    for side in (-1, 1):
+        dark_details(dark, side, (0.07, 3.4, -1.25), [(0.15, 3.1, -1.3), (0.3, 2.7, -1.25), (0.4, 2.4, -1.2)])
+    joints = quad_joints(0.8, -1.8, 1.1, -1.5, -2.6, -1.05)
+    return assemble(prefix, body, tail, club, legs, accent, dark, (0.5, 2.7, -1.0, 0.14), joints)
+
+
+def build_horned(prefix="horned"):
+    """Horned dino with a frill (Triceratops and its relatives): a big head with three horns, a
+    wide neck frill, a stocky body on four thick legs and a short tail."""
+    remove_shape(prefix)
+    spine = [
+        (0, 4.3, -1.0, 0.15, 0.2),
+        (0, 3.8, -0.9, 0.3, 0.35),
+        (0, 3.0, -0.6, 0.5, 0.6),
+        (0, 2.2, -0.3, 0.6, 0.7),
+        (0, 1.2, -0.6, 0.9, 0.95),
+        (0, 0.2, -0.8, 1.3, 1.2),
+        (0, -1.2, -0.85, 1.35, 1.2),
+        (0, -2.4, -1.0, 1.0, 0.95),
+    ]
+    tail = [(0, -2.2, -1.0, 0.9, 0.85), (0, -3.4, -1.25, 0.5, 0.5), (0, -4.5, -1.5, 0.05, 0.05)]
+    body = [tube("spine", spine, sides=6), sphere("frill", (0, 1.9, -0.05), (1.6, 0.2, 1.4), 8, 5)]
+    legs = quad_legs(0.4, -1.6, 1.0, -1.3, 0.55, 0.6)
+    accent, dark = [], []
+    for side in (-1, 1):
+        accent.append(cone("browhorn", (side * 0.55, 3.55, -0.05), 0.17, 0.0, 1.7, rotation=(math.radians(-70), 0, 0), vertices=5))
+        dark_details(dark, side, (0.09, 4.3, -0.85), [(0.2, 3.9, -1.0), (0.3, 3.4, -0.9), (0.4, 2.9, -0.8)])
+    accent.append(cone("nosehorn", (0, 4.15, -0.55), 0.15, 0.0, 0.7, rotation=(math.radians(-25), 0, 0), vertices=5))
+    for index in range(7):
+        angle = math.radians(-70 + 140 * index / 6)
+        accent.append(
+            cone(
+                "frillspike",
+                (math.sin(angle) * 1.55, 1.9, math.cos(angle) * 1.35 - 0.05),
+                0.14,
+                0.0,
+                0.4,
+                rotation=(0, angle, 0),
+                vertices=4,
+            )
+        )
+    joints = quad_joints(0.4, -1.6, 1.0, -1.3, -2.2, -1.0)
+    return assemble(prefix, body, tail, [], legs, accent, dark, (0.55, 3.0, 0.0, 0.14), joints)
+
+
+def build_longneck(prefix="longneck"):
+    """Giant long-necked plant eater (Diplodocus, Brachiosaurus ...): a huge body on four pillar legs,
+    a long neck with a small head and a very long tail."""
+    remove_shape(prefix)
+    spine = [
+        (0, 4.8, 2.9, 0.12, 0.12),
+        (0, 4.4, 2.95, 0.2, 0.2),
+        (0, 3.9, 3.0, 0.22, 0.22),
+        (0, 3.4, 2.7, 0.2, 0.22),
+        (0, 2.8, 2.0, 0.3, 0.32),
+        (0, 2.1, 1.1, 0.45, 0.5),
+        (0, 1.4, 0.2, 0.7, 0.75),
+        (0, 0.4, -0.6, 1.1, 1.1),
+        (0, -0.8, -0.8, 1.25, 1.2),
+        (0, -2.0, -0.8, 1.1, 1.1),
+    ]
+    tail = [(0, -1.8, -0.8, 1.0, 0.95), (0, -3.6, -1.0, 0.6, 0.6), (0, -5.8, -1.3, 0.3, 0.3), (0, -8.0, -1.5, 0.04, 0.04)]
+    body = [tube("spine", spine, sides=6)]
+    legs = quad_legs(0.6, -1.6, 0.9, -1.2, 0.55, 0.6)
+    accent, dark = [], []
+    for y in (3.2, 2.7, 2.2, 1.7):
+        accent.append(cone("neckspike", (0, y, spine_top(spine, y) + 0.04), 0.1, 0.0, 0.25, vertices=4))
+    for y in (0.8, -0.2, -1.2, -2.2):
+        accent.append(cone("spike", (0, y, spine_top(spine, y) + 0.04), 0.14, 0.0, 0.3, vertices=4))
+    for side in (-1, 1):
+        dark_details(dark, side, (0.06, 4.82, 2.93), [(0.12, 4.5, 2.88), (0.2, 4.1, 2.9), (0.24, 3.8, 2.95)])
+    joints = quad_joints(0.6, -1.6, 0.9, -1.2, -1.8, -0.8)
+    return assemble(prefix, body, tail, [], legs, accent, dark, (0.2, 4.15, 3.12, 0.12), joints)
+
+
+SHAPES.update(
+    {
+        "biped": build_biped,
+        "duckbill": build_duckbill,
+        "armored": build_armored,
+        "horned": build_horned,
+        "longneck": build_longneck,
+    }
+)
 
 
 def dump_parts(shape, path):

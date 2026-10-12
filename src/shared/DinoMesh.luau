@@ -20,7 +20,15 @@ export type Entry = { template: string, body: Color, accent: Color }
 type Plan = { template: string, body: Color, accent: Color }
 
 local ROLES: { [string]: boolean } = { body = true, accent = true, eyes = true, dark = true }
-local LIMBS: { [string]: boolean } = { legLeft = true, legRight = true, tail = true }
+local LIMBS: { [string]: boolean } = {
+	legLeft = true,
+	legRight = true,
+	legFrontLeft = true,
+	legFrontRight = true,
+	legBackLeft = true,
+	legBackRight = true,
+	tail = true,
+}
 
 local DinoMesh = {}
 

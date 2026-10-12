@@ -21,6 +21,9 @@ test("DinoAnim: bad values are reported", function()
 	bad.tailSwing = -1
 	local errors = DinoAnim.validate(bad)
 	assertEquals(#errors, 3)
+	local tooFar = table.clone(config)
+	tooFar.quadLegSwing = 2
+	assertEquals(#DinoAnim.validate(tooFar), 1)
 end)
 
 test("DinoAnim: standing still gives no swing, full speed gives the full swing", function()
@@ -123,4 +126,24 @@ end)
 
 test("DinoAnim: an unknown limb does not move", function()
 	assertEquals(DinoAnim.angle(config, DinoAnim.newState(), "wing", 1), 0)
+end)
+
+test("DinoAnim: the four-legged walk moves the legs across each other", function()
+	local state = { phase = 1, idle = 0 }
+	local frontLeft = DinoAnim.angle(config, state, "legFrontLeft", 1)
+	local backRight = DinoAnim.angle(config, state, "legBackRight", 1)
+	local frontRight = DinoAnim.angle(config, state, "legFrontRight", 1)
+	local backLeft = DinoAnim.angle(config, state, "legBackLeft", 1)
+	assertNear(frontLeft, backRight, 0.0001)
+	assertNear(frontRight, backLeft, 0.0001)
+	assertNear(frontLeft, -frontRight, 0.0001)
+	assertTrue(math.abs(frontLeft) > 0)
+	assertTrue(math.abs(frontLeft) <= config.quadLegSwing + 0.0001)
+end)
+
+test("DinoAnim: the four-legged legs are straight when standing", function()
+	for _, limb in { "legFrontLeft", "legFrontRight", "legBackLeft", "legBackRight" } do
+		assertEquals(DinoAnim.angle(config, { phase = 2, idle = 0 }, limb, 0), 0)
+		assertTrue(DinoAnim.LIMBS[limb])
+	end
 end)

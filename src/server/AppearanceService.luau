@@ -131,19 +131,20 @@ local function buildPlaceholder(stageId: string, variantId: string?): Model?
 end
 
 -- The loaded meshes of every template: template name -> part name -> MeshPart (never shown, only
--- cloned). The state is "loading" until the first try is over.
+-- cloned). A template is "loading" until all its meshes had their try, then "ready" or "failed".
 local meshParts: { [string]: { [string]: MeshPart } } = {}
-local meshState: "loading" | "ready" | "failed" = "loading"
--- Seconds between two checks while a dino waits for the meshes.
+local templateState: { [string]: "loading" | "ready" | "failed" } = {}
+-- Seconds between two checks while a dino waits for its meshes.
 local MESH_WAIT_STEP = 0.1
 
--- Loads every mesh of every template. A mesh that cannot be loaded (wrong id, no permission, no
--- connection) is logged and the dinos of that template keep their placeholder.
-local function loadMeshes()
+-- Loads all meshes of one template at the same time. A mesh that cannot be loaded (wrong id, no
+-- permission, no connection) is logged and the dinos of that template keep their placeholder.
+local function loadTemplate(templateName: string, template: { parts: { any } })
+	local parts: { [string]: MeshPart } = {}
+	local pending = #template.parts
 	local failed = false
-	for templateName, template in DinoMeshes.templates do
-		local parts: { [string]: MeshPart } = {}
-		for _, spec in template.parts do
+	for _, spec in template.parts do
+		task.spawn(function()
 			local ok, result = pcall(function()
 				return AssetService:CreateMeshPartAsync(Content.fromAssetId(spec.meshId))
 			end)
@@ -156,11 +157,36 @@ local function loadMeshes()
 					{ template = templateName, part = spec.name, meshId = spec.meshId, error = tostring(result) }
 				)
 			end
-		end
-		meshParts[templateName] = parts
+			pending -= 1
+		end)
 	end
-	meshState = if failed then "failed" else "ready"
-	log.info("meshes loaded", { state = meshState })
+	while pending > 0 do
+		task.wait(MESH_WAIT_STEP)
+	end
+	meshParts[templateName] = parts
+	templateState[templateName] = if failed then "failed" else "ready"
+	log.info("meshes loaded", { template = templateName, state = templateState[templateName] })
+end
+
+-- Starts loading every template; they load at the same time, and each one can be used as soon as
+-- it is ready. When everything is there, characters that got a placeholder in the meantime are
+-- refreshed (see AppearanceService.start).
+local function loadMeshes(onDone: () -> ())
+	local pending = 0
+	for templateName in DinoMeshes.templates do
+		templateState[templateName] = "loading"
+		pending += 1
+	end
+	for templateName, template in DinoMeshes.templates do
+		task.spawn(function()
+			loadTemplate(templateName, template)
+			pending -= 1
+		end)
+	end
+	while pending > 0 do
+		task.wait(MESH_WAIT_STEP)
+	end
+	onDone()
 end
 
 local function colorOf(color: { r: number, g: number, b: number }): Color3
@@ -175,15 +201,15 @@ local function buildMeshLook(stageId: string, variantId: string?): Model?
 		return nil
 	end
 	local waited = 0
-	while meshState == "loading" and waited < DinoMeshes.loadWaitSeconds do
+	while templateState[entry.template] == "loading" and waited < DinoMeshes.loadWaitSeconds do
 		task.wait(MESH_WAIT_STEP)
 		waited += MESH_WAIT_STEP
 	end
-	local loaded = meshParts[entry.template]
-	if meshState == "loading" then
-		log.warn("meshes still loading, placeholder used", { stage = stageId })
+	if templateState[entry.template] == "loading" then
+		log.warn("meshes still loading, placeholder used", { stage = stageId, template = entry.template })
 		return nil
 	end
+	local loaded = meshParts[entry.template]
 	if loaded == nil then
 		return nil
 	end
@@ -526,9 +552,19 @@ function AppearanceService.start()
 	local meshProblems = DinoMesh.validate(DinoMeshes.templates, DinoMeshes.dinos, DinoMeshes.fixed, DinoLooks.maxParts)
 	if #meshProblems > 0 then
 		log.error("dino meshes invalid", { problems = table.concat(meshProblems, "; ") })
-		meshState = "failed"
+		for templateName in DinoMeshes.templates do
+			templateState[templateName] = "failed"
+		end
 	else
-		task.spawn(loadMeshes)
+		task.spawn(loadMeshes, function()
+			-- Anyone who got a placeholder while the meshes were loading gets the real shape now.
+			for _, player in Players:GetPlayers() do
+				local stage = player:GetAttribute("Stage")
+				if player.Character ~= nil and typeof(stage) == "string" then
+					AppearanceService.refresh(player, stage)
+				end
+			end
+		end)
 	end
 
 	PlayerState.onStage(onStage)
