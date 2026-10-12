@@ -24,8 +24,8 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] 7 Speichern, Skins, Monetarisierung (nach Rückfrage und Prüfung der Roblox-Regeln):
   - [x] 7a Speichern: ProfileStore, Profilformat mit Migrationen, Collection und Bestwert (Code fertig, Studio-Test offen)
   - [x] 7b Collection-Menü (Code fertig, Studio-Test offen)
-  - [x] 7c Skins (ein kostenloser pro Dino; Code fertig, Studio-Test offen)
-  - [x] 7d Shop (bezahlte Skins, ProcessReceipt; Code fertig, Produkte und Studio-Test offen, siehe docs/MONETARISIERUNG.md)
+  - [x] 7c Skins (später durch die Varianten aus L7a ersetzt)
+  - [x] 7d Beleg-Dienst (`ProcessReceipt`; die bezahlten Skins entfielen, der Dienst bleibt für L8, siehe docs/MONETARISIERUNG.md)
 
 ## Ausbau (siehe `docs/KONZEPT.md`, Abschnitt Ausbau)
 
@@ -35,7 +35,8 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] L4 Todes-Bildschirm (Zur Lobby; Revive und Kopfgeld als Robux-Knöpfe kommen in L8; Code fertig, Studio-Test offen)
 - [x] L5 Autofarm (Code fertig, Studio-Test offen; das Laufen per `MoveTo` ist der unsichere Teil, siehe docs/TESTLISTE.md)
 - [x] L6 Globale Ranglisten in der Lobby (Code fertig, Studio-Test offen)
-- [ ] L7 Varianten (Glowing, Gold, Shadow, Rainbow) und Eier mit Münzen
+- [x] L7a Varianten (Glowing, Gold, Shadow, Rainbow) für alle 50 Dinos, ersetzen die Skins (Code fertig, Studio-Test offen)
+- [ ] L7b Eier mit Münzen (Shop-Kreis, Chancen in Prozent, Doppelte geben Münzen zurück)
 - [ ] L8 Bezahltes (Wiederbeleben, Tränke, eventuell Glückseier), nach Richtlinienprüfung
 
 ## Hinweise

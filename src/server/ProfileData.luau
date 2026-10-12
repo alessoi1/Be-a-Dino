@@ -11,10 +11,10 @@ export type Data = {
 	reachedStages: { [string]: boolean },
 	-- Most points of a single round.
 	bestPoints: number,
-	-- Ids of the bought skins (free and earned skins are derived, not stored).
-	ownedSkins: { [string]: boolean },
-	-- The chosen skin id per dino id.
-	equippedSkins: { [string]: string },
+	-- Owned variants of the dinos: dino id -> variant id -> true (found in eggs).
+	variants: { [string]: { [string]: boolean } },
+	-- The variant shown on a dino: dino id -> variant id (no entry means the normal look).
+	equippedVariants: { [string]: string },
 	-- Coins earned by growing (never bought with Robux).
 	coins: number,
 	-- Players eaten in total.
@@ -25,8 +25,8 @@ export type Data = {
 
 export type Limits = {
 	maxReachedStages: number,
-	maxOwnedSkins: number,
-	maxEquippedSkins: number,
+	maxVariantDinos: number,
+	maxVariantsPerDino: number,
 	maxCoins: number,
 	maxStat: number,
 }
@@ -37,7 +37,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 4
+ProfileData.VERSION = 5
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -60,8 +60,8 @@ function ProfileData.new(now: number): Data
 		createdAt = now,
 		reachedStages = {},
 		bestPoints = 0,
-		ownedSkins = {},
-		equippedSkins = {},
+		variants = {},
+		equippedVariants = {},
 		coins = 0,
 		kills = 0,
 		playSeconds = 0,
@@ -96,32 +96,42 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 		return false, "too many reached stages"
 	end
 
-	if type(data.ownedSkins) ~= "table" then
-		return false, "ownedSkins must be a table"
+	if type(data.variants) ~= "table" then
+		return false, "variants must be a table"
 	end
-	local owned = 0
-	for key, value in data.ownedSkins do
-		if type(key) ~= "string" or value ~= true then
-			return false, "ownedSkins holds only skin ids set to true"
+	local variantDinos = 0
+	for dinoId, owned in data.variants do
+		if type(dinoId) ~= "string" or type(owned) ~= "table" then
+			return false, "variants holds only dino ids with a table"
 		end
-		owned += 1
+		local perDino = 0
+		for variantId, has in owned do
+			if type(variantId) ~= "string" or has ~= true then
+				return false, "variants of a dino hold only variant ids set to true"
+			end
+			perDino += 1
+		end
+		if perDino > limits.maxVariantsPerDino then
+			return false, "too many variants for one dino"
+		end
+		variantDinos += 1
 	end
-	if owned > limits.maxOwnedSkins then
-		return false, "too many owned skins"
+	if variantDinos > limits.maxVariantDinos then
+		return false, "variants for too many dinos"
 	end
 
-	if type(data.equippedSkins) ~= "table" then
-		return false, "equippedSkins must be a table"
+	if type(data.equippedVariants) ~= "table" then
+		return false, "equippedVariants must be a table"
 	end
 	local equipped = 0
-	for key, value in data.equippedSkins do
-		if type(key) ~= "string" or type(value) ~= "string" then
-			return false, "equippedSkins holds only dino ids with skin ids"
+	for dinoId, variantId in data.equippedVariants do
+		if type(dinoId) ~= "string" or type(variantId) ~= "string" then
+			return false, "equippedVariants holds only dino ids with variant ids"
 		end
 		equipped += 1
 	end
-	if equipped > limits.maxEquippedSkins then
-		return false, "too many equipped skins"
+	if equipped > limits.maxVariantDinos then
+		return false, "too many equipped variants"
 	end
 
 	if not isFiniteNumber(data.coins) or data.coins < 0 or data.coins % 1 ~= 0 or data.coins > limits.maxCoins then

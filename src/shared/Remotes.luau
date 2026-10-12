@@ -22,15 +22,18 @@ local Remotes = {
 		deathChoice = "DeathChoice",
 		-- client -> server event: (no arguments), Studio only: jumps to the next dino
 		debugNextStage = "DebugNextStage",
-		-- client -> server event: (skinId: string), the player chooses a skin (checked by the server)
-		equipSkin = "EquipSkin",
+		-- client -> server event: (dinoId: string, variantId: string), the player chooses which variant
+		-- to show on a dino (checked by the server)
+		equipVariant = "EquipVariant",
+		-- client -> server event: (no arguments), Studio only: gives a variant of the current dino
+		debugVariant = "DebugVariant",
 		-- client -> server event: (active: boolean), the player asks to go back to the lobby (true)
 		-- or cancels the wait (false); the server checks mode and time
 		leaveArena = "LeaveArena",
 		-- client -> server event: (active: boolean), the player asks to switch the autofarm on or off;
 		-- the server decides (arena only, at most a few minutes) and publishes the result as an attribute
 		autoFarm = "AutoFarm",
-		-- server -> client event: (kind: "ate" | "eaten" | "skin", otherName: string, points: number,
+		-- server -> client event: (kind: "ate" | "eaten", otherName: string, points: number,
 		-- coins: number?, bounty: boolean?), display only
 		notice = "Notice",
 	},

@@ -67,9 +67,6 @@ function NoticeToast.start()
 			end
 		elseif kind == "eaten" then
 			show(string.format(Strings.notice.eaten, otherName))
-		elseif kind == "skin" then
-			-- otherName is the id of the new skin.
-			show(string.format(Strings.notice.skinUnlocked, Strings.skins[otherName] or otherName))
 		end
 	end)
 

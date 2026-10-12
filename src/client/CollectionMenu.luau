@@ -1,7 +1,7 @@
 --!strict
 -- Collection menu (the dinodex): standing in the dinodex circle of the lobby opens a window
 -- with one card per dino (reached or still unknown), the best round and, behind a tap on a
--- reached dino, the skin list of that dino. Reads the attributes the server publishes (display
+-- reached dino, the variants of that dino. Reads the attributes the server publishes (display
 -- only).
 -- Only checkable in Roblox Studio.
 
@@ -14,8 +14,10 @@ local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"))
+local VariantBook = require(Shared:WaitForChild("VariantBook"))
+local VariantConfig = require(Shared:WaitForChild("Config"):WaitForChild("Variants"))
 
-local SkinList = require(script.Parent:WaitForChild("SkinList"))
+local VariantList = require(script.Parent:WaitForChild("VariantList"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
@@ -119,12 +121,12 @@ function CollectionMenu.start()
 	grid.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	grid.Parent = list
 
-	local skinList = SkinList.create(window, listPosition, listSize)
+	local variantList = VariantList.create(window, listPosition, listSize)
 
 	local reachedSet: { [string]: boolean } = {}
 
 	local function showCards()
-		skinList.hide()
+		variantList.hide()
 		list.Visible = true
 		back.Visible = false
 		title.Text = Strings.collection.title
@@ -134,7 +136,7 @@ function CollectionMenu.start()
 		noteLabel.Visible = true
 	end
 
-	local function showSkins(dinoId: string)
+	local function showVariants(dinoId: string)
 		list.Visible = false
 		back.Visible = true
 		title.Text = Strings.dinos[dinoId] or dinoId
@@ -142,7 +144,7 @@ function CollectionMenu.start()
 		countLabel.Visible = false
 		bestLabel.Visible = false
 		noteLabel.Visible = false
-		skinList.show(dinoId)
+		variantList.show(dinoId)
 	end
 
 	local views: { CardViews } = {}
@@ -166,7 +168,7 @@ function CollectionMenu.start()
 
 		card.Activated:Connect(function()
 			if reachedSet[stage.id] then
-				showSkins(stage.id)
+				showVariants(stage.id)
 			end
 		end)
 
@@ -187,7 +189,16 @@ function CollectionMenu.start()
 			noteLabel.Text = Strings.collection.guest
 			noteLabel.TextColor3 = UiTheme.own
 		else
-			noteLabel.Text = Strings.collection.skinsHint
+			local ownedText = player:GetAttribute("Variants")
+			local owned = VariantBook.decodeOwned(if typeof(ownedText) == "string" then ownedText else "")
+			local ownedCount = 0
+			for _, perDino in owned do
+				for _ in perDino do
+					ownedCount += 1
+				end
+			end
+			noteLabel.Text =
+				string.format(Strings.collection.variantsLine, ownedCount, #Dinos * #VariantConfig.variants)
 			noteLabel.TextColor3 = UiTheme.lockedText
 		end
 
@@ -213,7 +224,7 @@ function CollectionMenu.start()
 		end
 	end
 
-	for _, attribute in { "Reached", "BestPoints", "DataGuest" } do
+	for _, attribute in { "Reached", "BestPoints", "DataGuest", "Variants" } do
 		player:GetAttributeChangedSignal(attribute):Connect(refresh)
 	end
 	refresh()
