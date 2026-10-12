@@ -16,4 +16,11 @@ return {
 		data.version = 3
 		return data
 	end,
+	-- 3 -> 4: statistics for the global leaderboards (kills, seconds in the arena).
+	function(data: any): any
+		data.kills = 0
+		data.playSeconds = 0
+		data.version = 4
+		return data
+	end,
 }

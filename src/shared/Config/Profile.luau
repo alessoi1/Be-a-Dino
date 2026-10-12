@@ -11,4 +11,6 @@ return {
 	maxEquippedSkins = 16,
 	-- Most coins a player may hold.
 	maxCoins = 1000000000000,
+	-- Largest number of kills or seconds in the arena a profile may hold.
+	maxStat = 1000000000000000,
 }
