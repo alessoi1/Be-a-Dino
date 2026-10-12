@@ -26,6 +26,10 @@ return {
 	writeSpacingSeconds = 0.2,
 	-- In Studio this is added to the store names, so tests do not write into the real lists.
 	studioSuffix = "_Studio",
+	-- The statistics (kills, seconds in the arena) are counted once per tick; a longer step of the
+	-- server counts as at most this many seconds.
+	statsTickSeconds = 1,
+	statsMaxStepSeconds = 5,
 	-- Largest number written (kills, size, seconds).
 	maxValue = 1000000000000000,
 	-- The boards on the north wall of the lobby (studs). `centers` are the x positions.

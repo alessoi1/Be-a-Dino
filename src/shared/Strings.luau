@@ -162,6 +162,17 @@ return {
 		shopTitle = "Shop",
 		boostTitle = "Boosters",
 	},
+	boards = {
+		-- Titles of the global leaderboards in the lobby (by list id, see Config/Leaderboards).
+		kills = "Most kills",
+		size = "Biggest size",
+		time = "Longest playtime",
+		loading = "Loading...",
+		empty = "No entries yet",
+		unavailable = "Unavailable",
+		-- Shown when the name of a player cannot be found.
+		unknownName = "Unknown",
+	},
 	coins = {
 		-- %s = amount (short number)
 		label = "Coins %s",

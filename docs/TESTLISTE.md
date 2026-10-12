@@ -306,3 +306,23 @@ Verhalten:
 - [ ] Die Tempo-Prüfung des Servers setzt den Dino nicht zurück (kein `movement rejected` im Log), auch nicht beim Sprinten von Hand und wieder Einschalten.
 - [ ] Mehrere Spieler gleichzeitig mit Autofarm: Es entstehen keine Fehler im Log, das Spiel läuft flüssig (450 Futterstücke werden alle 0,2 s gelesen).
 - [ ] Handy-Emulator (360 × 640): Knopf gut zu treffen, nicht über dem Joystick, die Zahl des Sprint-Knopfs bleibt lesbar.
+
+## Ausbau L6: Globale Ranglisten
+
+Stand: noch nicht in Studio getestet. Voraussetzungen wie bei 7a: veröffentlichtes Place und „Enable Studio Access to API Services“. In Studio nutzt der Dienst eigene Speicher mit Anhang `_Studio` (die echten Listen bleiben unberührt). **Zum schnellen Testen** in `Config/Leaderboards` `writeSeconds` und `readSeconds` auf 10 setzen.
+
+Tafeln:
+- [ ] Output zeigt `LeaderboardService started studio=true`, kein `board store not available`.
+- [ ] An der Nordwand der Lobby hängen drei Tafeln nebeneinander: „Most kills“, „Biggest size“, „Longest playtime“. Sie sind gut lesbar, stehen nicht im Weg (man läuft hindurch), überlappen nicht das Geländer, und nichts flackert.
+- [ ] Zuerst steht „Loading...“, danach „No entries yet“ (noch niemand drauf) oder die Einträge. Bei Fehlern („Unavailable“) steht im Log `board read failed`.
+
+Zählen und Eintragen:
+- [ ] Einen Spieler fressen (zwei Spieler im Test-Tab, `H` drücken): Der Fresser hat danach 1 Kill (Log auf `debug`: `kill counted`).
+- [ ] Zeit in der Arena zählt, in der Lobby nicht. Etwa 2 Minuten in der Arena bleiben reichen für einen Eintrag „2m“.
+- [ ] Nach höchstens zwei Schreib- und Leseintervallen steht der eigene Name auf den Tafeln: bei Kills die Anzahl, bei Size die kurze Zahl (zum Beispiel „1.23K“) und bei Playtime die Zeit („2m“, „1h 5m“).
+- [ ] Autofarm-Zeit zählt zur Spielzeit.
+- [ ] Gäste (ohne Speichern) stehen nie auf den Tafeln.
+- [ ] Beim Verlassen wird der letzte Stand noch geschrieben (Log `board number written` auf `debug`, oder neu starten und die Tafel prüfen).
+- [ ] Nach einem Neustart sind Kills und Spielzeit wieder da (Profil Version 4, bestehende Profile werden mit `status = migrated` geladen).
+- [ ] Mit zwei Spielern stehen beide auf den Tafeln, richtig sortiert (höchster Wert oben), mit ihren Roblox-Benutzernamen.
+- [ ] Kurzzeitiger Ausfall des Speichers (zum Beispiel API-Zugriff ausschalten): Die Tafeln bleiben stehen, das Spiel läuft weiter, im Log stehen Warnungen, aber keine Fehlerflut.

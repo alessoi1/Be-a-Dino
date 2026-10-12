@@ -21,6 +21,7 @@ local BountyService = require(script.Parent:WaitForChild("BountyService"))
 local CoinService = require(script.Parent:WaitForChild("CoinService"))
 local DeathService = require(script.Parent:WaitForChild("DeathService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local StatsService = require(script.Parent:WaitForChild("StatsService"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Combatant = {
@@ -98,6 +99,7 @@ local function execute(eat: Eat, byId: { [number]: Player })
 	victim:SetAttribute("RespawnAt", ServerClock.now() + Arena.respawnSeconds)
 
 	PlayerState.addPoints(eater, gained)
+	StatsService.addKill(eater)
 	if coins > 0 then
 		CoinService.add(eater, coins)
 	end

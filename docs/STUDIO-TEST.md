@@ -48,6 +48,7 @@ Server:
 [BeDino][MovementService] started
 [BeDino][LobbyService] lobby built ...
 [BeDino][LobbyService] started
+[BeDino][LeaderboardService] started studio=true
 [BeDino][FoodService] food placed count=450 oasis=80
 [BeDino][FoodService] started
 [BeDino][PlayerCollision] started
