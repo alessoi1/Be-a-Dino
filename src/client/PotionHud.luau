@@ -30,8 +30,10 @@ function PotionHud.start()
 	UiKit.showOnlyInMode(gui, "playing")
 
 	local panel = UiKit.newPanel(gui)
-	panel.Position =
-		UDim2.fromOffset(UiTheme.margin, UiTheme.margin * 3 + UiTheme.statusPanelHeight + COIN_DISPLAY_HEIGHT)
+	panel.Position = UDim2.fromOffset(
+		UiTheme.margin,
+		UiTheme.margin * 4 + UiTheme.statusPanelHeight + UiTheme.lobbyButtonHeight + COIN_DISPLAY_HEIGHT
+	)
 	panel.Visible = false
 	UiKit.addScale(panel)
 

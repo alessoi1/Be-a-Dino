@@ -40,11 +40,8 @@ function MenuBarDisplay.start()
 		button.Name = "MenuButton_" .. entry.id
 		button.AnchorPoint = Vector2.new(1, 0)
 		button.Text = ""
-		button.AutoButtonColor = true
-		button.BackgroundColor3 = UiTheme.panel
-		button.BackgroundTransparency = UiTheme.panelTransparency
-		button.BorderSizePixel = 0
 		button.Parent = gui
+		UiKit.styleBubble(button, UiTheme.lobbyButton)
 		local corner = Instance.new("UICorner")
 		corner.CornerRadius = UDim.new(0.25, 0)
 		corner.Parent = button
@@ -86,8 +83,7 @@ function MenuBarDisplay.start()
 	local function refresh()
 		local open = MenuState.get()
 		for _, entry in buttons do
-			entry.button.BackgroundColor3 = if open == entry.id then UiTheme.accent else UiTheme.panel
-			entry.button.BackgroundTransparency = if open == entry.id then 0 else UiTheme.panelTransparency
+			entry.button.BackgroundColor3 = if open == entry.id then UiTheme.accent else UiTheme.lobbyButton
 		end
 	end
 	MenuState.changed:Connect(refresh)

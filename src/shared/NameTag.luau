@@ -11,6 +11,8 @@ export type Config = {
 	maxDistanceBase: number,
 	maxDistancePerScale: number,
 	fadeStart: number,
+	-- Gap between the top of the dino and the bottom of the tag, per unit of scale (studs).
+	tagGap: number,
 }
 
 export type Layout = {
@@ -35,9 +37,11 @@ function NameTag.maxDistance(config: Config, scale: number): number
 	return config.maxDistanceBase + config.maxDistancePerScale * scale
 end
 
--- The layout for a dino of `scale` seen from `distance` studs. Invalid numbers and dinos that are
--- too far away give an invisible tag.
-function NameTag.layout(config: Config, scale: number, distance: number): Layout
+-- The layout for a dino of `scale` seen from `distance` studs. `topAboveRoot` is how far the highest
+-- point of the dino is above its middle (studs): the tag then floats right above the head. Without
+-- it (no look yet) the height follows from the scale. Invalid numbers and dinos that are too far
+-- away give an invisible tag.
+function NameTag.layout(config: Config, scale: number, distance: number, topAboveRoot: number?): Layout
 	if not isFinite(scale) or not isFinite(distance) or scale <= 0 or distance < 0 then
 		return HIDDEN
 	end
@@ -51,11 +55,16 @@ function NameTag.layout(config: Config, scale: number, distance: number): Layout
 		transparency = (distance - fadeFrom) / (limit - fadeFrom)
 	end
 	local grow = scale ^ config.sizeExponent
+	local height = config.baseHeight * grow
+	local offsetY = config.baseOffset + config.offsetPerScale * scale
+	if topAboveRoot ~= nil and isFinite(topAboveRoot) then
+		offsetY = topAboveRoot + height / 2 + config.tagGap * scale
+	end
 	return {
 		visible = true,
 		width = config.baseWidth * grow,
-		height = config.baseHeight * grow,
-		offsetY = config.baseOffset + config.offsetPerScale * scale,
+		height = height,
+		offsetY = offsetY,
 		transparency = math.clamp(transparency, 0, 1),
 	}
 end

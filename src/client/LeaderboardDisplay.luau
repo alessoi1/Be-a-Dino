@@ -70,7 +70,8 @@ end
 
 function LeaderboardDisplay.start()
 	local localPlayer = Players.LocalPlayer
-	local gui = UiKit.newGui("Leaderboard")
+	-- At the very top right of the screen (also where the Roblox top bar would reserve space).
+	local gui = UiKit.newGui("Leaderboard", true)
 	UiKit.showOnlyInMode(gui, "playing")
 
 	-- One row more than the list size, for the own row below the list.

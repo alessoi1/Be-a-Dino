@@ -47,7 +47,8 @@ function CoinDisplay.start()
 		-- Below the status panel in the arena, at the corner in the lobby.
 		local top = UiTheme.margin
 		if player:GetAttribute("Mode") == "playing" then
-			top = UiTheme.margin * 2 + UiTheme.statusPanelHeight
+			-- Under the status panel and the lobby button.
+			top = UiTheme.margin * 3 + UiTheme.statusPanelHeight + UiTheme.lobbyButtonHeight
 		end
 		panel.Position = UDim2.fromOffset(UiTheme.margin, top)
 	end

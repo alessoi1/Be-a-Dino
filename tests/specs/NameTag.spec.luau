@@ -57,3 +57,23 @@ test("NameTag: the config is usable", function()
 	assertTrue(NameTagConfig.nameShare > 0 and NameTagConfig.nameShare < 1)
 	assertTrue(NameTagConfig.updateInterval > 0)
 end)
+
+test("NameTag: with the real height of the dino the tag floats right above its head", function()
+	local top = 3
+	local layout = NameTag.layout(config, 1, 10, top)
+	assertNear(layout.offsetY, top + layout.height / 2 + config.tagGap, 1e-9)
+	-- A taller dino (a long neck) gets a higher tag than a low one of the same scale.
+	local low = NameTag.layout(config, 1, 10, 1)
+	local high = NameTag.layout(config, 1, 10, 5)
+	assertTrue(high.offsetY > low.offsetY)
+	-- Without the height, or with an invalid one, the old estimate is used.
+	local estimate = NameTag.layout(config, 1, 10)
+	assertNear(NameTag.layout(config, 1, 10, 0 / 0).offsetY, estimate.offsetY, 1e-9)
+end)
+
+test("NameTag: the tag stays above the dino whatever its scale", function()
+	for _, scale in { 1, 2, 4, 8 } do
+		local layout = NameTag.layout(config, scale, 10, 1.1 * scale)
+		assertTrue(layout.offsetY - layout.height / 2 >= 1.1 * scale, "the tag does not sink into the dino")
+	end
+end)

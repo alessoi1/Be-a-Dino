@@ -17,9 +17,12 @@ return {
 	baseWidth = 10,
 	baseHeight = 3,
 	sizeExponent = 0.7,
-	-- Height of the middle of the tag above the middle of the dino (root part): base + perScale * scale.
-	baseOffset = 3,
-	offsetPerScale = 3.4,
+	-- Height of the middle of the tag above the middle of the dino (root part) while its real height is
+	-- not known: base + perScale * scale.
+	baseOffset = 2,
+	offsetPerScale = 1.6,
+	-- With a known dino height the tag floats right above the head: this gap per unit of scale (studs).
+	tagGap = 0.15,
 	-- A tag is seen up to this far: base + perScale * scale (studs), so a giant is readable from afar.
 	maxDistanceBase = 120,
 	maxDistancePerScale = 40,

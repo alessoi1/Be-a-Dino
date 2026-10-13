@@ -536,3 +536,17 @@ Stand: noch nicht in Studio getestet. Wert: `eatReachFactor` in `src/shared/Conf
 - [ ] Die Reichweite wirkt weder zu weit (gefressen, obwohl noch Abstand ist) noch zu knapp. Wenn nicht, `eatReachFactor` ändern (zum Beispiel 1,8 oder 2,6).
 - [ ] **Autofarm:** Mit eingeschaltetem „Auto“ übernimmt man durch Steuern (Tasten, Stick) sofort und der Autofarm geht aus. Im Log steht kein `controls not found` mehr.
 - [ ] Der Autofarm-Dino flieht weiter vor größeren Dinos, rechtzeitig vor der neuen Reichweite.
+
+## P2 UI-Überarbeitung
+
+Stand: noch nicht in Studio getestet. Werte in `src/client/UiTheme.luau`, `src/shared/Config/NameTags.luau`. **Das Aussehen und das Layout auf dem Handy zeigen erst Studio.** Der neue Stil: kräftige Knöpfe mit dicker dunkler Umrandung, Wort unter dem Icon, blaue Felder mit hellem Rand.
+
+- [ ] **Sprint-Knopf** (unten rechts): orange, mit Blitz-Icon und dem Wort „Sprint“ darunter; man erkennt ohne Hover, was er tut. Halten funktioniert wie vorher (auch mit dem Finger).
+- [ ] **Autofarm-Knopf** (über dem Sprint-Knopf): rot mit Icon und „Auto Farm“; wenn an, wird er grün und zeigt oben rechts ein „ON“. Antippen und die Taste F schalten um.
+- [ ] **„Lobby“-Knopf** (nur in der Arena): blau, **unter dem Statusfeld** links oben, mit Haus-Icon. Er ist nicht mehr unten in der Mitte. Beim Antippen läuft „Leaving in 5…“ im Knopf herunter, nochmal tippen bricht ab.
+- [ ] Der **Münzzähler** und die **Trank-Liste** sitzen darunter und überlappen nichts (in der Arena: Status, Lobby-Knopf, Münzen, Tränke; in der Lobby: Münzen in der Ecke).
+- [ ] Die **Bestenliste** sitzt ganz oben in der rechten Ecke (am Bildschirmrand, nicht unter einer Leiste) und überlappt den Autofarm-Knopf nicht.
+- [ ] Das **Namensschild** schwebt direkt über dem Kopf des Dinos (nicht weit darüber), auch bei Langhälsen und großen Dinos; es überdeckt den Kopf nicht und schwankt nicht auffällig beim Fressen. Das Kopfgeld-Schild sitzt darüber.
+- [ ] Die **Menü-Leiste** in der Lobby hat denselben Stil (blaue Knöpfe, aktiver Knopf orange).
+- [ ] Die Felder (Status, Bestenliste, Fenster) sind lesbar, die Texte haben eine dunkle Umrandung.
+- [ ] Auf dem Handy (360 × 640 und mit Notch): nichts überlappt, alle Knöpfe sind groß genug.

@@ -69,10 +69,13 @@ return {
 		title = "Be a Dino",
 	},
 	sprint = {
+		-- The word under the icon of the sprint button.
 		button = "Sprint",
 	},
 	autofarm = {
 		-- The autofarm button: off, and on (two lines, the button is small).
+		-- The word under the icon of the autofarm button, and the small badge while it runs.
+		caption = "Auto Farm",
 		off = "Auto",
 		on = "ON",
 	},

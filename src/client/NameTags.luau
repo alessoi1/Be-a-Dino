@@ -83,7 +83,14 @@ local function show(
 	if views == nil or views.gui.Parent == nil then
 		views = newTag(model, root)
 	end
-	local layout = NameTag.layout(TagConfig, scale, (root.Position - cameraPosition).Magnitude)
+	-- The tag floats right above the highest point of the dino (its real look, tail and neck included).
+	local top: number? = nil
+	local look = model:FindFirstChild("DinoLook")
+	if look ~= nil and look:IsA("Model") then
+		local boxCFrame, boxSize = look:GetBoundingBox()
+		top = boxCFrame.Position.Y + boxSize.Y / 2 - root.Position.Y
+	end
+	local layout = NameTag.layout(TagConfig, scale, (root.Position - cameraPosition).Magnitude, top)
 	views.gui.Enabled = layout.visible
 	if not layout.visible then
 		return
