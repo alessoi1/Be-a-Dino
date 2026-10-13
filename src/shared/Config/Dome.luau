@@ -10,13 +10,16 @@ local function rgb(r: number, g: number, b: number): RGB
 end
 
 return {
-	-- The glass: one big transparent half sphere, seen from outside (from the inside Roblox does not
-	-- draw it, so the players look through the frame at the sky).
+	-- The glass: a thin flat panel in every cell between two ribs and two rings (seen from inside and
+	-- from outside). Fewer ribs and rings mean fewer panels, which is cheaper on phones.
 	glass = {
 		color = rgb(170, 214, 224),
-		transparency = 0.86,
-		reflectance = 0.12,
+		transparency = 0.82,
+		reflectance = 0.15,
 		material = "SmoothPlastic",
+		-- Thickness of a panel and how much bigger than its cell it is (no gaps at the edges).
+		thickness = 0.3,
+		overlap = 1.03,
 	},
 	frame = {
 		color = rgb(66, 84, 82),
