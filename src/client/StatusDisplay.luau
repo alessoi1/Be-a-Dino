@@ -19,6 +19,8 @@ local TITLE_HEIGHT = 24
 local DETAIL_HEIGHT = 22
 local BAR_HEIGHT = 10
 local BAR_GAP = 4
+-- Space between an icon and the text next to it.
+local ICON_GAP = 4
 
 local StatusDisplay = {}
 
@@ -37,9 +39,12 @@ function StatusDisplay.start()
 	panel.Size = UDim2.fromOffset(PANEL_WIDTH, UiTheme.statusPanelHeight)
 	UiKit.addScale(panel)
 
+	local sizeIcon = UiKit.newIcon(panel, "size", UDim2.fromOffset(TITLE_HEIGHT, TITLE_HEIGHT))
+	sizeIcon.Position = UDim2.fromOffset(PADDING, PADDING)
+
 	local title = UiKit.newLabel(panel, UiTheme.titleSize)
-	title.Position = UDim2.fromOffset(PADDING, PADDING)
-	title.Size = UDim2.new(1, -PADDING * 2, 0, TITLE_HEIGHT)
+	title.Position = UDim2.fromOffset(PADDING + TITLE_HEIGHT + ICON_GAP, PADDING)
+	title.Size = UDim2.new(1, -PADDING * 2 - TITLE_HEIGHT - ICON_GAP, 0, TITLE_HEIGHT)
 
 	local detail = UiKit.newLabel(panel, UiTheme.bodySize)
 	detail.Position = UDim2.fromOffset(PADDING, PADDING + TITLE_HEIGHT)
@@ -67,7 +72,7 @@ function StatusDisplay.start()
 
 		local name = if typeof(stage) == "string" then Strings.dinos[stage] or stage else ""
 		local pointsValue = if typeof(points) == "number" then points else 0
-		title.Text = string.format("%s · %s %s", name, NumberFormat.compact(pointsValue), Strings.status.points)
+		title.Text = string.format("%s · %s", name, NumberFormat.compact(pointsValue))
 
 		local sizeText = if typeof(scale) == "number"
 			then string.format(Strings.status.size, formatScale(scale))

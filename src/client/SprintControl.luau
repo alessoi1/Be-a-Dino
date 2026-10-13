@@ -9,7 +9,6 @@ local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
-local Strings = require(Shared:WaitForChild("Strings"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
@@ -21,6 +20,11 @@ local BUTTON_MARGIN = 24
 local BAR_WIDTH = 0.3
 local BAR_HEIGHT = 14
 local BAR_BOTTOM_MARGIN = 16
+-- Share of the button the icon fills.
+local ICON_SHARE = 0.6
+-- The stamina icon left of the bar: size and gap to the bar (base pixels).
+local BAR_ICON_SIZE = 22
+local BAR_ICON_GAP = 6
 
 local SprintControl = {}
 
@@ -51,7 +55,7 @@ function SprintControl.start()
 	local button = Instance.new("TextButton")
 	button.Name = "SprintButton"
 	button.AnchorPoint = Vector2.new(1, 1)
-	button.Text = Strings.sprint.button
+	button.Text = ""
 	button.FontFace = UiTheme.font
 	button.TextSize = UiTheme.titleSize
 	button.AutoButtonColor = true
@@ -61,6 +65,12 @@ function SprintControl.start()
 	local corner = Instance.new("UICorner")
 	corner.CornerRadius = UDim.new(0.5, 0)
 	corner.Parent = button
+
+	local sprintIcon = UiKit.newIcon(button, "sprint", UDim2.fromScale(ICON_SHARE, ICON_SHARE))
+	sprintIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	sprintIcon.Position = UDim2.fromScale(0.5, 0.5)
+	-- Taps go to the button, not to the icon.
+	sprintIcon.Active = false
 
 	local bar = Instance.new("Frame")
 	bar.Name = "StaminaBar"
@@ -76,9 +86,18 @@ function SprintControl.start()
 	fill.BorderSizePixel = 0
 	fill.Parent = bar
 
+	-- The stamina icon sits left of the bar.
+	local staminaIcon = UiKit.newIcon(gui, "stamina", UDim2.fromOffset(BAR_ICON_SIZE, BAR_ICON_SIZE))
+	staminaIcon.AnchorPoint = Vector2.new(1, 1)
+
 	UiMetrics.watch(function()
 		local scale = UiMetrics.scale()
 		local size = UiMetrics.buttonSize()
+		local barHeight = math.floor(BAR_HEIGHT * scale)
+		staminaIcon.Size = UDim2.fromOffset(math.floor(BAR_ICON_SIZE * scale), math.floor(BAR_ICON_SIZE * scale))
+		staminaIcon.Position =
+			UDim2.new(0.5 - BAR_WIDTH / 2, -BAR_ICON_GAP * scale, 1, -(BAR_BOTTOM_MARGIN - 1) * scale)
+		staminaIcon.Visible = barHeight > 0
 		button.Size = UDim2.fromOffset(size, size)
 		button.Position = UDim2.new(1, -BUTTON_MARGIN * scale, 1, -BUTTON_MARGIN * scale)
 		bar.Size = UDim2.new(BAR_WIDTH, 0, 0, math.floor(BAR_HEIGHT * scale))

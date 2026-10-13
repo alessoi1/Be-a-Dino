@@ -28,6 +28,8 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 -- Same distance to the right and bottom edge as the sprint button, and a gap above it (base pixels).
 local BUTTON_MARGIN = 24
 local BUTTON_GAP = 12
+-- Share of the button the icon fills.
+local ICON_SHARE = 0.5
 -- Name of the folder with the invisible collision shapes the server builds in the arena.
 local COLLIDER_FOLDER_NAME = "Colliders"
 -- Seconds to wait for the Roblox controls module.
@@ -57,6 +59,12 @@ function AutoFarmControl.start()
 	corner.CornerRadius = UDim.new(0.5, 0)
 	corner.Parent = button
 
+	local autoIcon = UiKit.newIcon(button, "autofarm", UDim2.fromScale(ICON_SHARE, ICON_SHARE))
+	autoIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	autoIcon.Position = UDim2.fromScale(0.5, 0.45)
+	-- Taps go to the button, not to the icon.
+	autoIcon.Active = false
+
 	UiMetrics.watch(function()
 		local scale = UiMetrics.scale()
 		local size = UiMetrics.smallButtonSize()
@@ -74,7 +82,9 @@ function AutoFarmControl.start()
 
 	local function refreshButton()
 		local on = isOn()
-		button.Text = if on then Strings.autofarm.on else Strings.autofarm.off
+		-- The icon says what the button is; "ON" (small, at the bottom) says it is running.
+		button.Text = if on then Strings.autofarm.on else ""
+		button.TextYAlignment = Enum.TextYAlignment.Bottom
 		button.BackgroundColor3 = if on then UiTheme.good else UiTheme.panel
 		button.BackgroundTransparency = if on then 0 else UiTheme.panelTransparency
 		if not on then

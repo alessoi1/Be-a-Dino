@@ -17,6 +17,8 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 local WIDTH = 210
 local HEIGHT = 36
 local PADDING = 8
+local ICON_SIZE = 24
+local ICON_GAP = 4
 
 local CoinDisplay = {}
 
@@ -28,9 +30,13 @@ function CoinDisplay.start()
 	panel.Size = UDim2.fromOffset(WIDTH, HEIGHT)
 	UiKit.addScale(panel)
 
+	local coinIcon = UiKit.newIcon(panel, "coin", UDim2.fromOffset(ICON_SIZE, ICON_SIZE))
+	coinIcon.AnchorPoint = Vector2.new(0, 0.5)
+	coinIcon.Position = UDim2.new(0, PADDING, 0.5, 0)
+
 	local label = UiKit.newLabel(panel, UiTheme.bodySize)
-	label.Position = UDim2.fromOffset(PADDING, 0)
-	label.Size = UDim2.new(1, -PADDING * 2, 1, 0)
+	label.Position = UDim2.fromOffset(PADDING + ICON_SIZE + ICON_GAP, 0)
+	label.Size = UDim2.new(1, -PADDING * 2 - ICON_SIZE - ICON_GAP, 1, 0)
 	label.TextColor3 = UiTheme.own
 
 	local function refresh()

@@ -23,6 +23,10 @@ local LEAVE_WIDTH = 240
 local LEAVE_HEIGHT = 60
 -- Lifts the button above the stamina bar at the bottom center.
 local LEAVE_BOTTOM = 70
+-- The home icon in the leave button: size, gap to the text and distance to the left edge.
+local LEAVE_ICON_SIZE = 30
+local LEAVE_ICON_GAP = 6
+local LEAVE_ICON_INSET = 14
 
 local LobbyHud = {}
 
@@ -59,6 +63,14 @@ function LobbyHud.start()
 	leave.AutoButtonColor = true
 	leave.Visible = false
 	leave.Parent = gui
+	-- The text starts right of the home icon.
+	leave.TextXAlignment = Enum.TextXAlignment.Center
+	local padding = Instance.new("UIPadding")
+	padding.PaddingLeft = UDim.new(0, LEAVE_ICON_SIZE + LEAVE_ICON_GAP)
+	padding.Parent = leave
+	local homeIcon = UiKit.newIcon(leave, "lobby", UDim2.fromOffset(LEAVE_ICON_SIZE, LEAVE_ICON_SIZE))
+	homeIcon.AnchorPoint = Vector2.new(0, 0.5)
+	homeIcon.Position = UDim2.new(0, -(LEAVE_ICON_SIZE + LEAVE_ICON_GAP) + LEAVE_ICON_INSET, 0.5, 0)
 	local corner = Instance.new("UICorner")
 	corner.Parent = leave
 	UiKit.addScale(leave)

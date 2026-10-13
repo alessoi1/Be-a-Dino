@@ -236,6 +236,8 @@ Der Spielentwickler hat eine Feature-Liste zu Futter, Arena, Lobby, Modellen, Na
 
 **K4 Namen (gebaut, 13. Oktober 2026):** Über jedem Dino in der Arena steht ein Schild mit **Name** (oben) und **Size** (unten, kurz geschrieben wie K, M, B). Die Roblox-Namen sind abgeschaltet. Das Schild entsteht nur auf dem Gerät des Spielers (nichts wird repliziert) und liest die Spielerwerte `Points` und `Scale` (bei Bots Attribut `Points` am Modell und den Anzeigenamen des Humanoids). Es ist ein Billboard mit Größe in Studs: Es wird mit der Entfernung kleiner wie alles andere und wächst mit dem Dino (Breite mal Skalierung hoch 0,7, damit es nicht riesig wird), schwebt mit der Größe höher und ist bei Riesen weiter zu sehen (120 + 40 mal Skalierung Studs, die letzten 30 % blenden aus). Der eigene Name ist gelb, die anderen weiß; Spieler in der Lobby haben kein Schild. Das Kopfgeld-Schild schwebt jetzt über dem Namensschild. **Bots** bekommen beim Respawn einen **neuen zufälligen Namen** (`renameOnRespawn` in `Config/Bots`). Werte in `Config/NameTags`, Logik in `NameTag` (getestet).
 
+**K5a Icons (gebaut, 13. Oktober 2026):** Die Oberfläche hat Icons für Size (Statusfeld), Münzen (Zähler ohne das Wort „Coins“), Sprint (Knopf), Ausdauer (Leiste), Autofarm (Knopf, „ON“ klein darunter), Rangliste (Titel) und Lobby („Lobby“-Knopf). Die Bilder liefert der Spielentwickler (`docs/ICONS.md`, weiße Form auf durchsichtigem Grund); bis dahin zeigt jedes Icon ein Symbolzeichen als Notbehelf (`Config/Icons`, `assetId = 0`). Health-, Hunger- und Bite-Icons entfallen.
+
 8. **K8 Dschungel-Feinschliff:** Farne, Lianen, Wasser, Deckung und Engstellen, Spielbarkeit für Kleine und Große (mit Messdaten aus Studio).
 
 ## Weiterhin offen

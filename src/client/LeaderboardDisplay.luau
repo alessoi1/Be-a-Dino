@@ -21,6 +21,7 @@ local PADDING = 8
 local TITLE_HEIGHT = 24
 local ROW_HEIGHT = 22
 local POINTS_WIDTH = 48
+local ICON_GAP = 4
 
 local log = Log.new("Leaderboard")
 
@@ -56,10 +57,13 @@ function LeaderboardDisplay.start()
 	panel.Size = UDim2.fromOffset(PANEL_WIDTH, PADDING * 2 + TITLE_HEIGHT + ROW_HEIGHT * maxRows)
 	UiKit.addScale(panel)
 
+	local trophy = UiKit.newIcon(panel, "leaderboard", UDim2.fromOffset(TITLE_HEIGHT, TITLE_HEIGHT))
+	trophy.Position = UDim2.fromOffset(PADDING, PADDING)
+
 	local title = UiKit.newLabel(panel, UiTheme.titleSize)
 	title.Text = Strings.leaderboard.title
-	title.Position = UDim2.fromOffset(PADDING, PADDING)
-	title.Size = UDim2.new(1, -PADDING * 2, 0, TITLE_HEIGHT)
+	title.Position = UDim2.fromOffset(PADDING + TITLE_HEIGHT + ICON_GAP, PADDING)
+	title.Size = UDim2.new(1, -PADDING * 2 - TITLE_HEIGHT - ICON_GAP, 0, TITLE_HEIGHT)
 
 	local views: { RowViews } = {}
 	for index = 1, maxRows do

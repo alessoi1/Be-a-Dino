@@ -450,3 +450,17 @@ Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/NameTags.luau`
 - [ ] Das „BOUNTY ×3“-Schild eines Markierten schwebt **über** dem Namensschild und überdeckt es nicht.
 - [ ] Auf dem Handy: Schilder gut lesbar, keine Ruckler mit vielen Dinos in der Nähe (Name-Updates laufen etwa 5-mal pro Sekunde).
 - [ ] Keine Fehler im Output (`name tag refresh failed`).
+
+## K5a Icons
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Icons.luau`. **Ob die Symbolzeichen auf allen Geräten erscheinen und wie die Anordnung auf dem Handy wirkt, zeigt erst Studio.**
+
+- [ ] **Statusfeld** links oben: links neben dem Dino-Namen steht das Size-Icon; der Titel lautet „Compy · 12.3K“ (ohne das Wort „size“) und wird nicht abgeschnitten.
+- [ ] **Münzzähler:** ein Münz-Icon links, daneben nur die Zahl (zum Beispiel „1.2K“).
+- [ ] **Sprint-Knopf:** zeigt ein Icon statt des Wortes „Sprint“; Antippen und Halten funktioniert wie vorher (auch mit dem Finger auf dem Icon).
+- [ ] **Ausdauerleiste:** links neben der Leiste steht das Ausdauer-Icon, es überlappt die Leiste nicht.
+- [ ] **Autofarm-Knopf:** ein Icon; wenn an, wird der Knopf grün und unten steht klein „ON“; Antippen schaltet um.
+- [ ] **Bestenliste** rechts oben: ein Stern-Icon vor dem Titel „Leaderboard“.
+- [ ] **„Lobby“-Knopf** (in der Arena unten): ein Haus-Icon links vom Text, der Text ist nicht abgeschnitten, auch beim Countdown „Leaving in 5…“.
+- [ ] Die Symbolzeichen werden auf Handy und PC angezeigt (nicht als leeres Kästchen). Falls nicht, die echten Bilder einbauen (`docs/ICONS.md`) oder das Zeichen in `Config/Icons` ändern.
+- [ ] Nichts überlappt auf dem Handy-Emulator (360 × 640 und ein Gerät mit Notch).

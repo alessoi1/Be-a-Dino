@@ -4,8 +4,14 @@
 
 local Players = game:GetService("Players")
 
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Icons = require(Shared:WaitForChild("Config"):WaitForChild("Icons"))
+local Log = require(Shared:WaitForChild("Log"))
+
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
+
+local log = Log.new("UiKit")
 
 local UiKit = {}
 
@@ -51,6 +57,37 @@ function UiKit.newLabel(parent: Instance, textSize: number): TextLabel
 	label.TextTruncate = Enum.TextTruncate.AtEnd
 	label.Parent = parent
 	return label
+end
+
+-- An icon from Config/Icons: the image when there is one, otherwise its symbol character. Both
+-- have no background, are tinted with the color of the icon and fill `size` (given by the caller).
+function UiKit.newIcon(parent: Instance, name: string, size: UDim2): GuiObject
+	local icon = (Icons :: { [string]: Icons.Icon })[name]
+	if icon == nil then
+		log.warn("unknown icon", { name = name })
+		icon = { assetId = 0, glyph = "?", color = { r = 255, g = 255, b = 255 } }
+	end
+	local tint = Color3.fromRGB(icon.color.r, icon.color.g, icon.color.b)
+	local view: GuiObject
+	if icon.assetId ~= 0 then
+		local image = Instance.new("ImageLabel")
+		image.Image = "rbxassetid://" .. tostring(icon.assetId)
+		image.ImageColor3 = tint
+		image.ScaleType = Enum.ScaleType.Fit
+		view = image
+	else
+		local text = Instance.new("TextLabel")
+		text.Text = icon.glyph
+		text.TextColor3 = tint
+		text.TextScaled = true
+		text.FontFace = UiTheme.font
+		view = text
+	end
+	view.Name = "Icon_" .. name
+	view.BackgroundTransparency = 1
+	view.Size = size
+	view.Parent = parent
+	return view
 end
 
 -- A semi-transparent rounded panel.
