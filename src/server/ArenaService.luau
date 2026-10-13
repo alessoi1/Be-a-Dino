@@ -10,6 +10,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local FoodSpawn = require(Shared:WaitForChild("FoodSpawn"))
 local SpawnPick = require(Shared:WaitForChild("SpawnPick"))
+local WallWindow = require(Shared:WaitForChild("WallWindow"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
@@ -25,6 +26,8 @@ local SPAWN_HEIGHT = 5
 -- Thickness of the floor (studs) and how much longer than needed the wall pieces are (no gaps).
 local FLOOR_THICKNESS = 1
 local WALL_OVERLAP = 1.02
+-- Tint of the viewing window glass.
+local WINDOW_COLOR = Color3.fromRGB(170, 214, 224)
 
 local random = Random.new()
 
@@ -53,7 +56,7 @@ local function buildFloor(folder: Instance, floorColor: Color3)
 	floor.CanTouch = true
 end
 
--- The wall: a ring of straight pieces around the floor. Each piece is a flat block whose inner
+-- The wall: a ring of straight pieces around the floor, a few of them glass (the viewing window). Each piece is a flat block whose inner
 -- face touches the circle; it is as long as the outer face, so neighbors leave no gap.
 local function buildWalls(folder: Instance, wallColor: Color3)
 	local walls = Instance.new("Folder")
@@ -67,14 +70,16 @@ local function buildWalls(folder: Instance, wallColor: Color3)
 		local distance = Arena.radius + thick / 2
 		local position = Vector3.new(math.cos(angle) * distance, height / 2, math.sin(angle) * distance)
 		-- The thin side (local Z) points away from the middle.
+		local isWindow = WallWindow.isWindowPiece(index, count, Arena.windowAngleDegrees, Arena.windowSegments)
 		local part = Instance.new("Part")
-		part.Name = "Wall"
+		part.Name = if isWindow then "Window" else "Wall"
 		part.Size = Vector3.new(length, height, thick)
 		part.CFrame = CFrame.new(position) * CFrame.Angles(0, math.pi / 2 - angle, 0)
 		part.Anchored = true
 		part.CanCollide = true
-		part.Color = wallColor
-		part.Material = Enum.Material.SmoothPlastic
+		part.Color = if isWindow then WINDOW_COLOR else wallColor
+		part.Material = if isWindow then Enum.Material.Glass else Enum.Material.SmoothPlastic
+		part.Transparency = if isWindow then Arena.windowTransparency else 0
 		part.TopSurface = Enum.SurfaceType.Smooth
 		part.BottomSurface = Enum.SurfaceType.Smooth
 		part.Parent = walls

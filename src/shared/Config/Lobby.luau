@@ -1,8 +1,9 @@
 --!strict
--- The lobby above the arena: a platform with glowing circles. Standing in the play circle
+-- The lobby beside the glass dome: a platform with glowing circles. Standing in the play circle
 -- joins the arena, the other circles open the shop, the dinodex and the boosters.
--- Starting values, to be balanced. Sizes and positions are in studs; the lobby is centered
--- above the arena center, so zone coordinates are world coordinates.
+-- Starting values, to be balanced. Sizes and positions are in studs. The platform stands south
+-- (+Z) of the dome and looks into the arena through the window in the wall. The zone
+-- coordinates are relative to the middle of the platform.
 
 export type ZoneConfig = {
 	id: string,
@@ -26,8 +27,15 @@ local zones: { ZoneConfig } = {
 return {
 	-- Side length of the square lobby platform.
 	size = 140,
-	-- Height of the lobby floor above the arena floor.
-	height = 100,
+	-- Middle of the platform in the world. The north part (`northInset` studs) of the floor lies
+	-- hidden under the arena wall, so no hole is left between the round wall and the straight
+	-- platform edge. centerZ = arena radius + wall thickness - northInset + size / 2 (a test checks it).
+	centerX = 0,
+	centerZ = 350,
+	northInset = 24,
+	-- Height of the lobby floor (its top). A hair below the arena floor, so the two never flicker
+	-- where they overlap.
+	height = -0.05,
 	floorThickness = 2,
 	railingHeight = 8,
 	railingThickness = 1,

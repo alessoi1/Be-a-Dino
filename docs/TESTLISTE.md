@@ -161,7 +161,7 @@ Stand: noch nicht in Studio getestet. Die Lobby ändert den Ablauf aller anderen
 
 Start und Lobby:
 - [ ] Output zeigt `LobbyService started` und `lobby built zones=4`, kein `lobby config invalid`.
-- [ ] Beim Betreten stehst du auf einer Plattform hoch über der Arena (100 Studs), mit einem gläsernen Geländer ringsum. Du blickst über das Geländer auf die Arena und die Oase. Du kannst nicht hinunterfallen.
+- [ ] Beim Betreten stehst du (seit K3) auf einer Plattform auf dem Boden, südlich neben der Kuppel, mit gläsernem Geländer an drei Seiten. Du blickst durch das Sichtfenster in die Arena. Du kannst nicht hinunterfallen.
 - [ ] Vier leuchtende Kreise mit schwebenden Schildern: PLAY (grün, Mitte), SHOP (gelb, links), DINODEX (blau, unten) und BOOSTERS (lila, rechts). Du erscheinst nie in einem Kreis.
 - [ ] Unten steht „Step into a glowing circle“. Oben links, oben rechts und die Sprint-Taste (Arena-Oberfläche) sind in der Lobby **nicht** zu sehen.
 - [ ] Die Kreise flackern nicht (keine Überlappung mit dem Boden).
@@ -279,7 +279,7 @@ Stand: noch nicht in Studio getestet. Voraussetzungen wie bei 7a: veröffentlich
 
 Tafeln:
 - [ ] Output zeigt `LeaderboardService started studio=true`, kein `board store not available`.
-- [ ] An der Nordwand der Lobby hängen drei Tafeln nebeneinander: „Most kills“, „Biggest size“, „Longest playtime“. Sie sind gut lesbar, stehen nicht im Weg (man läuft hindurch), überlappen nicht das Geländer, und nichts flackert.
+- [ ] An der Südseite der Lobby (gegenüber vom Fenster, seit K3) hängen drei Tafeln nebeneinander: „Most kills“, „Biggest size“, „Longest playtime“. Sie sind gut lesbar, stehen nicht im Weg (man läuft hindurch), überlappen nicht das Geländer, und nichts flackert.
 - [ ] Zuerst steht „Loading...“, danach „No entries yet“ (noch niemand drauf) oder die Einträge. Bei Fehlern („Unavailable“) steht im Log `board read failed`.
 
 Zählen und Eintragen:
@@ -408,7 +408,7 @@ Boden und Wand:
 Kuppel:
 - [ ] Von innen sieht man das Gerüst (Rippen und Ringe) und durch die Lücken den Himmel; das Glas selbst ist von innen unsichtbar (normal). Die Rippen stören die Sicht nicht und flackern nicht.
 - [ ] Von außen (im Studio-Fenster herauszoomen) ist die Kuppel eine leicht getönte Glasschale mit dem Gerüst.
-- [ ] Die schwebende Lobby (noch unverändert, bis K3) ist sichtbar und nicht verdeckt.
+- [ ] Die Lobby (seit K3 südlich neben der Kuppel) ist sichtbar und nicht verdeckt.
 - [ ] Bildrate auf einem echten Handy (Rippen: etwa 280 Teile): Wenn es ruckelt, in `Config/Dome` `ribs`, `ribSegments` oder die Ringe verringern.
 
 Platzierung im Kreis:
@@ -417,3 +417,22 @@ Platzierung im Kreis:
 - [ ] Niemand erscheint in oder hinter der Wand (mehrfach neu starten, auch Bots).
 - [ ] Bots und Autofarm laufen nicht in die Wand und bleiben nicht an der Rundung hängen (Flucht an der Wand entlang beobachten).
 - [ ] Die Futtermenge fühlt sich gleich dicht an wie vorher (510 Stücke). Wenn nicht, `count` anpassen.
+
+## K3 Lobby an der Kuppel
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Lobby.luau` (Lage, `northInset`, `height`) und `Config/Arena.luau` (`windowSegments`, `windowAngleDegrees`, `windowTransparency`). **Die Lage und die Optik zeigen erst Studio.**
+
+Lage und Boden:
+- [ ] Output zeigt `LobbyService lobby built` und keine `lobby config invalid`-Meldung. Beim Betreten (und nach dem Gefressenwerden) erscheinst du **auf der Lobby-Plattform südlich der Kuppel**, nie in der Arena, in der Luft oder im Leeren.
+- [ ] Zwischen der runden Wand und der Plattformkante ist **kein Loch** (an den Ecken der Plattform entlanglaufen und hinunterschauen). Der Boden flackert nicht dort, wo Arena- und Lobbyboden sich überlappen.
+- [ ] Das Geländer steht an West, Ost und Süd; die Seitengeländer enden an der Wand und ragen nicht in die Arena.
+
+Sichtfenster:
+- [ ] In der Wand ist ein Fenster aus vier Glasstücken (etwa 120 Studs breit), genau gegenüber der Lobby. Man sieht von der Lobby aus in die Arena (Oase, Bäume, Dinos, Bots), und man kann **nicht** hindurchlaufen.
+- [ ] Vor dem Fenster stehen keine Wandfelsen. Der Glaston ist angenehm (nicht zu dunkel, nicht zu spiegelnd). Die Durchsichtigkeit lässt sich in `windowTransparency` ändern.
+- [ ] Aus der Arena sieht man durch das Fenster die Lobby und die Spieler dort.
+
+Bedienung:
+- [ ] Die vier Kreise (PLAY, SHOP, DINODEX, BOOSTERS) funktionieren wie vorher; PLAY bringt dich in die Arena (Teleport), „Lobby“ und das Todes-Fenster bringen dich zurück auf die Plattform.
+- [ ] Die drei Ranglisten-Tafeln hängen an der Südseite und sind von der Mitte aus lesbar, sie verdecken die Sicht zum Fenster nicht.
+- [ ] Die Kamera in der Lobby ist angenehm (kein Springen an der Kuppel oder am Geländer).

@@ -81,14 +81,15 @@ local function buildBoard(folder: Instance, category: Category, centerX: number)
 	local width = BoardConfig.board.width
 	local height = BoardConfig.board.height
 	local y = Lobby.height + BoardConfig.board.middleHeight
-	local z = -Lobby.size / 2 + BoardConfig.board.inset
-	local position = Vector3.new(centerX, y, z)
+	-- On the far side of the lobby (away from the window), so they do not block the view.
+	local z = Lobby.centerZ + Lobby.size / 2 - BoardConfig.board.inset
+	local position = Vector3.new(Lobby.centerX + centerX, y, z)
 
 	local part = Instance.new("Part")
 	part.Name = "Board_" .. category.id
 	part.Size = Vector3.new(width, height, BOARD_THICKNESS)
-	-- The front side (the one with the text) looks toward the middle of the lobby.
-	part.CFrame = CFrame.lookAt(position, position + Vector3.new(0, 0, 1))
+	-- The front side (the one with the text) looks toward the middle of the lobby and the window.
+	part.CFrame = CFrame.lookAt(position, position + Vector3.new(0, 0, -1))
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false

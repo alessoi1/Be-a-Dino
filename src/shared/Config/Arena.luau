@@ -7,6 +7,12 @@ return {
 	radius = 300,
 	-- The wall is a ring of this many straight pieces (the more, the rounder).
 	wallSegments = 64,
+	-- The viewing window towards the lobby: this many wall pieces in a row are glass (an even
+	-- number), centered on this direction (0 = +X, 90 = +Z, where the lobby stands).
+	windowSegments = 4,
+	windowAngleDegrees = 90,
+	-- How see-through the window glass is (0 = clear, 1 = invisible).
+	windowTransparency = 0.45,
 	-- Walls around the arena (studs).
 	wallHeight = 20,
 	wallThickness = 4,
