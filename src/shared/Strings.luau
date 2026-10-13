@@ -149,6 +149,8 @@ return {
 			dex = "DINODEX",
 			boost = "BOOSTERS",
 		},
+		-- The sign on the back wall of the lobby.
+		title = "DINO RESEARCH STATION",
 		hint = "Step into a glowing circle",
 		-- %d = seconds until the arena is entered
 		entering = "Entering the arena in %d",

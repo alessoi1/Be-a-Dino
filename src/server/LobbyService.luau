@@ -20,6 +20,7 @@ local DeathConfig = require(Shared:WaitForChild("Config"):WaitForChild("Death"))
 
 local ArenaService = require(script.Parent:WaitForChild("ArenaService"))
 local Build = require(script.Parent:WaitForChild("Build"))
+local LobbyDecor = require(script.Parent:WaitForChild("LobbyDecor"))
 local MovementService = require(script.Parent:WaitForChild("MovementService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
@@ -54,6 +55,8 @@ local random = Random.new()
 local zoneKinds: { [string]: string } = {}
 -- The circles in world coordinates (the config has them relative to the middle of the platform).
 local worldZones: { Zones.Zone } = {}
+-- What the decoration takes up on the floor (set when the lobby is built); nobody spawns there.
+local decorCircles: { Zones.Zone } = {}
 for _, zone in Lobby.zones do
 	zoneKinds[zone.id] = zone.kind
 	table.insert(worldZones, {
@@ -191,6 +194,9 @@ local function build()
 		buildLabel(folder, zone)
 	end
 
+	-- The research station look; its circles keep the spawn clear.
+	decorCircles = LobbyDecor.build(folder)
+
 	folder.Parent = workspace
 	log.info("lobby built", { size = size, height = height, zones = #Lobby.zones })
 end
@@ -205,7 +211,7 @@ local function lobbySpawn(): Vector3
 	for _ = 1, SPAWN_TRIES do
 		local x = Lobby.centerX + (random:NextNumber() * 2 - 1) * reach
 		local z = minZ + random:NextNumber() * (maxZ - minZ)
-		if Zones.isClear(worldZones, x, z, Lobby.spawnClearance) then
+		if Zones.isClear(worldZones, x, z, Lobby.spawnClearance) and Zones.isClear(decorCircles, x, z, 1) then
 			return Vector3.new(x, lobbyCenterY() + SPAWN_HEIGHT, z)
 		end
 	end
