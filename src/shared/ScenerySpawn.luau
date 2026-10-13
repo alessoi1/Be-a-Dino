@@ -7,6 +7,12 @@ export type Disc = { x: number, z: number, r: number }
 export type Kind = { id: string, count: number, radius: number }
 export type Placed = { id: string, x: number, z: number, yaw: number, radius: number }
 export type Point = { x: number, z: number }
+-- Two rocks with a gap between them (a chokepoint). `reach` is the free space around the gate.
+export type Gate = { x: number, z: number, yaw: number, gap: number, rocks: { Point }, reach: number }
+-- A group of plants close together (cover).
+export type Cluster = { x: number, z: number, members: { Placed } }
+-- A vine hanging down: where around the dome (angle), how long and how far it is tilted.
+export type Vine = { angle: number, length: number, tiltX: number, tiltZ: number }
 export type Patch = { x: number, z: number, radius: number, tone: number }
 export type WallRock = {
 	-- Direction from the arena center (radians) in which the rock stands at the wall.
@@ -200,6 +206,171 @@ function ScenerySpawn.obstacles(placed: { Placed }, radii: { [string]: number })
 		end
 	end
 	return discs
+end
+
+-- The spot among `candidates` random ones inside the arena (with `margin` to the wall and room
+-- for something of `size` around it) that is outside every exclusion and `taken` disc and
+-- farthest from the taken ones. Nil when none fits.
+local function freeSpot(
+	radius: number,
+	margin: number,
+	size: number,
+	exclusions: { Disc },
+	taken: { Disc },
+	candidates: number,
+	rng: Rng
+): (number?, number?)
+	local limit = radius - margin - size
+	if limit <= 0 then
+		return nil, nil
+	end
+	local bestX, bestZ = nil, nil
+	local bestGap = -math.huge
+	for _ = 1, candidates do
+		local x, z = discPoint(limit, rng)
+		local toExclusion = math.huge
+		for _, disc in exclusions do
+			toExclusion = math.min(toExclusion, math.sqrt((x - disc.x) ^ 2 + (z - disc.z) ^ 2) - disc.r - size)
+		end
+		local toTaken = math.huge
+		for _, disc in taken do
+			toTaken = math.min(toTaken, math.sqrt((x - disc.x) ^ 2 + (z - disc.z) ^ 2) - disc.r - size)
+		end
+		if toExclusion >= 0 and toTaken >= 0 and toTaken > bestGap then
+			bestX, bestZ = x, z
+			bestGap = toTaken
+		end
+	end
+	return bestX, bestZ
+end
+
+-- Ponds (shallow water, walkable): `count` discs of random size inside the arena, outside the
+-- exclusions and not touching each other. A pond that finds no room is left out.
+function ScenerySpawn.ponds(
+	radius: number,
+	margin: number,
+	exclusions: { Disc },
+	count: number,
+	minRadius: number,
+	maxRadius: number,
+	candidates: number,
+	rng: Rng
+): { Disc }
+	local ponds: { Disc } = {}
+	for _ = 1, count do
+		local size = between(rng, minRadius, maxRadius)
+		local x, z = freeSpot(radius, margin, size, exclusions, ponds, candidates, rng)
+		if x ~= nil and z ~= nil then
+			table.insert(ponds, { x = x, z = z, r = size })
+		end
+	end
+	return ponds
+end
+
+-- Chokepoints: `count` gates of two rocks of `rockRadius` whose edges are one of `gapSizes` apart
+-- (small dinos slip through a narrow one, big ones cannot). A gate is turned at random. Gates stay
+-- apart from each other and outside the exclusions.
+function ScenerySpawn.gates(
+	radius: number,
+	margin: number,
+	exclusions: { Disc },
+	count: number,
+	gapSizes: { number },
+	rockRadius: number,
+	candidates: number,
+	rng: Rng
+): { Gate }
+	local gates: { Gate } = {}
+	local taken: { Disc } = {}
+	if #gapSizes == 0 then
+		return gates
+	end
+	for _ = 1, count do
+		local gap = gapSizes[math.floor(rng() * #gapSizes) + 1]
+		local reach = gap / 2 + rockRadius
+		local x, z = freeSpot(radius, margin, reach, exclusions, taken, candidates, rng)
+		if x ~= nil and z ~= nil then
+			local yaw = between(rng, 0, math.pi)
+			local offsetX, offsetZ = math.cos(yaw) * reach, math.sin(yaw) * reach
+			table.insert(gates, {
+				x = x,
+				z = z,
+				yaw = yaw,
+				gap = gap,
+				rocks = { { x = x - offsetX, z = z - offsetZ }, { x = x + offsetX, z = z + offsetZ } },
+				reach = reach,
+			})
+			table.insert(taken, { x = x, z = z, r = reach })
+		end
+	end
+	return gates
+end
+
+-- Cover: `count` groups of plants (ids from `ids`, radius of each in `radii`) within `spread` of
+-- a middle point, `minMembers` to `maxMembers` per group. Groups stay outside the exclusions.
+function ScenerySpawn.clusters(
+	radius: number,
+	margin: number,
+	exclusions: { Disc },
+	count: number,
+	minMembers: number,
+	maxMembers: number,
+	spread: number,
+	ids: { string },
+	radii: { [string]: number },
+	candidates: number,
+	rng: Rng
+): { Cluster }
+	local clusters: { Cluster } = {}
+	local taken: { Disc } = {}
+	if #ids == 0 then
+		return clusters
+	end
+	for _ = 1, count do
+		local x, z = freeSpot(radius, margin, spread, exclusions, taken, candidates, rng)
+		if x ~= nil and z ~= nil then
+			local members: { Placed } = {}
+			local amount = minMembers + math.floor(rng() * (maxMembers - minMembers + 1))
+			for _ = 1, math.min(amount, maxMembers) do
+				local id = ids[math.floor(rng() * #ids) + 1]
+				local dx, dz = discPoint(spread, rng)
+				table.insert(members, {
+					id = id,
+					x = x + dx,
+					z = z + dz,
+					yaw = between(rng, 0, TWO_PI),
+					radius = radii[id] or 1,
+				})
+			end
+			table.insert(clusters, { x = x, z = z, members = members })
+			table.insert(taken, { x = x, z = z, r = spread })
+		end
+	end
+	return clusters
+end
+
+-- Vines hanging from the dome: `count` spread evenly around, shifted a little at random, with
+-- a random length and tilt. A direction for which `skip(angle)` is true (the viewing window) gets
+-- none.
+function ScenerySpawn.vines(
+	count: number,
+	minLength: number,
+	maxLength: number,
+	maxTilt: number,
+	skip: (number) -> boolean,
+	rng: Rng
+): { Vine }
+	local vines: { Vine } = {}
+	for index = 1, math.max(0, math.floor(count)) do
+		local angle = ((index - 0.5) / count + between(rng, -0.3, 0.3) / count) * TWO_PI
+		local length = between(rng, minLength, maxLength)
+		local tiltX = between(rng, -maxTilt, maxTilt)
+		local tiltZ = between(rng, -maxTilt, maxTilt)
+		if not skip(angle) then
+			table.insert(vines, { angle = angle, length = length, tiltX = tiltX, tiltZ = tiltZ })
+		end
+	end
+	return vines
 end
 
 -- Whether a spot is at least `gap` studs away from every prop (its own radius counts).

@@ -495,3 +495,17 @@ Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Animation.luau
 - [ ] Nach einem Stufenwechsel (neues Modell, Wolke) funktioniert alles weiter; auch nach dem Wechsel der Variante im Dinodex.
 - [ ] Keine Fehler im Output (`animation failed`, `animation config invalid`).
 - [ ] Auf dem Handy bleibt die Bildrate mit mehreren Dinos in der Nähe gut.
+
+## K8 Dschungel-Feinschliff
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Scenery.luau` (`ponds`, `gates`, `clusters`, `vines`). **Die Optik, die echte Durchgangsbreite der Felstore und die Leistung zeigen erst Studio und das Handy.**
+
+- [ ] Output zeigt `ponds built count=4`, `gates placed count=8`, `cover placed clusters=6`, `vines built`. Kein `not every prop found room` (sonst die Anzahl in `Config/Scenery` senken).
+- [ ] **Teiche:** vier flache Teiche mit Sandufer, begehbar (man läuft hindurch, ohne zu schweben oder einzusinken), ohne Flackern auf Pfaden und Flecken. Nichts steht im Wasser.
+- [ ] **Felstore:** Zwischen je zwei großen Felsen ist eine Lücke. Mit **Compy (Größe 1)** kommt man durch die engen (7 Studs) und mittleren Tore, mit einem **großen Dino** nur durch die weiten (20 Studs) und gar nicht durch die engen. Bleibt ein Dino dazwischen hängen oder ist die Lücke zu eng/zu weit, `gaps` anpassen.
+- [ ] Die Tore blockieren nicht die Wege zur Oase oder zur Wand (man kann überall hin gelangen). Nichts steht in einer Lücke.
+- [ ] **Bots und Autofarm** laufen um die Felsen herum und bleiben an den Toren nicht hängen.
+- [ ] **Deckung:** Gruppen aus Büschen und Farnen, in denen man (optisch) verschwinden kann; sie sind begehbar. Der Dino ist darin nicht unsichtbar (Namensschild bleibt).
+- [ ] **Lianen:** Vom Gerüst der Kuppel hängen grüne Lianen mit Blattkugel herab, rund um die Arena, **nicht** vor dem Sichtfenster; sie stören die Sicht nicht und hängen nicht schief durch die Wandfelsen.
+- [ ] Insgesamt wirkt die Arena abwechslungsreich, nicht überladen; es gibt Engstellen und Deckung für Kleine, aber auch freie Flächen für große Dinos.
+- [ ] Auf dem Handy: gute Bildrate (etwa 150 Teile mehr als vorher). Wenn nötig `vines.count`, `clusters.count` oder `gates.count` senken.

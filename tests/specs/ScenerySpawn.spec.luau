@@ -6,6 +6,7 @@ local Scenery = require("../../src/shared/Config/Scenery")
 local test = Framework.test
 local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
+local assertNear = Framework.assertNear
 
 -- Radius of the round arena.
 local RADIUS = 300
@@ -209,3 +210,107 @@ test("ScenerySpawn: every collider in the config has a usable size", function()
 	end
 	assertTrue(solid > 0, "some props are solid")
 end)
+
+local OASIS = { { x = 0, z = 0, r = 90 } }
+
+local function distance(ax: number, az: number, bx: number, bz: number): number
+	return math.sqrt((ax - bx) ^ 2 + (az - bz) ^ 2)
+end
+
+test("ScenerySpawn: ponds lie inside the arena, outside the exclusions and apart from each other", function()
+	local ponds = ScenerySpawn.ponds(RADIUS, 20, OASIS, 6, 14, 24, 12, Framework.seededRng(10))
+	assertEquals(#ponds, 6)
+	for index, pond in ponds do
+		assertTrue(pond.r >= 14 and pond.r <= 24, "size")
+		assertTrue(distance(pond.x, pond.z, 0, 0) + pond.r <= RADIUS - 20 + 1e-9, "inside the arena")
+		assertTrue(distance(pond.x, pond.z, 0, 0) >= 90 + pond.r - 1e-9, "outside the oasis")
+		for other = index + 1, #ponds do
+			assertTrue(
+				distance(pond.x, pond.z, ponds[other].x, ponds[other].z) >= pond.r + ponds[other].r,
+				"ponds overlap"
+			)
+		end
+	end
+end)
+
+test("ScenerySpawn: a pond that finds no room is left out", function()
+	assertEquals(#ScenerySpawn.ponds(30, 20, {}, 3, 14, 24, 8, Framework.seededRng(11)), 0)
+end)
+
+test("ScenerySpawn: gates are two rocks with exactly the asked gap between their edges", function()
+	local gaps = { 7, 12, 20 }
+	local rockRadius = 4
+	local gates = ScenerySpawn.gates(RADIUS, 20, OASIS, 8, gaps, rockRadius, 12, Framework.seededRng(12))
+	assertEquals(#gates, 8)
+	local seen: { [number]: boolean } = {}
+	for _, gate in gates do
+		assertTrue(table.find(gaps, gate.gap) ~= nil, "a gap from the list")
+		seen[gate.gap] = true
+		local a, b = gate.rocks[1], gate.rocks[2]
+		assertNear(distance(a.x, a.z, b.x, b.z) - 2 * rockRadius, gate.gap, 1e-6, "gap between the edges")
+		for _, rock in gate.rocks do
+			assertTrue(distance(rock.x, rock.z, 0, 0) + rockRadius <= RADIUS - 20 + 1e-9, "inside the arena")
+			assertTrue(distance(rock.x, rock.z, 0, 0) >= 90 + rockRadius - 1e-9, "outside the oasis")
+		end
+	end
+	assertTrue(seen[7] and seen[12] and seen[20], "every gap size is used")
+end)
+
+test("ScenerySpawn: gates keep apart from each other", function()
+	local gates = ScenerySpawn.gates(RADIUS, 20, OASIS, 8, { 12 }, 4, 12, Framework.seededRng(13))
+	for index, gate in gates do
+		for other = index + 1, #gates do
+			assertTrue(distance(gate.x, gate.z, gates[other].x, gates[other].z) >= gate.reach + gates[other].reach)
+		end
+	end
+end)
+
+test("ScenerySpawn: clusters hold their members close together inside the arena", function()
+	local radii = { Bush = 2.5, Fern = 2 }
+	local clusters =
+		ScenerySpawn.clusters(RADIUS, 20, OASIS, 5, 4, 7, 9, { "Bush", "Fern" }, radii, 12, Framework.seededRng(14))
+	assertEquals(#clusters, 5)
+	for _, cluster in clusters do
+		assertTrue(#cluster.members >= 4 and #cluster.members <= 7, "member count")
+		for _, member in cluster.members do
+			assertTrue(distance(member.x, member.z, cluster.x, cluster.z) <= 9 + 1e-9, "close to the middle")
+			assertTrue(radii[member.id] ~= nil and member.radius == radii[member.id], "radius of its kind")
+		end
+		assertTrue(distance(cluster.x, cluster.z, 0, 0) >= 90 + 9 - 1e-9, "outside the oasis")
+	end
+end)
+
+test("ScenerySpawn: vines hang all around, skip the asked directions and stay in their limits", function()
+	local vines = ScenerySpawn.vines(40, 14, 32, 0.08, function(angle: number): boolean
+		return angle > 1 and angle < 2
+	end, Framework.seededRng(15))
+	assertTrue(#vines > 25 and #vines < 40, "some skipped")
+	for _, vine in vines do
+		assertTrue(not (vine.angle > 1 and vine.angle < 2), "skipped direction")
+		assertTrue(vine.length >= 14 and vine.length <= 32, "length")
+		assertTrue(math.abs(vine.tiltX) <= 0.08 and math.abs(vine.tiltZ) <= 0.08, "tilt")
+	end
+	assertEquals(#ScenerySpawn.vines(0, 14, 32, 0.08, function()
+		return false
+	end, Framework.seededRng(1)), 0)
+end)
+
+test(
+	"ScenerySpawn: the gate rocks are a real prop with a collider, and the gaps are a mix of tight and wide",
+	function()
+		local found = nil
+		for _, kind in Scenery.props do
+			if kind.id == Scenery.gates.rockId then
+				found = kind
+			end
+		end
+		assertTrue(found ~= nil and found.collider ~= nil, "gate rock prop with collider")
+		local smallest, largest = math.huge, 0
+		for _, gap in Scenery.gates.gaps do
+			smallest = math.min(smallest, gap)
+			largest = math.max(largest, gap)
+		end
+		assertTrue(smallest < largest, "different gap sizes")
+		assertTrue(Scenery.ponds.count > 0 and Scenery.clusters.count > 0 and Scenery.vines.count > 0)
+	end
+)

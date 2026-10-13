@@ -92,7 +92,7 @@ local props: { PropKind } = {
 	},
 	{
 		id = "Bush",
-		count = 26,
+		count = 10,
 		radius = 2.5,
 		meshId = 80769098035445,
 		fallback = "bush",
@@ -102,7 +102,7 @@ local props: { PropKind } = {
 	},
 	{
 		id = "Fern",
-		count = 26,
+		count = 12,
 		radius = 2,
 		meshId = 113917993373751,
 		fallback = "bush",
@@ -230,6 +230,54 @@ return {
 		-- Random size change of a prop (0.1 = plus or minus 10 %) and brightness change.
 		sizeJitter = 0.12,
 		brightnessJitter = 0.07,
+	},
+
+	-- Shallow ponds (walkable, looks only). Props keep `clearance` studs away from them.
+	ponds = {
+		count = 4,
+		minRadius = 14,
+		maxRadius = 24,
+		clearance = 6,
+		shoreWidth = 3,
+		shoreColor = rgb(196, 176, 126),
+		waterColor = rgb(70, 146, 190),
+		waterTransparency = 0.3,
+		waterMaterial = "Glass",
+		-- Heights above the floor (studs): above the dirt paths.
+		baseHeight = 0.18,
+		shoreThickness = 0.05,
+		waterThickness = 0.12,
+	},
+	-- Chokepoints: two big rocks with a gap. Dinos of a body width up to about a third of the gap
+	-- fit through (small ones slip in, big ones are shut out). `rockId` is a prop with a collider.
+	gates = {
+		count = 8,
+		rockId = "RockBig",
+		gaps = { 7, 12, 20 },
+		-- Free space around a gate in addition to its reach (studs).
+		clearance = 4,
+	},
+	-- Cover: groups of bushes and ferns, walkable, so dinos can hide in them. Only the look hides.
+	clusters = {
+		count = 6,
+		minMembers = 5,
+		maxMembers = 8,
+		-- Members lie within this distance of the middle (studs).
+		spread = 9,
+		ids = { "Bush", "Fern" },
+	},
+	-- Vines hanging from the lowest ring of the dome.
+	vines = {
+		count = 30,
+		minLength = 14,
+		maxLength = 34,
+		maxTilt = 0.08,
+		thickness = 0.5,
+		-- Leaf ball at the end (studs) and how far the vine hangs inside the dome (share of the radius).
+		leafSize = 3.2,
+		inset = 0.985,
+		stemColor = rgb(52, 92, 44),
+		leafColor = rgb(76, 150, 62),
 	},
 
 	props = props,
