@@ -4,7 +4,8 @@
 
 export type Config = {
 	eatRatio: number,
-	eatDistanceFactor: number,
+	-- Largest distance between the middles per unit of the two scales added (the bodies touch).
+	eatReachFactor: number,
 }
 
 export type Combatant = {
@@ -54,7 +55,7 @@ function EatRules.canEat(
 	if eater.scale < victim.scale * config.eatRatio then
 		return false, "too_small"
 	end
-	if distance > eater.scale * config.eatDistanceFactor then
+	if distance > (eater.scale + victim.scale) * config.eatReachFactor then
 		return false, "too_far"
 	end
 	return true, nil

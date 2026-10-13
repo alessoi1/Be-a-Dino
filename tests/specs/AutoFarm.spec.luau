@@ -15,7 +15,7 @@ local config: AutoFarm.Config = {
 	valueBias = 10,
 	arenaMargin = 6,
 }
-local rules: AutoFarm.Rules = { eatRatio = 1.2, eatDistanceFactor = 1.5 }
+local rules: AutoFarm.Rules = { eatRatio = 1.2, eatReachFactor = 2 }
 -- The radius of the round arena.
 local ARENA = 300
 
@@ -84,7 +84,7 @@ test("AutoFarm: a player who could eat me and is close makes me run away", funct
 end)
 
 test("AutoFarm: no flight while the danger is outside its reach", function()
-	-- reach = 3 * 1.5 + 25 = 29.5
+	-- reach = (3 + 1) * 2 + 25 = 33
 	local far: { AutoFarm.Other } = { { x = 40, z = 0, scale = 3 } }
 	assertEquals(AutoFarm.pickTarget(config, rules, me, { food(-50, 0, 1) }, far, ARENA).kind, "food")
 	local near: { AutoFarm.Other } = { { x = 29, z = 0, scale = 3 } }
