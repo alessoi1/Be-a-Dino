@@ -59,7 +59,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] P2 UI-Überarbeitung (Code fertig, Studio-Test offen): Sprint-Knopf mit Wort und klarem Stil, Autofarm-Knopf farbig mit Text, „Lobby“-Knopf unter das Statusfeld, Bestenliste in die obere Ecke, Namensschild näher am Kopf
 - [x] P3 Kuppel mit echtem Glas (Code fertig, Studio-Test offen) (durchsichtige Platten zwischen den Rippen)
 - [x] P4 Lobby als Forschungsstation (Code fertig, im Studio-Start ohne Fehler gelaufen, Optik offen) (auf dem Boden, mit Dach, Fenstern, Einrichtung) und mehr Landschaft in der Arena
-- [x] P5 Futtermodelle aus Blender: neun Modelle gebaut (`assets/blender/food.fbx`); **offen beim Spielentwickler:** Bulk Import in Studio und die neun Mesh-IDs in `Config/Food` eintragen (siehe `docs/MODELLE.md`, Abschnitt Futter)
+- [x] P5 Futtermodelle aus Blender: neun Modelle gebaut (`assets/blender/food.fbx`); Import gemacht, die neun Mesh-IDs sind in `Config/Food` eingetragen und im Playtest geprüft; das importierte Model `Workspace.food` danach in Studio löschen
 
 - Entfallen laut Entscheidung vom 13. Oktober 2026: Health, Bite, Hunger, Nahrungstyp je Dino.
 
