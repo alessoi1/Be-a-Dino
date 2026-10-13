@@ -68,6 +68,8 @@ local LOWEST_Y = -50
 local MODEL_NAME = "Bot"
 -- Model attribute with the size of the bot, for the name tag on the clients.
 local POINTS_ATTRIBUTE = "Points"
+-- Model attribute with the (negative) id of the bot, for the leaderboard on the clients.
+local ID_ATTRIBUTE = "BotId"
 local FOLDER_NAME = "Bots"
 
 local log = Log.new("BotService")
@@ -166,6 +168,7 @@ local function spawnBody(bot: Bot)
 	humanoid.Parent = model
 
 	model:SetAttribute(POINTS_ATTRIBUTE, math.floor(bot.state.points))
+	model:SetAttribute(ID_ATTRIBUTE, bot.id)
 	model:PivotTo(CFrame.new(position))
 	model.Parent = folder
 	-- The server walks the bot, so no player's device may take over its physics.

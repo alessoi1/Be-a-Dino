@@ -22,6 +22,8 @@ local TITLE_HEIGHT = 24
 local ROW_HEIGHT = 22
 local POINTS_WIDTH = 48
 local ICON_GAP = 4
+-- Bots live in this folder of the workspace (see BotService).
+local BOTS_FOLDER = "Bots"
 
 local log = Log.new("Leaderboard")
 
@@ -41,6 +43,29 @@ local function readEntry(player: Player): Entry
 		points = if typeof(points) == "number" then points else 0,
 		stageId = if typeof(stage) == "string" then stage else "",
 	}
+end
+
+-- The bots in the arena as entries (their models carry `BotId`, `Points` and the display name).
+local function botEntries(): { Entry }
+	local entries: { Entry } = {}
+	local folder = workspace:FindFirstChild(BOTS_FOLDER)
+	if folder == nil then
+		return entries
+	end
+	for _, model in folder:GetChildren() do
+		local humanoid = model:FindFirstChildOfClass("Humanoid")
+		local id = model:GetAttribute("BotId")
+		local points = model:GetAttribute("Points")
+		if humanoid ~= nil and typeof(id) == "number" then
+			table.insert(entries, {
+				id = id,
+				name = humanoid.DisplayName,
+				points = if typeof(points) == "number" then points else 0,
+				stageId = "",
+			})
+		end
+	end
+	return entries
 end
 
 function LeaderboardDisplay.start()
@@ -89,10 +114,14 @@ function LeaderboardDisplay.start()
 	local function render()
 		local entries: { Entry } = {}
 		for _, player in Players:GetPlayers() do
-			-- Only the players in the arena are ranked here (the lobby has its own lists later).
+			-- Only the players in the arena are ranked here (the lobby has its own lists).
 			if player:GetAttribute("Mode") == "playing" then
 				table.insert(entries, readEntry(player))
 			end
+		end
+		-- The bots are ranked with the players (they are dinos in the arena like everybody else).
+		for _, entry in botEntries() do
+			table.insert(entries, entry)
 		end
 		local rows = Leaderboard.rank(entries, Ui.leaderboardSize, localPlayer.UserId)
 		for index, view in views do
@@ -128,6 +157,11 @@ function LeaderboardDisplay.start()
 
 	task.spawn(function()
 		while true do
+			-- The bots grow all the time, so the list is looked at again while there are bots.
+			local botFolder = workspace:FindFirstChild(BOTS_FOLDER)
+			if not dirty and botFolder ~= nil then
+				dirty = #botFolder:GetChildren() > 0
+			end
 			if dirty then
 				dirty = false
 				local ok, err = pcall(render)

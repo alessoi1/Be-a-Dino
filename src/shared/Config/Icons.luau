@@ -31,4 +31,8 @@ return {
 	leaderboard = icon("\u{2605}", 255, 214, 80),
 	-- The button back to the lobby.
 	lobby = icon("\u{2302}", 255, 255, 255),
+	-- The menu bar in the lobby: shop, dinodex and boosters.
+	shop = icon("\u{1F6D2}", 255, 214, 80),
+	dex = icon("\u{1F4D6}", 130, 190, 255),
+	boost = icon("\u{2697}", 214, 150, 255),
 }

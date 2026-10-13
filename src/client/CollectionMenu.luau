@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CollectionView = require(Shared:WaitForChild("CollectionView"))
+local MenuBar = require(Shared:WaitForChild("MenuBar"))
 local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
@@ -17,6 +18,7 @@ local DinoLooks = require(Shared:WaitForChild("Config"):WaitForChild("DinoLooks"
 local VariantBook = require(Shared:WaitForChild("VariantBook"))
 local VariantConfig = require(Shared:WaitForChild("Config"):WaitForChild("Variants"))
 
+local MenuState = require(script.Parent:WaitForChild("MenuState"))
 local VariantList = require(script.Parent:WaitForChild("VariantList"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
@@ -232,15 +234,17 @@ function CollectionMenu.start()
 	-- The window is open while the player stands in the dinodex circle (the server decides
 	-- the zone); the X button closes it until the circle is entered again.
 	local function applyZone()
-		local inside = player:GetAttribute("ZoneId") == "dex"
+		local inside = MenuBar.visible(player:GetAttribute("ZoneId"), MenuState.get(), "dex")
 		if inside and not window.Visible then
 			showCards()
 		end
 		window.Visible = inside
 	end
 	player:GetAttributeChangedSignal("ZoneId"):Connect(applyZone)
+	MenuState.changed:Connect(applyZone)
 	applyZone()
 	close.Activated:Connect(function()
+		MenuState.close()
 		window.Visible = false
 	end)
 	back.Activated:Connect(showCards)
