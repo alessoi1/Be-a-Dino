@@ -1,5 +1,5 @@
 --!strict
--- The lobby above the arena: builds the platform and the glowing circles, puts every new
+-- The lobby beside the dome: builds the platform and the glowing circles, puts every new
 -- character into the lobby, lets players join the arena by standing in the play circle, and
 -- lets them go back with a short wait. The client only gets the zone as a player attribute
 -- (to open the windows); everything is decided here. Only checkable in Roblox Studio.
@@ -10,11 +10,11 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
-local FoodSpawn = require(Shared:WaitForChild("FoodSpawn"))
 local PlayMode = require(Shared:WaitForChild("PlayMode"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Zones = require(Shared:WaitForChild("Zones"))
+local ArenaConfig = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local Lobby = require(Shared:WaitForChild("Config"):WaitForChild("Lobby"))
 local DeathConfig = require(Shared:WaitForChild("Config"):WaitForChild("Death"))
 
@@ -37,7 +37,10 @@ local LABEL_HEIGHT = 8
 local LABEL_WIDTH = 220
 local LABEL_HEIGHT_PIXELS = 60
 local LABEL_MAX_DISTANCE = 160
-local FLOOR_COLOR = Color3.fromRGB(70, 75, 90)
+local FLOOR_COLOR = Color3.fromRGB(58, 66, 72)
+local FRAME_COLOR = Color3.fromRGB(66, 84, 82)
+-- How far the side railings stay clear of the wall at their north end (studs).
+local RAIL_WALL_GAP = 1
 local RAILING_COLOR = Color3.fromRGB(180, 220, 255)
 local RAILING_TRANSPARENCY = 0.6
 -- Minimum seconds between two leave requests of one player.
@@ -49,8 +52,17 @@ local log = Log.new("LobbyService")
 local random = Random.new()
 
 local zoneKinds: { [string]: string } = {}
+-- The circles in world coordinates (the config has them relative to the middle of the platform).
+local worldZones: { Zones.Zone } = {}
 for _, zone in Lobby.zones do
 	zoneKinds[zone.id] = zone.kind
+	table.insert(worldZones, {
+		id = zone.id,
+		x = zone.x + Lobby.centerX,
+		z = zone.z + Lobby.centerZ,
+		radius = zone.radius,
+		dwell = zone.dwell,
+	})
 end
 
 local dwell: { [Player]: Zones.Dwell } = {}
@@ -64,7 +76,7 @@ local function lobbyCenterY(): number
 	return Lobby.height
 end
 
-local function buildLabel(folder: Instance, zone: any)
+local function buildLabel(folder: Instance, zone: Zones.Zone)
 	local anchor = Instance.new("Part")
 	anchor.Name = "Label_" .. zone.id
 	anchor.Size = Vector3.one
@@ -107,62 +119,63 @@ local function build()
 		folder,
 		"Floor",
 		Vector3.new(size, Lobby.floorThickness, size),
-		Vector3.new(0, height - Lobby.floorThickness / 2, 0),
+		Vector3.new(Lobby.centerX, height - Lobby.floorThickness / 2, Lobby.centerZ),
 		FLOOR_COLOR,
-		Enum.Material.SmoothPlastic,
+		Enum.Material.DiamondPlate,
 		0,
 		true
 	)
 
-	-- A glass railing around the platform so nobody falls into the arena by accident.
+	-- Glass railings on the east, west and south side so nobody falls off. The north side is the
+	-- dome wall with the viewing window. The side railings start at the wall.
 	local rail = Lobby.railingHeight
 	local thick = Lobby.railingThickness
-	local offset = size / 2 + thick / 2
+	local half = size / 2
+	local offset = half + thick / 2
 	local length = size + 2 * thick
 	local railY = height + rail / 2
-	Build.block(
-		folder,
-		"RailNorth",
-		Vector3.new(length, rail, thick),
-		Vector3.new(0, railY, -offset),
-		RAILING_COLOR,
-		Enum.Material.Glass,
-		RAILING_TRANSPARENCY,
-		true
-	)
+	local outer = ArenaConfig.radius + ArenaConfig.wallThickness
+	local railNorthZ = math.sqrt(math.max(0, outer * outer - (half + thick) ^ 2)) + RAIL_WALL_GAP
+	local railSouthZ = Lobby.centerZ + half
+	local sideLength = math.max(0, railSouthZ - railNorthZ)
+	local sideCenterZ = (railNorthZ + railSouthZ) / 2
 	Build.block(
 		folder,
 		"RailSouth",
 		Vector3.new(length, rail, thick),
-		Vector3.new(0, railY, offset),
+		Vector3.new(Lobby.centerX, railY, Lobby.centerZ + offset),
 		RAILING_COLOR,
 		Enum.Material.Glass,
 		RAILING_TRANSPARENCY,
 		true
 	)
-	Build.block(
-		folder,
-		"RailWest",
-		Vector3.new(thick, rail, size),
-		Vector3.new(-offset, railY, 0),
-		RAILING_COLOR,
-		Enum.Material.Glass,
-		RAILING_TRANSPARENCY,
-		true
-	)
-	Build.block(
-		folder,
-		"RailEast",
-		Vector3.new(thick, rail, size),
-		Vector3.new(offset, railY, 0),
-		RAILING_COLOR,
-		Enum.Material.Glass,
-		RAILING_TRANSPARENCY,
-		true
-	)
+	for _, side in { -1, 1 } do
+		Build.block(
+			folder,
+			if side < 0 then "RailWest" else "RailEast",
+			Vector3.new(thick, rail, sideLength),
+			Vector3.new(Lobby.centerX + side * offset, railY, sideCenterZ),
+			RAILING_COLOR,
+			Enum.Material.Glass,
+			RAILING_TRANSPARENCY,
+			true
+		)
+		-- A metal post at the corner, the same metal as the frame of the dome.
+		Build.block(
+			folder,
+			"Post",
+			Vector3.new(thick * 2, rail * 1.4, thick * 2),
+			Vector3.new(Lobby.centerX + side * offset, height + rail * 0.7, railSouthZ + thick / 2),
+			FRAME_COLOR,
+			Enum.Material.Metal,
+			0,
+			false
+		)
+	end
 
-	for _, zone in Lobby.zones do
-		local color = Color3.fromRGB(zone.color.r, zone.color.g, zone.color.b)
+	for index, zone in worldZones do
+		-- Same order as the config: the colors come from there.
+		local tint = Lobby.zones[index].color
 		Build.cylinder(
 			folder,
 			"Zone_" .. zone.id,
@@ -171,7 +184,7 @@ local function build()
 			height,
 			zone.x,
 			zone.z,
-			color,
+			Color3.fromRGB(tint.r, tint.g, tint.b),
 			Enum.Material.Neon,
 			0.2
 		)
@@ -182,17 +195,21 @@ local function build()
 	log.info("lobby built", { size = size, height = height, zones = #Lobby.zones })
 end
 
--- A random spot on the platform that is clear of the circles.
+-- A random spot on the visible part of the platform (not under the arena wall) that is clear of
+-- the circles.
 local function lobbySpawn(): Vector3
+	local half = Lobby.size / 2
+	local minZ = Lobby.centerZ - half + Lobby.northInset + Lobby.spawnMargin
+	local maxZ = Lobby.centerZ + half - Lobby.spawnMargin
+	local reach = half - Lobby.spawnMargin
 	for _ = 1, SPAWN_TRIES do
-		local x, z = FoodSpawn.pickPosition(Lobby.size, Lobby.spawnMargin, function()
-			return random:NextNumber()
-		end)
-		if Zones.isClear(Lobby.zones, x, z, Lobby.spawnClearance) then
+		local x = Lobby.centerX + (random:NextNumber() * 2 - 1) * reach
+		local z = minZ + random:NextNumber() * (maxZ - minZ)
+		if Zones.isClear(worldZones, x, z, Lobby.spawnClearance) then
 			return Vector3.new(x, lobbyCenterY() + SPAWN_HEIGHT, z)
 		end
 	end
-	return Vector3.new(0, lobbyCenterY() + SPAWN_HEIGHT, -Lobby.size / 2 + Lobby.spawnMargin)
+	return Vector3.new(Lobby.centerX, lobbyCenterY() + SPAWN_HEIGHT, maxZ)
 end
 
 local function placeInLobby(player: Player): boolean
@@ -271,7 +288,7 @@ local function checkLobbyPlayer(player: Player, root: BasePart, now: number)
 		return
 	end
 
-	local zone = Zones.zoneAt(Lobby.zones, root.Position.X, root.Position.Z)
+	local zone = Zones.zoneAt(worldZones, root.Position.X, root.Position.Z)
 	local state, fired = Zones.step(dwell[player] or Zones.newDwell(), zone, now)
 	dwell[player] = state
 

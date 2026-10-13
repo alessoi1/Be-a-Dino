@@ -32,7 +32,7 @@ return {
 	statsMaxStepSeconds = 5,
 	-- Largest number written (kills, size, seconds).
 	maxValue = 1000000000000000,
-	-- The boards on the north wall of the lobby (studs). `centers` are the x positions.
+	-- The boards at the south edge of the lobby, facing the window (studs). `centers` are the x positions.
 	board = {
 		width = 28,
 		height = 18,

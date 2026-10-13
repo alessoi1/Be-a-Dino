@@ -130,6 +130,12 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/DomeShape.spec")
 	end,
+	function()
+		require("./specs/WallWindow.spec")
+	end,
+	function()
+		require("./specs/Lobby.spec")
+	end,
 }
 
 local passed = 0

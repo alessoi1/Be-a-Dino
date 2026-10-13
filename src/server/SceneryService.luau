@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
 local ScenerySpawn = require(Shared:WaitForChild("ScenerySpawn"))
+local WallWindow = require(Shared:WaitForChild("WallWindow"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 local CollisionConfig = require(Shared:WaitForChild("Config"):WaitForChild("Collision"))
@@ -200,7 +201,12 @@ local function buildWallRocks(folder: Instance, radius: number, rng: () -> numbe
 		tones = #walls.rockColors,
 	}, rng)
 	local surface = material(walls.rockMaterial)
+	local pieces = Arena.wallSegments
 	for _, rock in rocks do
+		-- No rocks in front of the viewing window (and one piece beside it): it is for looking through.
+		if WallWindow.looksThrough(rock.angle, pieces, Arena.windowAngleDegrees, Arena.windowSegments, 1) then
+			continue
+		end
 		-- Center sits slightly outside the inner wall face, so only part of the rock stands in the arena.
 		local across = radius + rock.depth * 0.2
 		local position = Vector3.new(math.cos(rock.angle) * across, 0, math.sin(rock.angle) * across)
@@ -509,7 +515,7 @@ local function placeProps(folder: Instance, radius: number)
 	end)
 end
 
--- The wall pieces (solid) get a rock look; everything else is built in front of them.
+-- The wall pieces (solid, except the glass window) get a rock look; everything else is built in front of them.
 function SceneryService.build(folder: Instance)
 	local radius = Arena.radius
 	local rng = makeRandom()
@@ -527,7 +533,7 @@ function SceneryService.build(folder: Instance)
 	local walls = folder:FindFirstChild("Walls")
 	if walls ~= nil then
 		for _, wall in walls:GetChildren() do
-			if wall:IsA("BasePart") then
+			if wall:IsA("BasePart") and wall.Name == "Wall" then
 				wall.Color = color(Scenery.walls.color)
 				wall.Material = material(Scenery.walls.material)
 			end
