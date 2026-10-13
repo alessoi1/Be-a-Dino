@@ -378,3 +378,19 @@ Fressen:
 - [ ] Spieler spawnen nicht direkt neben einem Bot.
 - [ ] Keine Fehler im Output (`bot tick failed`, `bot lost its body`, `adding a bot failed`).
 - [ ] Mit mehreren Spielern prüfen, ob die Server-Leistung gut bleibt (kein Ruckeln durch Bots).
+
+## K1 Kollision
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Collision.luau` und die Spalte `collider` in `src/shared/Config/Scenery.luau` (Startwerte). Reine Logik (`Avoidance`) ist mit Tests abgedeckt, **ob Humanoid-Physik, Hüllen und Ausweichen zusammenpassen, zeigt erst Studio.**
+
+Vorbereitung: `showColliders = true` in `Config/Collision` setzen, damit die Hüllen als rote, halbtransparente Formen sichtbar sind. Danach wieder auf `false`.
+- [ ] Output zeigt `SceneryService colliders built count=…` (Bäume, Palmen, große und kleine Felsen, Stämme; keine Büsche und Farne). Im Workspace gibt es `Colliders` unter `Scenery`.
+- [ ] Die roten Formen sitzen mittig auf Stamm und Fels (nicht daneben, nicht zu groß). Passen sie nicht, `collider` pro Prop in `Config/Scenery` anpassen (bei den echten Meshes können die Größen abweichen).
+- [ ] Der Spieler läuft nicht durch Bäume, Palmen, Felsen und Stämme. Er **gleitet** an ihnen entlang, auch bei schräger Annäherung, und bleibt nicht hängen (mit Compy und mit einem großen Dino prüfen, zum Beispiel per Debug-Taste `G`).
+- [ ] Büsche und Farne lassen sich durchlaufen (Deckung). Die Wasserstelle und der Steinring sind weiter begehbar.
+- [ ] Die Kamera springt nicht vor Bäumen und Felsen heran (die Hüllen sind für die Kamera unsichtbar).
+- [ ] Ein sehr großer Dino (Größe 8) steigt nicht auf kleine Felsen oder Stämme; sieht das komisch aus, die Höhe in `collider` erhöhen.
+- [ ] Niemand erscheint (Spawn, Bots) in einer Hülle oder eingeklemmt zwischen zwei Hüllen.
+- [ ] **Bots:** Sie laufen um Bäume und Felsen herum, statt daran hängen zu bleiben (Bot beobachten, der Futter hinter einem Baum anläuft). Keine Bots, die minutenlang an einer Stelle stehen.
+- [ ] **Autofarm:** Mit eingeschaltetem „Auto“ läuft der Dino um Bäume und Felsen herum, auch zu Futter direkt hinter einem Baum und bei der Flucht. Output zeigt einmal `AutoFarmControl obstacles read count=…`.
+- [ ] Keine Fehler im Output, und der Server-Tempoprüfer (`MoveCheck`) zieht niemanden zurück, der an einer Hülle entlanggleitet.

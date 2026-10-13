@@ -12,12 +12,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Avoidance = require(Shared:WaitForChild("Avoidance"))
 local BotBrain = require(Shared:WaitForChild("BotBrain"))
 local Growth = require(Shared:WaitForChild("Growth"))
 local Log = require(Shared:WaitForChild("Log"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local ArenaConfig = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local BotsConfig = require(Shared:WaitForChild("Config"):WaitForChild("Bots"))
+local CollisionConfig = require(Shared:WaitForChild("Config"):WaitForChild("Collision"))
 local Dinos = require(Shared:WaitForChild("Config"):WaitForChild("Dinos"))
 local GrowthConfig = require(Shared:WaitForChild("Config"):WaitForChild("Growth"))
 
@@ -26,6 +28,7 @@ local ArenaService = require(script.Parent:WaitForChild("ArenaService"))
 local FoodService = require(script.Parent:WaitForChild("FoodService"))
 local PlayerCollision = require(script.Parent:WaitForChild("PlayerCollision"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local SceneryService = require(script.Parent:WaitForChild("SceneryService"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Bot = {
@@ -341,7 +344,16 @@ local function think(bot: Bot, now: number, all: { BotBrain.Actor })
 	local food = FoodService.piecesNear(position.X, position.Z, BotsConfig.foodRange)
 	local goal = BotBrain.choose(brainConfig, limit, self, all, food, now, bot.wander)
 	humanoid.WalkSpeed = Growth.speedFor(Dinos, bot.state) * BotsConfig.speedFactor
-	humanoid:MoveTo(Vector3.new(goal.x, position.Y, goal.z))
+	-- Walk around trees and rocks on the way (the body needs room in proportion to its scale).
+	local waypoint = Avoidance.steer(
+		{ x = position.X, z = position.Z },
+		{ x = goal.x, z = goal.z },
+		SceneryService.obstacles(),
+		scale * CollisionConfig.bodyRadiusPerScale + CollisionConfig.margin,
+		CollisionConfig.lookAhead,
+		CollisionConfig.maxDetours
+	)
+	humanoid:MoveTo(Vector3.new(waypoint.x, position.Y, waypoint.z))
 	log.debug("bot goal", { id = bot.id, kind = goal.kind })
 end
 
