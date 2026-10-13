@@ -56,7 +56,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 ## Wünsche nach dem ersten Studio-Test (13. Oktober 2026)
 
 - [x] P1 `fix/eat-reach`: Fress-Reichweite („Körper berühren sich“, `eatReachFactor` in `Config/Arena`) und Autofarm findet die Steuerung (PlayerModule liegt in `StarterPlayer`)
-- [ ] P2 UI-Überarbeitung: Sprint-Knopf mit Wort und klarem Stil, Autofarm-Knopf farbig mit Text, „Lobby“-Knopf unter das Statusfeld, Bestenliste in die obere Ecke, Namensschild näher am Kopf
+- [x] P2 UI-Überarbeitung (Code fertig, Studio-Test offen): Sprint-Knopf mit Wort und klarem Stil, Autofarm-Knopf farbig mit Text, „Lobby“-Knopf unter das Statusfeld, Bestenliste in die obere Ecke, Namensschild näher am Kopf
 - [ ] P3 Kuppel mit echtem Glas (durchsichtige Platten zwischen den Rippen)
 - [ ] P4 Lobby als Forschungsstation (auf dem Boden, mit Dach, Fenstern, Einrichtung) und mehr Landschaft in der Arena
 - [ ] P5 Futtermodelle aus Blender (Spielentwickler importiert per Bulk Import und gibt die Mesh-IDs)

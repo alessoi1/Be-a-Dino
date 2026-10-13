@@ -13,18 +13,26 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 local log = Log.new("UiKit")
 
+-- Transparency of the dark outline around text (0 = fully dark).
+local TEXT_STROKE = 0.35
+-- Corner and edge of a panel, and the outline of a bright button (base pixels).
+local PANEL_CORNER = 10
+local PANEL_EDGE = 2
+local BUTTON_OUTLINE = 3
 -- The close button of a window (base pixels).
 local CLOSE_SIZE = 32
 local CLOSE_MARGIN = 8
 
 local UiKit = {}
 
--- A ScreenGui that stays after respawn. It keeps the default insets, so it stays out of
--- the Roblox top bar and the device cutouts (notch, gesture bar).
-function UiKit.newGui(name: string): ScreenGui
+-- A ScreenGui that stays after respawn. It keeps the default insets (unless `ignoreInset`), so it
+-- stays out of the Roblox top bar and the device cutouts (notch, gesture bar).
+function UiKit.newGui(name: string, ignoreInset: boolean?): ScreenGui
 	local gui = Instance.new("ScreenGui")
 	gui.Name = name
 	gui.ResetOnSpawn = false
+	-- True: the gui starts at the very edge of the screen (also under the Roblox top bar).
+	gui.IgnoreGuiInset = ignoreInset == true
 	gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 	return gui
 end
@@ -56,7 +64,8 @@ function UiKit.newLabel(parent: Instance, textSize: number): TextLabel
 	label.FontFace = UiTheme.font
 	label.TextSize = textSize
 	label.TextColor3 = UiTheme.text
-	label.TextStrokeTransparency = 0.6
+	label.TextStrokeTransparency = TEXT_STROKE
+	label.TextStrokeColor3 = UiTheme.outline
 	label.TextXAlignment = Enum.TextXAlignment.Left
 	label.TextTruncate = Enum.TextTruncate.AtEnd
 	label.Parent = parent
@@ -124,8 +133,48 @@ function UiKit.newPanel(parent: Instance): Frame
 	panel.BorderSizePixel = 0
 	panel.Parent = parent
 	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, PANEL_CORNER)
 	corner.Parent = panel
+	local edge = Instance.new("UIStroke")
+	edge.Color = UiTheme.panelEdge
+	edge.Transparency = UiTheme.panelEdgeTransparency
+	edge.Thickness = PANEL_EDGE
+	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	edge.Parent = panel
 	return panel
+end
+
+-- Makes a button a bright "bubble": solid fill, thick dark outline, white text with a dark outline.
+function UiKit.styleBubble(button: GuiButton, fill: Color3)
+	button.BackgroundColor3 = fill
+	button.BackgroundTransparency = 0
+	button.AutoButtonColor = true
+	button.BorderSizePixel = 0
+	local outline = button:FindFirstChildOfClass("UIStroke")
+	if outline == nil then
+		outline = Instance.new("UIStroke")
+		outline.Parent = button
+	end
+	outline.Color = UiTheme.outline
+	outline.Thickness = BUTTON_OUTLINE
+	outline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+end
+
+-- A short word under an icon of a button (fills `size`, shrinks to fit, white with a dark outline).
+function UiKit.newCaption(parent: Instance, text: string, size: UDim2): TextLabel
+	local label = Instance.new("TextLabel")
+	label.Name = "Caption"
+	label.BackgroundTransparency = 1
+	label.FontFace = UiTheme.font
+	label.TextScaled = true
+	label.TextColor3 = UiTheme.text
+	label.TextStrokeTransparency = 0
+	label.TextStrokeColor3 = UiTheme.outline
+	label.Text = text
+	label.Size = size
+	label.Active = false
+	label.Parent = parent
+	return label
 end
 
 return UiKit

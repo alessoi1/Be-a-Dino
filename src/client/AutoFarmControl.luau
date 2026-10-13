@@ -30,7 +30,12 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 local BUTTON_MARGIN = 24
 local BUTTON_GAP = 12
 -- Share of the button the icon fills.
-local ICON_SHARE = 0.5
+local ICON_SHARE = 0.46
+-- Share of the button height the words under the icon take, and the badge in the corner.
+local CAPTION_SHARE = 0.3
+-- Width of the button compared to its height.
+local WIDE = 1.25
+local BADGE_SHARE = 0.3
 -- Name of the folder with the invisible collision shapes the server builds in the arena.
 local COLLIDER_FOLDER_NAME = "Colliders"
 -- Seconds to wait for the Roblox controls module in the PlayerScripts, and then in StarterPlayer.
@@ -50,27 +55,37 @@ function AutoFarmControl.start()
 	local button = Instance.new("TextButton")
 	button.Name = "AutoFarmButton"
 	button.AnchorPoint = Vector2.new(1, 1)
-	button.FontFace = UiTheme.font
-	button.TextSize = UiTheme.bodySize
-	button.TextColor3 = UiTheme.text
-	button.TextWrapped = true
-	button.BackgroundTransparency = UiTheme.panelTransparency
-	button.AutoButtonColor = true
+	button.Text = ""
 	button.Parent = gui
+	UiKit.styleBubble(button, UiTheme.autoOff)
 	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.CornerRadius = UDim.new(0.3, 0)
 	corner.Parent = button
 
 	local autoIcon = UiKit.newIcon(button, "autofarm", UDim2.fromScale(ICON_SHARE, ICON_SHARE))
-	autoIcon.AnchorPoint = Vector2.new(0.5, 0.5)
-	autoIcon.Position = UDim2.fromScale(0.5, 0.45)
+	autoIcon.AnchorPoint = Vector2.new(0.5, 0)
+	autoIcon.Position = UDim2.fromScale(0.5, 0.08)
 	-- Taps go to the button, not to the icon.
 	autoIcon.Active = false
+	-- The words under the icon say what the button does; the badge says it is running.
+	local caption = UiKit.newCaption(button, Strings.autofarm.caption, UDim2.fromScale(0.9, CAPTION_SHARE))
+	caption.AnchorPoint = Vector2.new(0.5, 1)
+	caption.Position = UDim2.fromScale(0.5, 0.95)
+	local badge = UiKit.newCaption(button, Strings.autofarm.on, UDim2.fromScale(0.42, BADGE_SHARE))
+	badge.AnchorPoint = Vector2.new(1, 0)
+	badge.Position = UDim2.fromScale(1, 0)
+	badge.BackgroundTransparency = 0
+	badge.BackgroundColor3 = UiTheme.autoOn
+	badge.Visible = false
+	local badgeCorner = Instance.new("UICorner")
+	badgeCorner.CornerRadius = UDim.new(0.4, 0)
+	badgeCorner.Parent = badge
 
 	UiMetrics.watch(function()
 		local scale = UiMetrics.scale()
+		-- Wider than high, so the two words fit under the icon.
 		local size = UiMetrics.smallButtonSize()
-		button.Size = UDim2.fromOffset(size, size)
+		button.Size = UDim2.fromOffset(math.floor(size * WIDE), size)
 		button.Position =
 			UDim2.new(1, -BUTTON_MARGIN * scale, 1, -(BUTTON_MARGIN + BUTTON_GAP) * scale - UiMetrics.buttonSize())
 	end)
@@ -84,11 +99,9 @@ function AutoFarmControl.start()
 
 	local function refreshButton()
 		local on = isOn()
-		-- The icon says what the button is; "ON" (small, at the bottom) says it is running.
-		button.Text = if on then Strings.autofarm.on else ""
-		button.TextYAlignment = Enum.TextYAlignment.Bottom
-		button.BackgroundColor3 = if on then UiTheme.good else UiTheme.panel
-		button.BackgroundTransparency = if on then 0 else UiTheme.panelTransparency
+		-- Red while it is off, green with an "ON" badge while it runs.
+		button.BackgroundColor3 = if on then UiTheme.autoOn else UiTheme.autoOff
+		badge.Visible = on
 		if not on then
 			stopAsked = false
 		end

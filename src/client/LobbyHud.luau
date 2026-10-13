@@ -19,14 +19,10 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 local HINT_WIDTH = 420
 local HINT_HEIGHT = 40
 local HINT_BOTTOM = 24
-local LEAVE_WIDTH = 240
-local LEAVE_HEIGHT = 60
--- Lifts the button above the stamina bar at the bottom center.
-local LEAVE_BOTTOM = 70
 -- The home icon in the leave button: size, gap to the text and distance to the left edge.
-local LEAVE_ICON_SIZE = 30
-local LEAVE_ICON_GAP = 6
-local LEAVE_ICON_INSET = 14
+local LEAVE_ICON_SIZE = 24
+local LEAVE_ICON_GAP = 4
+local LEAVE_ICON_INSET = 10
 
 local LobbyHud = {}
 
@@ -50,21 +46,21 @@ function LobbyHud.start()
 	hint.Visible = false
 	UiKit.addScale(hint)
 
+	-- The way back sits under the status panel at the top left (only in the arena).
 	local leave = Instance.new("TextButton")
 	leave.Name = "LeaveButton"
-	leave.AnchorPoint = Vector2.new(0.5, 1)
-	leave.Position = UDim2.new(0.5, 0, 1, -LEAVE_BOTTOM)
-	leave.Size = UDim2.fromOffset(LEAVE_WIDTH, LEAVE_HEIGHT)
+	leave.AnchorPoint = Vector2.new(0, 0)
+	leave.Position = UDim2.fromOffset(UiTheme.margin, UiTheme.margin * 2 + UiTheme.statusPanelHeight)
+	leave.Size = UDim2.fromOffset(UiTheme.lobbyButtonWidth, UiTheme.lobbyButtonHeight)
 	leave.FontFace = UiTheme.font
 	leave.TextSize = UiTheme.bodySize
 	leave.TextColor3 = UiTheme.text
-	leave.BackgroundColor3 = UiTheme.panel
-	leave.BackgroundTransparency = UiTheme.panelTransparency
-	leave.AutoButtonColor = true
+	leave.TextStrokeTransparency = 0.2
+	leave.TextStrokeColor3 = UiTheme.outline
 	leave.Visible = false
 	leave.Parent = gui
+	UiKit.styleBubble(leave, UiTheme.lobbyButton)
 	-- The text starts right of the home icon.
-	leave.TextXAlignment = Enum.TextXAlignment.Center
 	local padding = Instance.new("UIPadding")
 	padding.PaddingLeft = UDim.new(0, LEAVE_ICON_SIZE + LEAVE_ICON_GAP)
 	padding.Parent = leave
@@ -72,6 +68,7 @@ function LobbyHud.start()
 	homeIcon.AnchorPoint = Vector2.new(0, 0.5)
 	homeIcon.Position = UDim2.new(0, -(LEAVE_ICON_SIZE + LEAVE_ICON_GAP) + LEAVE_ICON_INSET, 0.5, 0)
 	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.3, 0)
 	corner.Parent = leave
 	UiKit.addScale(leave)
 
