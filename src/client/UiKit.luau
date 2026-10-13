@@ -13,6 +13,10 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 local log = Log.new("UiKit")
 
+-- The close button of a window (base pixels).
+local CLOSE_SIZE = 32
+local CLOSE_MARGIN = 8
+
 local UiKit = {}
 
 -- A ScreenGui that stays after respawn. It keeps the default insets, so it stays out of
@@ -88,6 +92,28 @@ function UiKit.newIcon(parent: Instance, name: string, size: UDim2): GuiObject
 	view.Size = size
 	view.Parent = parent
 	return view
+end
+
+-- A small "X" button in the top right corner of a window; `onClose` runs when it is tapped.
+function UiKit.addCloseButton(window: GuiObject, onClose: () -> ()): TextButton
+	local button = Instance.new("TextButton")
+	button.Name = "CloseButton"
+	button.AnchorPoint = Vector2.new(1, 0)
+	button.Position = UDim2.new(1, -CLOSE_MARGIN, 0, CLOSE_MARGIN)
+	button.Size = UDim2.fromOffset(CLOSE_SIZE, CLOSE_SIZE)
+	button.Text = "X"
+	button.FontFace = UiTheme.font
+	button.TextSize = UiTheme.bodySize
+	button.TextColor3 = UiTheme.text
+	button.BackgroundColor3 = UiTheme.panel
+	button.BackgroundTransparency = UiTheme.panelTransparency
+	button.BorderSizePixel = 0
+	button.AutoButtonColor = true
+	button.Parent = window
+	local corner = Instance.new("UICorner")
+	corner.Parent = button
+	button.Activated:Connect(onClose)
+	return button
 end
 
 -- A semi-transparent rounded panel.

@@ -9,11 +9,13 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local MenuBar = require(Shared:WaitForChild("MenuBar"))
 local Offers = require(Shared:WaitForChild("Offers"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local TimeFormat = require(Shared:WaitForChild("TimeFormat"))
 local OfferConfig = require(Shared:WaitForChild("Config"):WaitForChild("Offers"))
 
+local MenuState = require(script.Parent:WaitForChild("MenuState"))
 local PurchasePrompt = require(script.Parent:WaitForChild("PurchasePrompt"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
@@ -137,13 +139,19 @@ function PotionWindow.start()
 		player:GetAttributeChangedSignal(name):Connect(refresh)
 	end
 
+	-- Open in the booster circle or after a tap on the menu bar; the X closes it.
 	local function applyZone()
-		window.Visible = player:GetAttribute("ZoneId") == "boost"
+		window.Visible = MenuBar.visible(player:GetAttribute("ZoneId"), MenuState.get(), "boost")
 		if window.Visible then
 			refresh()
 		end
 	end
 	player:GetAttributeChangedSignal("ZoneId"):Connect(applyZone)
+	MenuState.changed:Connect(applyZone)
+	UiKit.addCloseButton(window, function()
+		MenuState.close()
+		window.Visible = false
+	end)
 	applyZone()
 	refresh()
 end

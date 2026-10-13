@@ -9,12 +9,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Eggs = require(Shared:WaitForChild("Eggs"))
+local MenuBar = require(Shared:WaitForChild("MenuBar"))
 local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local EggConfig = require(Shared:WaitForChild("Config"):WaitForChild("Eggs"))
 local VariantConfig = require(Shared:WaitForChild("Config"):WaitForChild("Variants"))
 
+local MenuState = require(script.Parent:WaitForChild("MenuState"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
@@ -177,10 +179,16 @@ function EggWindow.start()
 		end)
 	end)
 
+	-- Open in the shop circle or after a tap on the menu bar; the X closes it.
 	local function applyZone()
-		window.Visible = player:GetAttribute("ZoneId") == "shop"
+		window.Visible = MenuBar.visible(player:GetAttribute("ZoneId"), MenuState.get(), "shop")
 	end
 	player:GetAttributeChangedSignal("ZoneId"):Connect(applyZone)
+	MenuState.changed:Connect(applyZone)
+	UiKit.addCloseButton(window, function()
+		MenuState.close()
+		window.Visible = false
+	end)
 	applyZone()
 	refresh()
 end

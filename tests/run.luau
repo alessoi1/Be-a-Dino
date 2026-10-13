@@ -145,6 +145,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/FoodEffect.spec")
 	end,
+	function()
+		require("./specs/MenuBar.spec")
+	end,
 }
 
 local passed = 0

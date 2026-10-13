@@ -509,3 +509,20 @@ Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Scenery.luau` 
 - [ ] **Lianen:** Vom Gerüst der Kuppel hängen grüne Lianen mit Blattkugel herab, rund um die Arena, **nicht** vor dem Sichtfenster; sie stören die Sicht nicht und hängen nicht schief durch die Wandfelsen.
 - [ ] Insgesamt wirkt die Arena abwechslungsreich, nicht überladen; es gibt Engstellen und Deckung für Kleine, aber auch freie Flächen für große Dinos.
 - [ ] Auf dem Handy: gute Bildrate (etwa 150 Teile mehr als vorher). Wenn nötig `vines.count`, `clusters.count` oder `gates.count` senken.
+
+## K5b Menü-Leiste und Bots in der Bestenliste
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Menu.luau`. **Das Layout auf dem Handy zeigt erst Studio.**
+
+Menü-Leiste:
+- [ ] In der Lobby stehen am rechten Rand, in der Mitte, drei Knöpfe übereinander: SHOP, DINODEX, BOOSTERS, mit Icon und Beschriftung. In der Arena und im Todes-Fenster sind sie nicht zu sehen.
+- [ ] Ein Tipp auf SHOP öffnet das Eier-Fenster (ohne im Kreis zu stehen), der Knopf wird orange. Ein zweiter Tipp schließt es. Ein Tipp auf DINODEX wechselt zum Dinodex, auf BOOSTERS zu den Tränken.
+- [ ] Alle drei Fenster haben oben rechts ein X, das sie schließt (auch das Dinodex wie bisher). Nach dem X ist der Knopf wieder grau.
+- [ ] Steht man in einem Kreis, öffnet sich weiter automatisch das Fenster; verlässt man ihn, geht es zu. Kreis und Leiste stören sich nicht (kein Flackern, kein doppeltes Fenster).
+- [ ] Beim Betreten der Arena sind alle Fenster zu; zurück in der Lobby sind sie auch zu.
+- [ ] Die Knöpfe sind auf dem Handy groß genug, liegen nicht über dem Joystick und verdecken die Hinweise („Step into a glowing circle“) nicht. Eier öffnen und Tränke ansehen funktionieren aus der Leiste heraus wie im Kreis.
+
+Bestenliste:
+- [ ] Die Bots stehen mit ihrem Namen in der Liste rechts oben (mit den Spielern gemischt, nach Size sortiert). Die eigene Zeile bleibt gelb.
+- [ ] Die Size der Bots steigt in der Liste mit (kleine Verzögerung), und ein gefressener Bot rutscht nach unten oder verschwindet bis zum Respawn. Ein neuer Bot-Name erscheint nach dem Respawn.
+- [ ] Verlässt ein Bot die Arena (ein Spieler tritt ein), verschwindet er aus der Liste.

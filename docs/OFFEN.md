@@ -49,7 +49,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] K2 Runde Arena unter Glaskuppel (alles auf Radius umgestellt; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K3 Lobby seitlich an der Kuppel mit Sichtfenster (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K4 Name und Size über dem Kopf (Spieler und Bots; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
-- [ ] K5 UI und Icons: **K5a Icons gebaut** (Platzhalter-Symbole, echte Bilder liefert der Spielentwickler, siehe docs/ICONS.md); offen: Hauptmenü und Scoreboard mit Icons (Entscheidung nötig)
+- [x] K5 UI und Icons: K5a Icons (Platzhalter-Symbole, echte Bilder liefert der Spielentwickler, siehe docs/ICONS.md), K5b Hauptmenü-Leiste in der Lobby und Bots in der Bestenliste (Code fertig, Studio-Test offen); ein Size-Icon pro Zeile der Bestenliste ist nicht gebaut
 - [x] K6 Futtermodelle je Größe, Feedback beim Fressen (Code fertig mit Platzhalterformen, echte Meshes und Sound-ID offen; Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K7 Dino-Modelle und Animationen: sechs Blender-Formen mit Laufen waren schon da; neu Idle, Fressen und Körperwippen (Code fertig, Studio-Test offen); eigener Kopf für echtes Beißen offen
 - [x] K8 Dschungel-Feinschliff (Teiche, Engstellen aus Felspaaren, Deckung aus Pflanzengruppen, Lianen; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)

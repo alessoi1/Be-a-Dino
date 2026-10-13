@@ -7,7 +7,7 @@ local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
 
 -- Every icon the interface asks for (UiKit.newIcon by name).
-local REQUIRED = { "size", "coin", "sprint", "stamina", "autofarm", "leaderboard", "lobby" }
+local REQUIRED = { "size", "coin", "sprint", "stamina", "autofarm", "leaderboard", "lobby", "shop", "dex", "boost" }
 
 test("Icons: every icon the interface uses exists", function()
 	for _, name in REQUIRED do
