@@ -20,8 +20,11 @@ return {
 	spawnMargin = 10,
 	-- Eating another player needs this much more size than the victim (1.2 = 20 % more).
 	eatRatio = 1.2,
-	-- Maximum eating distance in studs per unit of the eater's scale.
-	eatDistanceFactor = 1.5,
+	-- Eating needs the bodies to touch: the distance between the two middles may be at most the sum
+	-- of the two scales times this (studs). A dino is about 9 studs long at scale 1, so two dinos of
+	-- scale 1 reach each other from 4.4 studs; the old 1.5 times the eater's scale (1.5 studs) meant a
+	-- dino could run right through another one without eating it.
+	eatReachFactor = 2.2,
 	-- Share of the victim's points the eater receives (0.5 = half).
 	eatPointsShare = 0.5,
 	-- Seconds after a respawn in which a player cannot be eaten.

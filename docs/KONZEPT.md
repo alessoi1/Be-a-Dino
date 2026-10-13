@@ -253,6 +253,8 @@ Der Spielentwickler hat eine Feature-Liste zu Futter, Arena, Lobby, Modellen, Na
 - **Lianen:** 30 Lianen (Stiel und Blattkugel, zwei Teile ohne Kollision) hängen vom untersten Ring der Kuppel, nicht vor dem Sichtfenster.
 Teile: etwa 150 mehr als vorher (Felstore mit Kollision, Gruppen, Teiche, Lianen); die Handy-Leistung ist zu prüfen.
 
+**Fress-Reichweite (korrigiert, 13. Oktober 2026):** Im ersten Studio-Test lief ein Spieler durch einen Bot, ohne gefressen zu werden: Die Reichweite war `1,5 × Größe des Fressers` von Mitte zu Mitte (etwa 1,9 Studs), ein Dino ist aber rund 9 Studs lang. Jetzt gilt: Der Abstand der Mitten darf höchstens `(Größe Fresser + Größe Opfer) × 2,2` sein (`eatReachFactor` in `Config/Arena`), also etwa 4,4 Studs bei zwei Dinos der Größe 1, damit sich die Körper berühren müssen. Die Autofarm rechnet ihre Gefahrenzone genauso.
+
 ## Weiterhin offen
 
 - Kuppel (V3): Durchmesser (Vorschlag 600 Studs), Zahl der echten Rigs für die 50 Dinos (alle einzeln oder pro Körperform mit Variation), Stil der Icons, Lage der Lobby (Seite der Kuppel, Höhe) und ob sie weiter 24 Spieler fasst.

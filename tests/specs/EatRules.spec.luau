@@ -6,7 +6,7 @@ local test = Framework.test
 local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
 
-local config: EatRules.Config = { eatRatio = 1.2, eatDistanceFactor = 1.5 }
+local config: EatRules.Config = { eatRatio = 1.2, eatReachFactor = 2 }
 
 local function eater(): EatRules.Combatant
 	return { id = 1, scale = 3, protectedUntil = 0 }
@@ -33,12 +33,30 @@ test("EatRules: size ratio threshold is exact", function()
 	assertEquals(reason, "too_small")
 end)
 
-test("EatRules: distance limit scales with eater size", function()
-	local ok = EatRules.canEat(config, eater(), victim(), 4.5, 100)
-	assertTrue(ok, "3 * 1.5 = 4.5 is in range")
-	local ok2, reason = EatRules.canEat(config, eater(), victim(), 4.6, 100)
+test("EatRules: the reach grows with both sizes, so touching bodies are in range", function()
+	local ok = EatRules.canEat(config, eater(), victim(), 8, 100)
+	assertTrue(ok, "(3 + 1) * 2 = 8 is in range")
+	local ok2, reason = EatRules.canEat(config, eater(), victim(), 8.1, 100)
 	assertTrue(not ok2)
 	assertEquals(reason, "too_far")
+	-- A bigger victim is reached from farther away: a long body touches earlier.
+	local big = victim()
+	big.scale = 2
+	local ok3 = EatRules.canEat(config, eater(), big, 9.9, 100)
+	assertTrue(ok3, "(3 + 2) * 2 = 10")
+end)
+
+test("EatRules: running into a slightly smaller dino from a body length away is enough", function()
+	-- The log of a real test: scales 1.24 and 1.03, middles 5 studs apart (bodies about 9 long).
+	local real: EatRules.Config = { eatRatio = 1.2, eatReachFactor = 2.2 }
+	local ok = EatRules.canEat(
+		real,
+		{ id = 1, scale = 1.24, protectedUntil = 0 },
+		{ id = 2, scale = 1.03, protectedUntil = 0 },
+		4.9,
+		100
+	)
+	assertTrue(ok)
 end)
 
 test("EatRules: protected victim cannot be eaten until protection ends", function()

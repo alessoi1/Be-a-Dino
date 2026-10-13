@@ -14,7 +14,7 @@ export type Config = {
 }
 
 -- The eating rules (Config/Arena): who could eat me.
-export type Rules = { eatRatio: number, eatDistanceFactor: number }
+export type Rules = { eatRatio: number, eatReachFactor: number }
 
 -- "food": walk to the point. "flee": run to the point, away from a danger. "idle": stay.
 export type Target = { kind: "food" | "flee" | "idle", x: number, z: number }
@@ -31,9 +31,9 @@ local function distanceBetween(ax: number, az: number, bx: number, bz: number): 
 	return math.sqrt(dx * dx + dz * dz)
 end
 
--- Reach of the danger around a player who could eat me.
-local function dangerRadius(other: Other, config: Config, rules: Rules): number
-	return other.scale * rules.eatDistanceFactor + config.dangerMargin
+-- Reach of the danger around a player who could eat me (the bodies must touch: both scales count).
+local function dangerRadius(other: Other, myScale: number, config: Config, rules: Rules): number
+	return (other.scale + myScale) * rules.eatReachFactor + config.dangerMargin
 end
 
 -- The players who could eat me (by the eating rule), with valid numbers only.
@@ -84,7 +84,7 @@ function AutoFarm.pickTarget(
 	local worst: Other? = nil
 	local worstDepth = 0
 	for _, threat in threats do
-		local depth = dangerRadius(threat, config, rules) - distanceBetween(me.x, me.z, threat.x, threat.z)
+		local depth = dangerRadius(threat, me.scale, config, rules) - distanceBetween(me.x, me.z, threat.x, threat.z)
 		if depth > worstDepth then
 			worst = threat
 			worstDepth = depth
@@ -109,7 +109,9 @@ function AutoFarm.pickTarget(
 		if isFinite(food.x) and isFinite(food.z) and isFinite(food.value) and food.value > 0 then
 			local safe = true
 			for _, threat in threats do
-				if distanceBetween(food.x, food.z, threat.x, threat.z) <= dangerRadius(threat, config, rules) then
+				if
+					distanceBetween(food.x, food.z, threat.x, threat.z) <= dangerRadius(threat, me.scale, config, rules)
+				then
 					safe = false
 					break
 				end

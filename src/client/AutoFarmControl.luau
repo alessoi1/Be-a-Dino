@@ -7,6 +7,7 @@
 -- Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
+local StarterPlayer = game:GetService("StarterPlayer")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -32,7 +33,8 @@ local BUTTON_GAP = 12
 local ICON_SHARE = 0.5
 -- Name of the folder with the invisible collision shapes the server builds in the arena.
 local COLLIDER_FOLDER_NAME = "Colliders"
--- Seconds to wait for the Roblox controls module.
+-- Seconds to wait for the Roblox controls module in the PlayerScripts, and then in StarterPlayer.
+local CONTROLS_FIRST_WAIT = 2
 local CONTROLS_WAIT = 10
 
 local log = Log.new("AutoFarmControl")
@@ -108,7 +110,10 @@ function AutoFarmControl.start()
 	local controls: any = nil
 	task.spawn(function()
 		local ok, result = pcall(function()
-			local module = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule", CONTROLS_WAIT)
+			-- Newer Roblox versions keep the PlayerModule in StarterPlayer and run it from there; older
+			-- ones copy it into the PlayerScripts. Both are the same module (one instance).
+			local module = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule", CONTROLS_FIRST_WAIT)
+				or StarterPlayer:WaitForChild("PlayerModule", CONTROLS_WAIT)
 			return require(module :: ModuleScript):GetControls()
 		end)
 		if ok and result ~= nil then

@@ -53,6 +53,14 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] K6 Futtermodelle je Größe, Feedback beim Fressen (Code fertig mit Platzhalterformen, echte Meshes und Sound-ID offen; Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K7 Dino-Modelle und Animationen: sechs Blender-Formen mit Laufen waren schon da; neu Idle, Fressen und Körperwippen (Code fertig, Studio-Test offen); eigener Kopf für echtes Beißen offen
 - [x] K8 Dschungel-Feinschliff (Teiche, Engstellen aus Felspaaren, Deckung aus Pflanzengruppen, Lianen; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
+## Wünsche nach dem ersten Studio-Test (13. Oktober 2026)
+
+- [x] P1 `fix/eat-reach`: Fress-Reichweite („Körper berühren sich“, `eatReachFactor` in `Config/Arena`) und Autofarm findet die Steuerung (PlayerModule liegt in `StarterPlayer`)
+- [ ] P2 UI-Überarbeitung: Sprint-Knopf mit Wort und klarem Stil, Autofarm-Knopf farbig mit Text, „Lobby“-Knopf unter das Statusfeld, Bestenliste in die obere Ecke, Namensschild näher am Kopf
+- [ ] P3 Kuppel mit echtem Glas (durchsichtige Platten zwischen den Rippen)
+- [ ] P4 Lobby als Forschungsstation (auf dem Boden, mit Dach, Fenstern, Einrichtung) und mehr Landschaft in der Arena
+- [ ] P5 Futtermodelle aus Blender (Spielentwickler importiert per Bulk Import und gibt die Mesh-IDs)
+
 - Entfallen laut Entscheidung vom 13. Oktober 2026: Health, Bite, Hunger, Nahrungstyp je Dino.
 
 - Studio-Tests als Checkliste in `docs/TESTLISTE.md` führen (Datei bei Bedarf anlegen, Muster: `docs/TESTLISTE.md` in Glimmer Deep).

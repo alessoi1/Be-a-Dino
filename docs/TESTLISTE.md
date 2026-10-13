@@ -526,3 +526,13 @@ Bestenliste:
 - [ ] Die Bots stehen mit ihrem Namen in der Liste rechts oben (mit den Spielern gemischt, nach Size sortiert). Die eigene Zeile bleibt gelb.
 - [ ] Die Size der Bots steigt in der Liste mit (kleine Verzögerung), und ein gefressener Bot rutscht nach unten oder verschwindet bis zum Respawn. Ein neuer Bot-Name erscheint nach dem Respawn.
 - [ ] Verlässt ein Bot die Arena (ein Spieler tritt ein), verschwindet er aus der Liste.
+
+## P1 Fress-Reichweite und Autofarm-Steuerung
+
+Stand: noch nicht in Studio getestet. Wert: `eatReachFactor` in `src/shared/Config/Arena.luau` (2,2).
+
+- [ ] Ein größerer Dino (mindestens 1,2-mal so groß) frisst einen kleineren, sobald die Körper sich berühren: Läuft man mit einem größeren Dino in einen kleineren Bot, wird der Bot gefressen; läuft man als kleinerer in einen größeren Bot, ist man gefressen. Man kann nicht mehr „durch“ einen Bot laufen, der einen fressen dürfte.
+- [ ] Gleich große Dinos (unter 1,2-mal) berühren sich ohne Folgen; die Schutzzeit (4 Sekunden nach dem Start) schützt weiter.
+- [ ] Die Reichweite wirkt weder zu weit (gefressen, obwohl noch Abstand ist) noch zu knapp. Wenn nicht, `eatReachFactor` ändern (zum Beispiel 1,8 oder 2,6).
+- [ ] **Autofarm:** Mit eingeschaltetem „Auto“ übernimmt man durch Steuern (Tasten, Stick) sofort und der Autofarm geht aus. Im Log steht kein `controls not found` mehr.
+- [ ] Der Autofarm-Dino flieht weiter vor größeren Dinos, rechtzeitig vor der neuen Reichweite.
