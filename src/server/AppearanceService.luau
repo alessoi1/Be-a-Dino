@@ -347,6 +347,8 @@ local function hideAvatar(character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid ~= nil then
 		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+		-- The own name tag (client, NameTags) replaces the one of Roblox.
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	end
 end
 

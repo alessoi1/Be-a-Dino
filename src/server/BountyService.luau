@@ -24,8 +24,8 @@ local MARKER_WIDTH = 190
 local MARKER_HEIGHT = 44
 local MARKER_MAX_DISTANCE = 400
 -- The sign floats this many studs above the figure center, plus more for a bigger figure.
-local MARKER_BASE_HEIGHT = 2
-local MARKER_HEIGHT_PER_SCALE = 4
+local MARKER_BASE_HEIGHT = 8
+local MARKER_HEIGHT_PER_SCALE = 4.4
 -- Seconds between two checks for ended bounties and sign positions.
 local SWEEP_INTERVAL = 1
 
