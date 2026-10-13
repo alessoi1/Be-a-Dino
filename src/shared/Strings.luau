@@ -76,6 +76,10 @@ return {
 		off = "Auto",
 		on = "ON",
 	},
+	hints = {
+		-- At the start of a round, until the first piece is eaten.
+		eatToGrow = "Eat the food to grow!",
+	},
 	status = {
 		-- Shown as "Raptor · 1.2K size" (the size is a short number, see NumberFormat).
 		points = "size",

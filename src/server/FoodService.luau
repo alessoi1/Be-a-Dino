@@ -42,17 +42,47 @@ local folder: Folder? = nil
 
 local FoodService = {}
 
+-- The forms of the stand-in looks (a Part with a SpecialMesh; one form per piece, no extra parts).
+local MESH_TYPES: { [string]: Enum.MeshType } = {
+	ball = Enum.MeshType.Sphere,
+	block = Enum.MeshType.Brick,
+	cylinder = Enum.MeshType.Cylinder,
+	wedge = Enum.MeshType.Wedge,
+}
+
 local function createPart(): Part
 	local part = Instance.new("Part")
 	part.Name = "Food"
-	part.Shape = Enum.PartType.Ball
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
 	part.CanQuery = false
 	part.CastShadow = false
 	part.Material = Enum.Material.SmoothPlastic
+	local mesh = Instance.new("SpecialMesh")
+	mesh.Name = "Look"
+	mesh.Parent = part
 	return part
+end
+
+-- Gives the piece the look of a variant: a simple form, or the mesh once there is one.
+local function applyLook(part: Part, kind: FoodConfig.FoodKind, variant: FoodConfig.FoodVariant)
+	local mesh = part:FindFirstChild("Look")
+	if mesh == nil or not mesh:IsA("SpecialMesh") then
+		return
+	end
+	local scale = Vector3.new(variant.scale.x, variant.scale.y, variant.scale.z)
+	part.Size = Vector3.one * kind.size * scale
+	part.Color = Color3.fromRGB(variant.color.r, variant.color.g, variant.color.b)
+	if variant.meshId ~= 0 then
+		mesh.MeshType = Enum.MeshType.FileMesh
+		mesh.MeshId = "rbxassetid://" .. tostring(variant.meshId)
+		mesh.Scale = Vector3.new(variant.meshScale.x, variant.meshScale.y, variant.meshScale.z)
+	else
+		mesh.MeshType = MESH_TYPES[variant.shape] or Enum.MeshType.Sphere
+		mesh.MeshId = ""
+		mesh.Scale = Vector3.one
+	end
 end
 
 local function roll(): number
@@ -77,9 +107,16 @@ local function placeFood(id: number)
 		return
 	end
 	local part = parts[id]
-	part.Size = Vector3.new(kind.size, kind.size, kind.size)
-	part.Color = Color3.fromRGB(kind.color.r, kind.color.g, kind.color.b)
-	part.Position = Vector3.new(x, kind.size / 2 + FLOAT_HEIGHT, z)
+	local variantIndex = FoodKinds.pickVariant(kind, roll())
+	local variant = kind.variants[variantIndex]
+	if variant ~= nil then
+		applyLook(part, kind, variant)
+	else
+		log.warn("food kind without a look", { kind = kind.id })
+		part.Size = Vector3.one * kind.size
+	end
+	-- Turned at random, so the pieces do not all point the same way.
+	part.CFrame = CFrame.new(x, part.Size.Y / 2 + FLOAT_HEIGHT, z) * CFrame.Angles(0, roll() * math.pi * 2, 0)
 	-- Display only: the autofarm of the client prefers valuable pieces.
 	part:SetAttribute("Value", kind.value)
 	part.Parent = folder

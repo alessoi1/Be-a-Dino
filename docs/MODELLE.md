@@ -66,6 +66,17 @@ Der `AppearanceService` lädt die Meshes beim Start mit `AssetService:CreateMesh
 
 Die Varianten (Glowing, Gold, Shadow, Rainbow, siehe `src/shared/Config/Variants.luau`) färben und beschichten bisher nur die Platzhalter (Rollen `body` und `accent` pro Teil, Material pro Variante). Ein echtes Modell wird noch nicht verändert: Es erscheint immer mit seinen eigenen Farben und ohne Rainbow-Animation. Wie Varianten bei echten Modellen funktionieren (zum Beispiel ein anderes Material und eine Tönung auf den MeshParts, oder Textur-Varianten im Modell), legen wir fest, sobald die ersten echten Modelle da sind. Varianten dürfen dabei nie Hitbox, Größe oder Werte ändern.
 
+## Futter
+
+Jede Futtergröße (klein, mittel, groß; `src/shared/Config/Food.luau`) hat mehrere Aussehen (`variants`). Bis ein Mesh eingetragen ist, wird eine einfache Form gezeichnet (`shape`: ball, block, cylinder, wedge) in der Farbe des Aussehens. Ein echtes Modell einbauen:
+
+1. In Blender ein kleines Low-Poly-Modell (höchstens etwa 300 Dreiecke), Mittelpunkt in der Mitte, Größe etwa 1 Stud (das Spiel skaliert mit `size` der Futtergröße und `scale` des Aussehens).
+2. Wie bei den Dinos als FBX über den Asset Manager hochladen und die **Mesh-ID** kopieren.
+3. In `Config/Food` beim Aussehen `meshId` eintragen und `meshScale` so einstellen, dass das Mesh in das Stück passt (zum Beispiel `1,1,1`). Das Stück bleibt ein Teil, die Farbe kommt aus `color` (Teile ohne Textur werden eingefärbt).
+4. In Studio prüfen: Das Stück sieht richtig aus, steht nicht im Boden und ist nicht zu groß oder zu klein.
+
+**Sound:** Für den Fress-Ton eine Roblox-Sound-ID („rbxassetid://…“) bei `soundId` in `Config/FoodEffects` eintragen (nur eigene oder geprüfte Sounds, kein Toolbox-Ungeprüftes). Ohne ID bleibt es still.
+
 ## Offene Punkte
 
 - Lauf-Animation: Noch nichts vorgesehen. Die Dinos gleiten starr, bis es Rigs und Animationen gibt.
