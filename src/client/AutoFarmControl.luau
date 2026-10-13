@@ -123,11 +123,16 @@ function AutoFarmControl.start()
 	local controls: any = nil
 	task.spawn(function()
 		local ok, result = pcall(function()
-			-- Newer Roblox versions keep the PlayerModule in StarterPlayer and run it from there; older
-			-- ones copy it into the PlayerScripts. Both are the same module (one instance).
-			local module = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule", CONTROLS_FIRST_WAIT)
-				or StarterPlayer:WaitForChild("PlayerModule", CONTROLS_WAIT)
-			return require(module :: ModuleScript):GetControls()
+			-- Older Roblox versions copy the PlayerModule into the PlayerScripts (its controls come from
+			-- GetControls). Newer ones run it from StarterPlayer, where the module itself is empty and
+			-- the ControlModule child holds the controls (and the move vector as `inputMoveVector`).
+			local legacy = player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule", CONTROLS_FIRST_WAIT)
+			if legacy ~= nil then
+				return require(legacy :: ModuleScript):GetControls()
+			end
+			local module = StarterPlayer:WaitForChild("PlayerModule", CONTROLS_WAIT)
+			local controlModule = module:WaitForChild("ControlModule", CONTROLS_WAIT)
+			return require(controlModule :: ModuleScript)
 		end)
 		if ok and result ~= nil then
 			controls = result
@@ -225,7 +230,10 @@ function AutoFarmControl.start()
 		end
 		if controls ~= nil then
 			local ok, vector = pcall(function()
-				return controls:GetMoveVector()
+				if controls.GetMoveVector ~= nil then
+					return controls:GetMoveVector()
+				end
+				return controls.inputMoveVector
 			end)
 			if ok and typeof(vector) == "Vector3" and vector.Magnitude > AutoFarmConfig.manualInputThreshold then
 				-- The player steers: take over and switch the autofarm off.

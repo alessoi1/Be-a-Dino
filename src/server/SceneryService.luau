@@ -321,6 +321,109 @@ local function buildStandIn(parent: Instance, kind: Scenery.PropKind, placed: Sc
 			Enum.Material.Grass
 		)
 		bush.Shape = Enum.PartType.Ball
+	elseif kind.fallback == "mushroom" then
+		-- A giant mushroom: a pale stem and a flat red cap.
+		local stemHeight = size * 0.62
+		Build.cylinder(
+			model,
+			"Stem",
+			stemHeight,
+			size * 0.22,
+			0,
+			placed.x,
+			placed.z,
+			Color3.fromRGB(236, 226, 206),
+			Enum.Material.SmoothPlastic,
+			0
+		)
+		local cap = visualBlock(
+			model,
+			"Cap",
+			Vector3.new(size * 0.85, size * 0.42, size * 0.85),
+			base * CFrame.new(0, stemHeight + size * 0.06, 0),
+			tint,
+			Enum.Material.SmoothPlastic
+		)
+		cap.Shape = Enum.PartType.Ball
+	elseif kind.fallback == "crystal" then
+		-- A cluster of three tilted crystals.
+		for index, lean in { { 0, 0, 1 }, { 0.38, 0.3, 0.7 }, { -0.34, -0.26, 0.55 } } do
+			local height = size * lean[3]
+			local spike = visualBlock(
+				model,
+				"Crystal" .. index,
+				Vector3.new(size * 0.2, height, size * 0.2),
+				base
+					* CFrame.new(lean[2] * size * 0.25, height / 2 - 0.4, lean[1] * size * 0.25)
+					* CFrame.Angles(lean[1], index, lean[2]),
+				tint,
+				Enum.Material.Glass
+			)
+			spike.Transparency = 0.25
+		end
+	elseif kind.fallback == "bones" then
+		-- Giant ribs rising from the ground along a spine.
+		visualBlock(
+			model,
+			"Spine",
+			Vector3.new(size * 0.12, size * 0.1, size),
+			base * CFrame.new(0, size * 0.05, 0),
+			tint,
+			Enum.Material.Marble
+		)
+		for index = 0, 2 do
+			local offset = (index - 1) * size * 0.3
+			for _, side in { -1, 1 } do
+				visualBlock(
+					model,
+					"Rib",
+					Vector3.new(size * 0.06, size * 0.55, size * 0.06),
+					base * CFrame.new(side * size * 0.2, size * 0.27, offset) * CFrame.Angles(0, 0, -side * 0.45),
+					tint,
+					Enum.Material.Marble
+				)
+			end
+		end
+	elseif kind.fallback == "ruin" then
+		-- Three broken pillars of different height and a fallen block.
+		for index, spec in { { -0.28, 0.1, 0.9 }, { 0.3, -0.15, 0.6 }, { 0, 0.3, 0.4 } } do
+			local height = size * spec[3]
+			Build.cylinder(
+				model,
+				"Pillar" .. index,
+				height,
+				size * 0.22,
+				0,
+				(base * CFrame.new(spec[1] * size, 0, spec[2] * size)).Position.X,
+				(base * CFrame.new(spec[1] * size, 0, spec[2] * size)).Position.Z,
+				tint,
+				Enum.Material.Slate,
+				0
+			)
+		end
+		visualBlock(
+			model,
+			"Block",
+			Vector3.new(size * 0.5, size * 0.14, size * 0.2),
+			base * CFrame.new(size * 0.05, size * 0.07, -size * 0.35) * CFrame.Angles(0, 0.5, 0.08),
+			tint,
+			Enum.Material.Slate
+		)
+	elseif kind.fallback == "stump" then
+		-- A wide tree stump with a darker top.
+		Build.cylinder(model, "Stump", size * 0.55, size * 0.9, 0, placed.x, placed.z, tint, Enum.Material.Wood, 0)
+		Build.cylinder(
+			model,
+			"StumpTop",
+			size * 0.04,
+			size * 0.72,
+			size * 0.55,
+			placed.x,
+			placed.z,
+			tint:Lerp(Color3.new(0, 0, 0), 0.3),
+			Enum.Material.Wood,
+			0
+		)
 	elseif kind.fallback == "log" then
 		local trunk = visualBlock(
 			model,

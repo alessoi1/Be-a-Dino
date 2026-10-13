@@ -562,3 +562,23 @@ Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Dome.luau` (`g
 - [ ] Die Glasplatten stören die Kamera und das Fressen nicht (keine Kollision, die Kamera zoomt nicht heran).
 - [ ] Auf dem Handy: gute Bildrate; viel durchsichtiges Glas kostet Leistung. Falls es ruckelt: `transparency` höher setzen oder `ribs` und `ringElevations` verkleinern (weniger Platten).
 - [ ] Wenn das Glas zu dunkel oder zu milchig wirkt: `transparency` (höher = klarer) und `color` in `Config/Dome` anpassen.
+
+## P4 Lobby als Forschungsstation und mehr Landschaft
+
+Stand: im Studio-Start ohne Fehler gelaufen (Log: `lobby station built parts=93`, `props built total=182`), die Optik ist noch nicht angesehen. Werte in `src/shared/Config/LobbyDecor.luau` und `Config/Scenery.luau`.
+
+Lobby:
+- [ ] Die Lobby wirkt wie eine Forschungsstation: Dach mit Glasstreifen, Säulen, Rückwand mit dem Schild „DINO RESEARCH STATION“, niedrige Seitenwände, Lampen, Bänke vor dem Fenster, Pflanzkübel, das Skelett und ein Ring um den Spielkreis. Nichts steht schief, im Boden oder in der Luft.
+- [ ] Das **Sichtfenster** zur Arena ist frei (das Dach und die Bänke verdecken es nicht), und man sieht von den Bänken aus in die Arena.
+- [ ] Die Ranglisten-Tafeln hängen vor der Rückwand, gut lesbar, und das Schild darüber ist nicht abgeschnitten.
+- [ ] Man erscheint nie in einer Bank, einem Kübel, einer Säule oder dem Skelett (mehrfach neu starten und zurück in die Lobby gehen). Die Kreise (PLAY, SHOP, DINODEX, BOOSTERS) sind frei erreichbar.
+- [ ] Die Lampen leuchten schön, aber nicht zu grell; auf dem Handy bleibt die Bildrate gut (4 Lichter, etwa 93 Teile).
+- [ ] Von der Lobby aus sieht man die Kuppel mit Glas und Gerüst und über der Station den Himmel durch den Glasstreifen.
+
+Arena:
+- [ ] Riesenpilze (rote Kappe, heller Stiel), Kristalle (türkis, durchscheinend), Riesen-Rippen, Ruinen (drei Säulen und ein Block) und Baumstümpfe sehen gut aus, stehen auf dem Boden und nicht in Teichen oder Toren. Sie sind nicht zu viele oder zu wenige (Anzahlen in `Config/Scenery`).
+- [ ] Pilze, Kristalle, Ruinen und Stümpfe blockieren (mit Gleiten), die Rippen sind begehbar. Bots und Autofarm laufen darum herum.
+- [ ] Die Arena wirkt abwechslungsreicher; die Bildrate auf dem Handy bleibt gut (Teile im Workspace insgesamt etwa 1.770).
+
+Autofarm-Steuerung:
+- [ ] Im Log steht kein `controls not found`; wer bei eingeschalteter Autofarm steuert (Tasten oder Stick), übernimmt, und die Autofarm geht aus.

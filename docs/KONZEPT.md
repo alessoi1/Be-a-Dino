@@ -257,6 +257,11 @@ Teile: etwa 150 mehr als vorher (Felstore mit Kollision, Gruppen, Teiche, Lianen
 
 **Fress-Reichweite (korrigiert, 13. Oktober 2026):** Im ersten Studio-Test lief ein Spieler durch einen Bot, ohne gefressen zu werden: Die Reichweite war `1,5 × Größe des Fressers` von Mitte zu Mitte (etwa 1,9 Studs), ein Dino ist aber rund 9 Studs lang. Jetzt gilt: Der Abstand der Mitten darf höchstens `(Größe Fresser + Größe Opfer) × 2,2` sein (`eatReachFactor` in `Config/Arena`), also etwa 4,4 Studs bei zwei Dinos der Größe 1, damit sich die Körper berühren müssen. Die Autofarm rechnet ihre Gefahrenzone genauso.
 
+**P4 Lobby und Landschaft (gebaut, 13. Oktober 2026):**
+- **Lobby als Forschungsstation** (`Config/LobbyDecor`, `LobbyDecor`, `LobbyLayout`): Die Lobby bleibt auf dem Boden neben der Kuppel, ist aber jetzt ein Gebäude: ein Dach mit Glasstreifen in der Mitte auf sechs Metallsäulen, eine Rückwand mit dem Schild „DINO RESEARCH STATION“ (dahinter hängen die Ranglisten-Tafeln), niedrige Seitenwände, vier Hängelampen (mit je einem Licht), drei Bänke vor dem Sichtfenster, sechs Pflanzkübel, ein Ring um den Spielkreis und ein **Dino-Skelett** auf einem Sockel. Rund 93 Teile. Der Spawn meidet alles (`LobbyLayout.circles`), und ein Test prüft, dass nichts in der Wand, am Rand oder in den Kreisen steht.
+- **Mehr Landschaft in der Arena** (fünf neue Props aus einfachen Teilen, bis es Meshes gibt): **Riesenpilze** (6), **Kristallgruppen** (5), **Riesen-Rippen** (3), **Ruinen** aus drei Säulen (4) und **Baumstümpfe** (6), mit Kollision, wo es passt. Sie werden wie die anderen Props verteilt und halten Abstand zu Teichen, Toren und Deckung.
+- **Autofarm-Steuerung (Korrektur):** Im Playtest zeigte sich, dass das `PlayerModule` in `StarterPlayer` leer ist; die Steuerung steckt im `ControlModule` (Vektor `inputMoveVector`). Die Autofarm liest sie jetzt von dort (vorher blieb `controls not found`).
+
 ## Weiterhin offen
 
 - Kuppel (V3): Durchmesser (Vorschlag 600 Studs), Zahl der echten Rigs für die 50 Dinos (alle einzeln oder pro Körperform mit Variation), Stil der Icons, Lage der Lobby (Seite der Kuppel, Höhe) und ob sie weiter 24 Spieler fasst.
