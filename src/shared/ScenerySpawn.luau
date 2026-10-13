@@ -185,6 +185,19 @@ function ScenerySpawn.patches(
 	return patches
 end
 
+-- The solid discs of the placed props, for the steering around them (Avoidance). `radii` is the
+-- radius of the collision shape per prop id; props without an entry are not solid.
+function ScenerySpawn.obstacles(placed: { Placed }, radii: { [string]: number }): { Disc }
+	local discs: { Disc } = {}
+	for _, prop in placed do
+		local radius = radii[prop.id]
+		if radius ~= nil and radius > 0 then
+			table.insert(discs, { x = prop.x, z = prop.z, r = radius })
+		end
+	end
+	return discs
+end
+
 -- Whether a spot is at least `gap` studs away from every prop (its own radius counts).
 function ScenerySpawn.clearOfProps(x: number, z: number, props: { Placed }, gap: number): boolean
 	for _, prop in props do

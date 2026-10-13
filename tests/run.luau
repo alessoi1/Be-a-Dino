@@ -124,6 +124,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/ScenerySpawn.spec")
 	end,
+	function()
+		require("./specs/Avoidance.spec")
+	end,
 }
 
 local passed = 0

@@ -13,11 +13,13 @@ local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local AutoFarm = require(Shared:WaitForChild("AutoFarm"))
+local Avoidance = require(Shared:WaitForChild("Avoidance"))
 local Log = require(Shared:WaitForChild("Log"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local AutoFarmConfig = require(Shared:WaitForChild("Config"):WaitForChild("AutoFarm"))
+local CollisionConfig = require(Shared:WaitForChild("Config"):WaitForChild("Collision"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
@@ -26,6 +28,8 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 -- Same distance to the right and bottom edge as the sprint button, and a gap above it (base pixels).
 local BUTTON_MARGIN = 24
 local BUTTON_GAP = 12
+-- Name of the folder with the invisible collision shapes the server builds in the arena.
+local COLLIDER_FOLDER_NAME = "Colliders"
 -- Seconds to wait for the Roblox controls module.
 local CONTROLS_WAIT = 10
 
@@ -106,6 +110,24 @@ function AutoFarmControl.start()
 		end
 	end)
 
+	-- The solid props as discs, read from the collision shapes once they exist (they never move).
+	local obstacles: { Avoidance.Disc } = {}
+	local obstaclesLoaded = false
+	local function loadObstacles()
+		local folder = workspace:FindFirstChild(COLLIDER_FOLDER_NAME, true)
+		if folder == nil then
+			return
+		end
+		for _, part in folder:GetChildren() do
+			local radius = part:GetAttribute("Radius")
+			if part:IsA("BasePart") and typeof(radius) == "number" then
+				table.insert(obstacles, { x = part.Position.X, z = part.Position.Z, r = radius })
+			end
+		end
+		obstaclesLoaded = true
+		log.info("obstacles read", { count = #obstacles })
+	end
+
 	-- Reads food and players and walks to the chosen target.
 	local function step()
 		local character = player.Character
@@ -147,11 +169,24 @@ function AutoFarmControl.start()
 			end
 		end
 
+		if not obstaclesLoaded then
+			loadObstacles()
+		end
+
 		local target = AutoFarm.pickTarget(AutoFarmConfig, Arena, me, foods, others, Arena.size)
 		if target.kind == "idle" then
 			humanoid:MoveTo(root.Position)
 		else
-			humanoid:MoveTo(Vector3.new(target.x, root.Position.Y, target.z))
+			-- Walk around trees and rocks on the way.
+			local waypoint = Avoidance.steer(
+				{ x = me.x, z = me.z },
+				{ x = target.x, z = target.z },
+				obstacles,
+				me.scale * CollisionConfig.bodyRadiusPerScale + CollisionConfig.margin,
+				CollisionConfig.lookAhead,
+				CollisionConfig.maxDetours
+			)
+			humanoid:MoveTo(Vector3.new(waypoint.x, root.Position.Y, waypoint.z))
 		end
 	end
 

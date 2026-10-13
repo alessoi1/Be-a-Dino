@@ -4,6 +4,16 @@
 
 export type RGB = { r: number, g: number, b: number }
 
+-- The invisible solid shape of a prop. A "cylinder" is upright with `radius`; a "box" is
+-- `width` (along the prop) by `depth`, turned like the prop. Both are `height` tall.
+export type Collider = {
+	shape: "cylinder" | "box",
+	radius: number,
+	width: number,
+	depth: number,
+	height: number,
+}
+
 export type PropKind = {
 	id: string,
 	count: number,
@@ -19,10 +29,20 @@ export type PropKind = {
 	scale: number,
 	-- Color of the stand-in.
 	color: RGB,
+	-- What blocks dinos. nil = they walk through it (bushes and ferns are cover, not walls).
+	collider: Collider?,
 }
 
 local function rgb(r: number, g: number, b: number): RGB
 	return { r = r, g = g, b = b }
+end
+
+local function cylinder(radius: number, height: number): Collider
+	return { shape = "cylinder", radius = radius, width = 0, depth = 0, height = height }
+end
+
+local function box(width: number, depth: number, height: number): Collider
+	return { shape = "box", radius = 0, width = width, depth = depth, height = height }
 end
 
 local props: { PropKind } = {
@@ -35,6 +55,7 @@ local props: { PropKind } = {
 		fallbackSize = 13,
 		scale = 1,
 		color = rgb(60, 118, 52),
+		collider = cylinder(1.3, 40),
 	},
 	{
 		id = "Palm",
@@ -45,6 +66,7 @@ local props: { PropKind } = {
 		fallbackSize = 10,
 		scale = 1,
 		color = rgb(80, 146, 58),
+		collider = cylinder(1.1, 40),
 	},
 	{
 		id = "RockBig",
@@ -55,6 +77,7 @@ local props: { PropKind } = {
 		fallbackSize = 6,
 		scale = 1,
 		color = rgb(108, 102, 94),
+		collider = cylinder(4, 14),
 	},
 	{
 		id = "Rock",
@@ -65,6 +88,7 @@ local props: { PropKind } = {
 		fallbackSize = 2.6,
 		scale = 1,
 		color = rgb(126, 121, 112),
+		collider = cylinder(1.8, 6),
 	},
 	{
 		id = "Bush",
@@ -95,6 +119,7 @@ local props: { PropKind } = {
 		fallbackSize = 7.5,
 		scale = 1,
 		color = rgb(100, 72, 50),
+		collider = box(7, 1.8, 4),
 	},
 }
 

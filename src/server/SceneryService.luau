@@ -1,7 +1,8 @@
 --!strict
 -- The look of the arena: warm light and haze, moss floor with patches and dirt paths, rock
 -- walls, the waterhole with a stone ring, and trees, rocks and plants spread over the floor.
--- Everything except the walls themselves is looks only (no collision). Only checkable in Roblox Studio.
+-- Everything except the walls themselves is looks only; trees, rocks and logs are made solid by
+-- invisible collision shapes (the "Colliders" folder). Only checkable in Roblox Studio.
 
 local AssetService = game:GetService("AssetService")
 local Lighting = game:GetService("Lighting")
@@ -12,6 +13,7 @@ local Log = require(Shared:WaitForChild("Log"))
 local ScenerySpawn = require(Shared:WaitForChild("ScenerySpawn"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
+local CollisionConfig = require(Shared:WaitForChild("Config"):WaitForChild("Collision"))
 local Scenery = require(Shared:WaitForChild("Config"):WaitForChild("Scenery"))
 
 local Build = require(script.Parent:WaitForChild("Build"))
@@ -27,6 +29,12 @@ local SceneryService = {}
 
 -- Props placed in the arena (set by build, read when somebody spawns).
 local placedProps: { ScenerySpawn.Placed } = {}
+-- The solid props as discs (set by build, read by the bots to walk around them).
+local solidDiscs: { ScenerySpawn.Disc } = {}
+-- Transparency of the collision shapes when they are shown for checking.
+local SHOWN_COLLIDER_TRANSPARENCY = 0.6
+local COLLIDER_FOLDER_NAME = "Colliders"
+local COLLIDER_COLOR = Color3.fromRGB(255, 60, 60)
 
 local function color(value: Scenery.RGB): Color3
 	return Color3.fromRGB(value.r, value.g, value.b)
@@ -408,6 +416,75 @@ local function buildProps(folder: Instance, props: { ScenerySpawn.Placed })
 	log.info("props built", { total = #props, withMesh = meshCount })
 end
 
+-- Radius of the disc a collider takes up on the floor (for the steering).
+local function colliderRadius(collider: Scenery.Collider): number
+	if collider.shape == "cylinder" then
+		return collider.radius
+	end
+	return math.max(collider.width, collider.depth) / 2
+end
+
+-- Invisible solid shapes for the props that block: smooth cylinders where possible, so a dino
+-- slides along them instead of sticking. They cannot be hit by queries (the camera ignores them)
+-- and carry their radius as an attribute for the autofarm on the client.
+local function buildColliders(parent: Instance, props: { ScenerySpawn.Placed })
+	local byId: { [string]: Scenery.PropKind } = {}
+	local radii: { [string]: number } = {}
+	for _, kind in Scenery.props do
+		byId[kind.id] = kind
+		if kind.collider ~= nil then
+			radii[kind.id] = colliderRadius(kind.collider)
+		end
+	end
+	solidDiscs = ScenerySpawn.obstacles(props, radii)
+
+	local folder = Instance.new("Folder")
+	folder.Name = COLLIDER_FOLDER_NAME
+	local transparency = if CollisionConfig.showColliders then SHOWN_COLLIDER_TRANSPARENCY else 1
+	local built = 0
+	for _, placed in props do
+		local kind = byId[placed.id]
+		local collider = if kind ~= nil then kind.collider else nil
+		if collider ~= nil then
+			local part: Part
+			if collider.shape == "cylinder" then
+				part = Build.cylinder(
+					folder,
+					"Collider_" .. placed.id,
+					collider.height,
+					collider.radius * 2,
+					0,
+					placed.x,
+					placed.z,
+					COLLIDER_COLOR,
+					Enum.Material.SmoothPlastic,
+					transparency
+				)
+			else
+				part = Build.block(
+					folder,
+					"Collider_" .. placed.id,
+					Vector3.new(collider.width, collider.height, collider.depth),
+					Vector3.new(placed.x, collider.height / 2, placed.z),
+					COLLIDER_COLOR,
+					Enum.Material.SmoothPlastic,
+					transparency,
+					true
+				)
+				part.CFrame = CFrame.new(placed.x, collider.height / 2, placed.z) * CFrame.Angles(0, placed.yaw, 0)
+			end
+			part.CanCollide = true
+			part.CanQuery = false
+			part.CanTouch = false
+			part.CastShadow = false
+			part:SetAttribute("Radius", colliderRadius(collider))
+			built += 1
+		end
+	end
+	folder.Parent = parent
+	log.info("colliders built", { count = built, shown = CollisionConfig.showColliders })
+end
+
 -- Spreads the props over the floor with space around the waterhole and the walls, remembers
 -- where they are, and builds them. The loading of meshes may wait, so it runs on its own.
 local function placeProps(folder: Instance, half: number)
@@ -426,6 +503,8 @@ local function placeProps(folder: Instance, half: number)
 	if #placedProps < wanted then
 		log.warn("not every prop found room", { placed = #placedProps, wanted = wanted })
 	end
+
+	buildColliders(folder, placedProps)
 
 	local propFolder = Instance.new("Folder")
 	propFolder.Name = "Props"
@@ -470,6 +549,11 @@ function SceneryService.build(folder: Instance)
 	buildWallRocks(decoration, half, rng)
 	placeProps(decoration, half)
 	log.info("scenery built")
+end
+
+-- The solid props as discs on the floor, for the steering of the bots.
+function SceneryService.obstacles(): { ScenerySpawn.Disc }
+	return solidDiscs
 end
 
 -- Whether a spawn spot is far enough from every prop.

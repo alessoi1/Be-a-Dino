@@ -176,3 +176,34 @@ test("ScenerySpawn: patches lie fully inside the arena", function()
 		assertTrue(patch.tone >= 1 and patch.tone <= #ground.patchColors)
 	end
 end)
+
+test("ScenerySpawn: obstacles are the props that have a collision radius", function()
+	local placed: { ScenerySpawn.Placed } = {
+		{ id = "Tree", x = 10, z = -4, yaw = 0, radius = 5 },
+		{ id = "Fern", x = 1, z = 2, yaw = 0, radius = 2 },
+	}
+	local discs = ScenerySpawn.obstacles(placed, { Tree = 1.3 })
+	assertEquals(#discs, 1)
+	assertEquals(discs[1].x, 10)
+	assertEquals(discs[1].z, -4)
+	assertEquals(discs[1].r, 1.3)
+end)
+
+test("ScenerySpawn: every collider in the config has a usable size", function()
+	local solid = 0
+	for _, kind in Scenery.props do
+		local collider = kind.collider
+		if collider ~= nil then
+			solid += 1
+			assertTrue(collider.height > 0, kind.id .. " height")
+			if collider.shape == "cylinder" then
+				assertTrue(collider.radius > 0, kind.id .. " radius")
+				assertTrue(collider.radius <= kind.radius, kind.id .. " collider inside its free space")
+			else
+				assertTrue(collider.width > 0 and collider.depth > 0, kind.id .. " box size")
+				assertTrue(collider.width / 2 <= kind.radius, kind.id .. " collider inside its free space")
+			end
+		end
+	end
+	assertTrue(solid > 0, "some props are solid")
+end)
