@@ -244,6 +244,13 @@ Der Spielentwickler hat eine Feature-Liste zu Futter, Arena, Lobby, Modellen, Na
 
 8. **K8 Dschungel-Feinschliff:** Farne, Lianen, Wasser, Deckung und Engstellen, Spielbarkeit für Kleine und Große (mit Messdaten aus Studio).
 
+**K8 Dschungel-Feinschliff (gebaut, 13. Oktober 2026):** Vier Dinge machen die Arena spielbarer und dschungeliger (alle Werte in `Config/Scenery`, Platzierung als reine Logik in `ScenerySpawn`, getestet):
+- **Teiche:** 4 flache, begehbare Teiche (Radius 14 bis 24) mit Sandufer; Pflanzen und Felsen halten Abstand. Nur Optik.
+- **Engstellen:** 8 **Felstore** aus je zwei großen Felsen (`RockBig`, mit Kollision) mit einer Lücke von 7, 12 oder 20 Studs zwischen den Kanten. Kleine Dinos schlüpfen durch die engen Tore, große müssen drumherum (Verstecke und Fluchtwege für Kleine, Engpässe für Große). Bots und Autofarm laufen nicht durch die Lücken, sondern um die Felsen herum.
+- **Deckung:** 6 Gruppen aus je 5 bis 8 Büschen und Farnen (begehbar, wie bisher); man versteckt sich nur optisch. Die Einzelbüsche wurden dafür von je 26 auf 10 und 12 verringert.
+- **Lianen:** 30 Lianen (Stiel und Blattkugel, zwei Teile ohne Kollision) hängen vom untersten Ring der Kuppel, nicht vor dem Sichtfenster.
+Teile: etwa 150 mehr als vorher (Felstore mit Kollision, Gruppen, Teiche, Lianen); die Handy-Leistung ist zu prüfen.
+
 ## Weiterhin offen
 
 - Kuppel (V3): Durchmesser (Vorschlag 600 Studs), Zahl der echten Rigs für die 50 Dinos (alle einzeln oder pro Körperform mit Variation), Stil der Icons, Lage der Lobby (Seite der Kuppel, Höhe) und ob sie weiter 24 Spieler fasst.

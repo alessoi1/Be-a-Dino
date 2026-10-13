@@ -10,11 +10,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
+local DomeShape = require(Shared:WaitForChild("DomeShape"))
 local ScenerySpawn = require(Shared:WaitForChild("ScenerySpawn"))
 local WallWindow = require(Shared:WaitForChild("WallWindow"))
 local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 local CollisionConfig = require(Shared:WaitForChild("Config"):WaitForChild("Collision"))
+local DomeConfig = require(Shared:WaitForChild("Config"):WaitForChild("Dome"))
 local Scenery = require(Shared:WaitForChild("Config"):WaitForChild("Scenery"))
 
 local Build = require(script.Parent:WaitForChild("Build"))
@@ -483,21 +485,169 @@ local function buildColliders(parent: Instance, props: { ScenerySpawn.Placed })
 	log.info("colliders built", { count = built, shown = CollisionConfig.showColliders })
 end
 
--- Spreads the props over the floor with space around the waterhole and the walls, remembers
--- where they are, and builds them. The loading of meshes may wait, so it runs on its own.
-local function placeProps(folder: Instance, radius: number)
+-- Shallow ponds: a sandy shore and the water on it. Walkable, looks only.
+local function buildPonds(folder: Instance, ponds: { ScenerySpawn.Disc })
+	local config = Scenery.ponds
+	local shoreBottom = config.baseHeight
+	local waterBottom = shoreBottom + config.shoreThickness
+	for _, pond in ponds do
+		Build.cylinder(
+			folder,
+			"PondShore",
+			config.shoreThickness,
+			pond.r * 2,
+			shoreBottom,
+			pond.x,
+			pond.z,
+			color(config.shoreColor),
+			Enum.Material.Sand,
+			0
+		)
+		Build.cylinder(
+			folder,
+			"PondWater",
+			config.waterThickness,
+			math.max(1, pond.r - config.shoreWidth) * 2,
+			waterBottom,
+			pond.x,
+			pond.z,
+			color(config.waterColor),
+			material(config.waterMaterial),
+			config.waterTransparency
+		)
+	end
+	log.info("ponds built", { count = #ponds })
+end
+
+-- Vines hang from the lowest ring beam of the dome, in front of the wall rocks. Not in front of the
+-- viewing window. Each is a thin stem and a leaf ball (two parts, no collision).
+local function buildVines(folder: Instance, rng: () -> number)
+	local config = Scenery.vines
+	local domeRadius = Arena.radius + Arena.wallThickness / 2
+	local elevation = math.rad(DomeConfig.frame.ringElevations[1])
+	local vines = ScenerySpawn.vines(
+		config.count,
+		config.minLength,
+		config.maxLength,
+		config.maxTilt,
+		function(angle: number): boolean
+			-- The directions of ScenerySpawn are from +X toward +Z, like the wall pieces.
+			return WallWindow.looksThrough(angle, Arena.wallSegments, Arena.windowAngleDegrees, Arena.windowSegments, 1)
+		end,
+		rng
+	)
+	local stemTint = color(config.stemColor)
+	local leafTint = color(config.leafColor)
+	for _, vine in vines do
+		local x, y, z = DomeShape.point(domeRadius, vine.angle, elevation)
+		x, z = x * config.inset, z * config.inset
+		local top = Vector3.new(x, y, z)
+		local base = CFrame.new(top) * CFrame.Angles(vine.tiltX, 0, vine.tiltZ)
+		visualBlock(
+			folder,
+			"Vine",
+			Vector3.new(config.thickness, vine.length, config.thickness),
+			base * CFrame.new(0, -vine.length / 2, 0),
+			stemTint,
+			Enum.Material.Grass
+		)
+		local leaf = visualBlock(
+			folder,
+			"VineLeaf",
+			Vector3.one * config.leafSize,
+			base * CFrame.new(0, -vine.length, 0),
+			leafTint,
+			Enum.Material.Grass
+		)
+		leaf.Shape = Enum.PartType.Ball
+	end
+	log.info("vines built", { count = #vines })
+end
+
+-- Spreads the props over the floor and remembers where they are, then builds them: first the
+-- chokepoints (pairs of rocks) and the cover (groups of plants), then the single props with space
+-- around the waterhole, the ponds, these groups and the walls. The loading of meshes may wait, so
+-- it runs on its own.
+local function placeProps(folder: Instance, radius: number, ponds: { ScenerySpawn.Disc })
 	local placement = Scenery.placement
 	local oasis = FoodConfig.zones.center
-	local exclusions =
+	local exclusions: { ScenerySpawn.Disc } =
 		{ { x = 0, z = 0, r = oasis.radius + Scenery.waterhole.ringStoneMax + placement.waterholeClearance } }
+	for _, pond in ponds do
+		table.insert(exclusions, { x = pond.x, z = pond.z, r = pond.r + Scenery.ponds.clearance })
+	end
+
+	local byId: { [string]: Scenery.PropKind } = {}
+	for _, kind in Scenery.props do
+		byId[kind.id] = kind
+	end
+	local rng = makeRandom()
+	local placed: { ScenerySpawn.Placed } = {}
+
+	-- Chokepoints from the rocks of the gate prop.
+	local gateRock = byId[Scenery.gates.rockId]
+	local gateCollider = if gateRock ~= nil then gateRock.collider else nil
+	if gateRock ~= nil and gateCollider ~= nil then
+		local gates = ScenerySpawn.gates(
+			radius,
+			placement.wallMargin,
+			exclusions,
+			Scenery.gates.count,
+			Scenery.gates.gaps,
+			colliderRadius(gateCollider),
+			placement.candidates,
+			rng
+		)
+		for _, gate in gates do
+			for _, rock in gate.rocks do
+				table.insert(
+					placed,
+					{ id = gateRock.id, x = rock.x, z = rock.z, yaw = rng() * math.pi * 2, radius = gateRock.radius }
+				)
+			end
+			table.insert(exclusions, { x = gate.x, z = gate.z, r = gate.reach + Scenery.gates.clearance })
+		end
+		log.info("gates placed", { count = #gates, wanted = Scenery.gates.count })
+	else
+		log.warn("gate rock prop has no collider, no gates", { id = Scenery.gates.rockId })
+	end
+
+	-- Cover: groups of bushes and ferns.
+	local radii: { [string]: number } = {}
+	for _, id in Scenery.clusters.ids do
+		radii[id] = if byId[id] ~= nil then byId[id].radius else 1
+	end
+	local clusters = ScenerySpawn.clusters(
+		radius,
+		placement.wallMargin,
+		exclusions,
+		Scenery.clusters.count,
+		Scenery.clusters.minMembers,
+		Scenery.clusters.maxMembers,
+		Scenery.clusters.spread,
+		Scenery.clusters.ids,
+		radii,
+		placement.candidates,
+		rng
+	)
+	for _, cluster in clusters do
+		for _, member in cluster.members do
+			table.insert(placed, member)
+		end
+		table.insert(exclusions, { x = cluster.x, z = cluster.z, r = Scenery.clusters.spread + 2 })
+	end
+	log.info("cover placed", { clusters = #clusters, wanted = Scenery.clusters.count })
+
 	local kinds: { ScenerySpawn.Kind } = {}
 	local wanted = 0
 	for _, kind in Scenery.props do
 		table.insert(kinds, { id = kind.id, count = kind.count, radius = kind.radius })
 		wanted += kind.count
 	end
-	placedProps =
-		ScenerySpawn.scatter(radius, placement.wallMargin, exclusions, kinds, placement.candidates, makeRandom())
+	for _, prop in ScenerySpawn.scatter(radius, placement.wallMargin, exclusions, kinds, placement.candidates, rng) do
+		table.insert(placed, prop)
+	end
+	placedProps = placed
 	if #placedProps < wanted then
 		log.warn("not every prop found room", { placed = #placedProps, wanted = wanted })
 	end
@@ -547,7 +697,22 @@ function SceneryService.build(folder: Instance)
 	buildPaths(decoration, radius, rng)
 	buildWaterhole(decoration, rng)
 	buildWallRocks(decoration, radius, rng)
-	placeProps(decoration, radius)
+
+	-- Ponds first: the props keep away from them.
+	local oasis = FoodConfig.zones.center
+	local ponds = ScenerySpawn.ponds(
+		radius,
+		Scenery.placement.wallMargin,
+		{ { x = 0, z = 0, r = oasis.radius + Scenery.waterhole.ringStoneMax + Scenery.placement.waterholeClearance } },
+		Scenery.ponds.count,
+		Scenery.ponds.minRadius,
+		Scenery.ponds.maxRadius,
+		Scenery.placement.candidates,
+		rng
+	)
+	buildPonds(decoration, ponds)
+	buildVines(decoration, rng)
+	placeProps(decoration, radius, ponds)
 	log.info("scenery built")
 end
 

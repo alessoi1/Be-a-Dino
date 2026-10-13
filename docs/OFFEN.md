@@ -52,7 +52,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [ ] K5 UI und Icons: **K5a Icons gebaut** (Platzhalter-Symbole, echte Bilder liefert der Spielentwickler, siehe docs/ICONS.md); offen: Hauptmenü und Scoreboard mit Icons (Entscheidung nötig)
 - [x] K6 Futtermodelle je Größe, Feedback beim Fressen (Code fertig mit Platzhalterformen, echte Meshes und Sound-ID offen; Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K7 Dino-Modelle und Animationen: sechs Blender-Formen mit Laufen waren schon da; neu Idle, Fressen und Körperwippen (Code fertig, Studio-Test offen); eigener Kopf für echtes Beißen offen
-- [ ] K8 Dschungel-Feinschliff (Deckung, Engstellen, Lianen, Wasser)
+- [x] K8 Dschungel-Feinschliff (Teiche, Engstellen aus Felspaaren, Deckung aus Pflanzengruppen, Lianen; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - Entfallen laut Entscheidung vom 13. Oktober 2026: Health, Bite, Hunger, Nahrungstyp je Dino.
 
 - Studio-Tests als Checkliste in `docs/TESTLISTE.md` führen (Datei bei Bedarf anlegen, Muster: `docs/TESTLISTE.md` in Glimmer Deep).
