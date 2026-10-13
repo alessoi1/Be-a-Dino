@@ -10,7 +10,8 @@ export type FoodVariant = {
 	id: string,
 	shape: string,
 	meshId: number,
-	-- Scale of the mesh (only with a meshId): how big the mesh shows inside the piece.
+	-- Only with a meshId: the mesh is drawn as big as the piece times this factor. 1 fits the meshes of
+	-- tools/blender/food.py (about 1 stud long); change it when a mesh looks too big or too small.
 	meshScale: Vec,
 	-- Stretches the piece; multiplied by the size of the kind.
 	scale: Vec,
@@ -50,6 +51,9 @@ local function look(id: string, shape: string, color: RGB, scale: Vec, weight: n
 	}
 end
 
+-- The mesh of a look is the piece `food_<Id>` of assets/blender/food.fbx (berry = food_Berry, leaf =
+-- food_Leaf, and so on; see docs/MODELLE.md). Until its `meshId` is set, the stand-in form is drawn.
+--
 -- Small pieces are berries and leaves, medium ones fruit and mushrooms, big ones meat, fish and
 -- eggs. The looks are stand-ins from simple forms; real models replace them one by one by setting
 -- `meshId` (see docs/MODELLE.md).

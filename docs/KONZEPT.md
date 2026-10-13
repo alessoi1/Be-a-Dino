@@ -262,6 +262,8 @@ Teile: etwa 150 mehr als vorher (Felstore mit Kollision, Gruppen, Teiche, Lianen
 - **Mehr Landschaft in der Arena** (fünf neue Props aus einfachen Teilen, bis es Meshes gibt): **Riesenpilze** (6), **Kristallgruppen** (5), **Riesen-Rippen** (3), **Ruinen** aus drei Säulen (4) und **Baumstümpfe** (6), mit Kollision, wo es passt. Sie werden wie die anderen Props verteilt und halten Abstand zu Teichen, Toren und Deckung.
 - **Autofarm-Steuerung (Korrektur):** Im Playtest zeigte sich, dass das `PlayerModule` in `StarterPlayer` leer ist; die Steuerung steckt im `ControlModule` (Vektor `inputMoveVector`). Die Autofarm liest sie jetzt von dort (vorher blieb `controls not found`).
 
+**P5 Futtermodelle (13. Oktober 2026):** Für alle neun Aussehen (Beere, Blatt, Samen, Frucht, Melone, Pilz, Fleisch, Fisch, Ei) gibt es jetzt echte Low-Poly-Modelle aus Blender (`tools/blender/food.py`, `assets/blender/food.fbx`, 20 bis 80 Dreiecke je Stück, bemalt mit Vertex-Farben im Stil der Dinos). Sie werden erst gezeigt, wenn der Spielentwickler die FBX-Datei in Studio importiert und die neun Mesh-IDs in `Config/Food` einträgt (Anleitung in `docs/MODELLE.md`); bis dahin bleiben die einfachen Formen. Mit Mesh bleibt das Teil weiß, damit die gemalten Farben zu sehen sind, und das Mesh wird so groß gezeichnet wie das Stück. Unsicher ist, ob ein `SpecialMesh` die Vertex-Farben zeigt (nur in Studio prüfbar); sonst kommt ein Umbau auf MeshParts.
+
 ## Weiterhin offen
 
 - Kuppel (V3): Durchmesser (Vorschlag 600 Studs), Zahl der echten Rigs für die 50 Dinos (alle einzeln oder pro Körperform mit Variation), Stil der Icons, Lage der Lobby (Seite der Kuppel, Höhe) und ob sie weiter 24 Spieler fasst.

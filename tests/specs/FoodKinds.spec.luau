@@ -2,6 +2,7 @@
 local Framework = require("../Framework")
 local FoodKinds = require("../../src/shared/FoodKinds")
 local FoodConfig = require("../../src/shared/Config/Food")
+local fs = require("@lune/fs")
 
 local test = Framework.test
 local assertEquals = Framework.assertEquals
@@ -183,5 +184,19 @@ end)
 test("FoodKinds: every kind in the real config has several looks", function()
 	for _, food in FoodConfig.kinds do
 		assertTrue(#food.variants >= 2, food.id .. " should have at least two looks")
+	end
+end)
+
+test("FoodKinds: every look has its mesh in the Blender file and the exported FBX", function()
+	local script = fs.readFile("tools/blender/food.py")
+	assertTrue(fs.isFile("assets/blender/food.fbx"), "assets/blender/food.fbx is there")
+	for _, food in FoodConfig.kinds do
+		for _, variant in food.variants do
+			local name = string.upper(string.sub(variant.id, 1, 1)) .. string.sub(variant.id, 2)
+			assertTrue(
+				string.find(script, '"' .. name .. '": build_' .. variant.id, 1, true) ~= nil,
+				variant.id .. " is built in food.py"
+			)
+		end
 	end
 end)

@@ -79,10 +79,11 @@ Die Varianten (Glowing, Gold, Shadow, Rainbow, siehe `src/shared/Config/Variants
 
 Jede Futtergröße (klein, mittel, groß; `src/shared/Config/Food.luau`) hat mehrere Aussehen (`variants`). Bis ein Mesh eingetragen ist, wird eine einfache Form gezeichnet (`shape`: ball, block, cylinder, wedge) in der Farbe des Aussehens. Ein echtes Modell einbauen:
 
-1. In Blender ein kleines Low-Poly-Modell (höchstens etwa 300 Dreiecke), Mittelpunkt in der Mitte, Größe etwa 1 Stud (das Spiel skaliert mit `size` der Futtergröße und `scale` des Aussehens).
-2. Wie bei den Dinos als FBX über den Asset Manager hochladen und die **Mesh-ID** kopieren.
-3. In `Config/Food` beim Aussehen `meshId` eintragen und `meshScale` so einstellen, dass das Mesh in das Stück passt (zum Beispiel `1,1,1`). Das Stück bleibt ein Teil, die Farbe kommt aus `color` (Teile ohne Textur werden eingefärbt).
-4. In Studio prüfen: Das Stück sieht richtig aus, steht nicht im Boden und ist nicht zu groß oder zu klein.
+Die neun Modelle gibt es schon: `tools/blender/food.py` baut sie in Blender (Beere, Blatt, Samen, Frucht, Melone, Pilz, Fleischkeule, Fisch, Ei; kantig und mit Vertex-Farben bemalt, 20 bis 80 Dreiecke, Mittelpunkt in der Mitte, etwa 1 Stud groß), und `assets/blender/food.fbx` ist der Export. Ein Satz Anleitung für Blender steht oben in der Datei (`build_food()`, `food_lineup(pfad)`, `export_food(pfad)`). Einbauen:
+1. In Roblox Studio im Asset Manager **Bulk Import** und `assets/blender/food.fbx` wählen. Es entsteht ein Model mit neun MeshParts (`food_Berry`, `food_Leaf`, `food_Seed`, `food_Fruit`, `food_Melon`, `food_Mushroom`, `food_Meat`, `food_Fish`, `food_Egg`); die Meshes werden hochgeladen (Moderation abwarten).
+2. Die **Mesh-ID** jedes MeshParts kopieren (Eigenschaft `MeshId`, nur die Zahl).
+3. In `src/shared/Config/Food.luau` bei dem Aussehen mit dem passenden Namen (`berry`, `leaf`, ...) `meshId = 0` durch die Zahl ersetzen. `meshScale` bleibt `1,1,1`; ist ein Mesh zu groß oder zu klein, den Wert dort ändern.
+4. In Studio prüfen: Das Stück sieht richtig aus (Farben wie gemalt, nicht im Boden, nicht zu groß oder zu klein). **Zeigt ein Stück keine Farben** (nur weiß oder grau), dann zeigt das Stück die Vertex-Farben nicht: bitte melden, dann stellen wir das Futter auf MeshParts um.
 
 **Sound:** Für den Fress-Ton eine Roblox-Sound-ID („rbxassetid://…“) bei `soundId` in `Config/FoodEffects` eintragen (nur eigene oder geprüfte Sounds, kein Toolbox-Ungeprüftes). Ohne ID bleibt es still.
 

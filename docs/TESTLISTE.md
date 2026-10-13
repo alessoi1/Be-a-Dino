@@ -582,3 +582,13 @@ Arena:
 
 Autofarm-Steuerung:
 - [ ] Im Log steht kein `controls not found`; wer bei eingeschalteter Autofarm steuert (Tasten oder Stick), übernimmt, und die Autofarm geht aus.
+
+## P5 Futtermodelle
+
+Stand: noch nicht in Studio getestet. Erst nach dem Import (siehe `docs/MODELLE.md`, Abschnitt Futter) und dem Eintragen der Mesh-IDs in `Config/Food`.
+
+- [ ] Beere, Blatt, Samen, Frucht, Melone, Pilz, Fleisch, Fisch und Ei erscheinen als kleine Modelle statt als Kugeln und Formen. Jedes sieht aus wie sein Name, auch aus der Entfernung.
+- [ ] Die **Farben** sind die gemalten (rote Beere, grünes Blatt, orange Frucht, gestreifte Melone, oranger Pilz mit hellen Flecken, rote Keule, blauer Fisch, helles Ei). Zeigt ein Stück nur Weiß oder Grau, zeigt der `SpecialMesh` die Vertex-Farben nicht: melden.
+- [ ] Die Größen passen zu klein, mittel und groß (große Stücke deutlich größer), nichts steckt im Boden, nichts schwebt zu hoch; der Fisch und die Keule zeigen in verschiedene Richtungen (zufällig gedreht).
+- [ ] Wachstum und Münzen sind unverändert; die Partikel beim Fressen haben weiter die Farbe des Stücks.
+- [ ] Auf dem Handy bleibt die Bildrate gut (510 Stücke mit je einem kleinen Mesh).
