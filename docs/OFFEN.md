@@ -43,4 +43,16 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 ## Hinweise
 
+## Kuppel und Dschungel (Version 3, siehe `docs/KONZEPT.md`)
+
+- [ ] K1 Kollision (Bäume, Felsen, Stämme blockieren; Gleiten; Ausweichen für Bots und Autofarm)
+- [ ] K2 Runde Arena unter Glaskuppel (alles auf Radius umstellen)
+- [ ] K3 Lobby seitlich an der Kuppel mit Sichtfenster
+- [ ] K4 Name und Size über dem Kopf (Spieler und Bots)
+- [ ] K5 UI und Icons (Icons liefert der Spielentwickler)
+- [ ] K6 Futtermodelle je Größe, Feedback beim Fressen
+- [ ] K7 Dino-Modelle und Animationen (Blender)
+- [ ] K8 Dschungel-Feinschliff (Deckung, Engstellen, Lianen, Wasser)
+- Entfallen laut Entscheidung vom 13. Oktober 2026: Health, Bite, Hunger, Nahrungstyp je Dino.
+
 - Studio-Tests als Checkliste in `docs/TESTLISTE.md` führen (Datei bei Bedarf anlegen, Muster: `docs/TESTLISTE.md` in Glimmer Deep).

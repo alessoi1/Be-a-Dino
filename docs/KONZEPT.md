@@ -187,7 +187,54 @@ Nach dem erfolgreichen ersten Studio-Test (Schritte 2 bis 7, Oase, Baseplate-Fix
 7. **L7 Varianten und Eier** mit Münzen.
 8. **L8 Bezahltes (gebaut):** Wiederbeleben in gleicher Größe, Kopfgeld auf den Killer und vier Tränke (Wachstum, Münzen, Tempo, Schutz) über Developer Products; Glückseier gegen Robux werden nicht gebaut. Ein gekauftes Revive oder Kopfgeld wird als gespeicherter Anspruch im Profil (Version 6) geführt und sofort genutzt, wenn das Todes-Fenster offen ist, sonst beim nächsten Tod. Tränke laufen nur in der Arena. Werte und Produkte in `Config/Offers`, Regeln in `docs/MONETARISIERUNG.md`.
 
+## Kuppel und Dschungel (Version 3, 13. Oktober 2026)
+
+Der Spielentwickler hat eine Feature-Liste zu Futter, Arena, Lobby, Modellen, Namen, Bots, UI und Kollision vorgelegt. Hier steht, was davon schon da ist, was neu kommt und was entfällt.
+
+**Entscheidungen (13. Oktober 2026):**
+
+- **Kein Health-/Bite-/Hunger-System.** Gefressen wird wie bei Agar.io: Wer die Fressregel erfüllt (1,2-mal so groß, Abstand klein) und den anderen berührt, frisst ihn sofort. Es gibt keine Lebensbalken, keine Bisse mit Schaden, keinen Hunger und kein Verhungern. Damit entfallen aus der Liste: Health, Bite, Hunger-/Heilungsbalken, „Nahrungstyp je Dino“ (Fleisch-/Pflanzenfresser) und die Werte „Health“ und „Bite“ pro Dino. Der Grund fürs Fressen ist immer derselbe: **Wachstum**.
+- **Ein Futtertyp für alle:** Jeder Dino frisst dasselbe Futter und wächst durch Berühren. Die Futtermodelle sind nur Optik und zeigen die **Größe/den Wert** des Stücks (heute: klein, mittel, groß in `Config/Food`). Pro Größe gibt es mehrere Modelle (zum Beispiel klein: Beere und Farn, mittel: Frucht, groß: Fleischkeule oder Fisch). Die Werte ändern sich dadurch nicht.
+- **Dino auswählen heißt nur ansehen:** In der Lobby kann man Dinos ansehen (Dinodex) und die Variante wählen. Gespielt wird weiter immer ab Compy (Entscheidung „Neustart ausnahmslos“ bleibt).
+- **Modelle:** Ich baue Modelle und Animationen über die Blender-Anbindung, die UI-Icons liefert der Spielentwickler (Bilder oder Asset-IDs). Bis dahin bleiben Platzhalter, wie bei den Dino-Formen heute.
+
+**Abgleich mit dem Stand:**
+
+| Bereich | Schon da | Neu | Entfällt |
+| --- | --- | --- | --- |
+| Essen | Futter-Pool, drei Größen, Oase, Aufnahme per Server-Takt | Eigene Futtermodelle je Größe, Feedback beim Fressen (Partikel, Sound, kurzer Happs), Hinweis, wofür man frisst (Wachstum) | Nahrungstyp je Dino, Hunger/Heilung |
+| Arena | Quadrat 500 × 500, Mauern, Dschungel-Szenerie (Bäume, Palmen, Felsen, Baumstämme, Wasserloch) | Runde Arena unter Glaskuppel mit Streben, Dschungel ausbauen (Farne, Lianen, Wasser, Deckung, Engstellen) | |
+| Lobby | Plattform 140 × 140 schwebend 100 Studs über der Mitte, Kreise für Play/Shop/Dex/Boosters | Lobby **seitlich an der Kuppel**, Sichtfenster in die Arena, gleicher Forschungsstation-Stil | schwebende Lobby über der Arena |
+| Dinos | 50 Dinos aus 6 Platzhalterformen mit Laufanimation (Teile bewegen) | Eigenes Modell je Dino, Animationen Laufen, Idle, Fressen (statt Beißen), Verschwinden (statt Tod) | Health und Bite je Dino |
+| Namen | Bots haben zufällige Namen (Liste plus Nummer) | Name und Size über dem Kopf (Spieler und Bots), skaliert mit Dino-Größe und Entfernung | |
+| Bots | Bots fressen Futter, Spieler und andere Bots, respawnen nach 5 s, keine Teams | Neuer Name beim Respawn (optional, klein), Ausweichen vor Hindernissen | |
+| Kampf/Respawn | Gleiche Regeln für alle, Fresser bekommt Punkte, Spawn weit von anderen, Schutzzeit | Spawnpunkte auf der runden Fläche (gleiche Logik) | |
+| UI | Status, Sprint, Autofarm, Münzen, Todes-Fenster, Lobby-Fenster in einem Theme (`UiTheme`) | Icons für Stamina, Sprint, Size, Münzen, Autofarm; Hauptmenü, Scoreboard mit Icons | Icons für Health, Hunger, Bite |
+| Kollision | Spieler und Bots gehen durcheinander durch, Boden und Mauer sind fest, Szenerie ist **nicht fest** | Bäume, Felsen, Stämme und Kuppelwand blockieren, Hüllen passend zur Größe, Gleiten statt Hängenbleiben | |
+
+**Technische Folgen, die man leicht übersieht:**
+
+- **Runde Arena:** Heute ist alles quadratisch gedacht (Spawn, Futterverteilung, Szenerie-Platzierung, Bot- und Autofarm-Wandabstand, Oase). Eine Kreisform braucht dort überall „Abstand zum Rand“ als Radiusprüfung. Das ist reine Logik und wird mit Tests abgedeckt.
+- **Größe der Kuppel:** Der größte Dino hat Größe 8. Als Startwert schlage ich **Durchmesser 600 Studs** vor (Fläche etwa 283.000 statt 250.000 Quadrat-Studs heute), damit die Futterdichte vergleichbar bleibt. Wird beim Testen angepasst.
+- **Kollision und Bewegung:** Bäume blockieren per vereinfachter Hülle (Zylinder oder Quader), nicht per Mesh. Der Spieler läuft über Humanoid-Physik und gleitet an glatten Hüllen entlang. Die **Bots** laufen heute geradeaus per `MoveTo` und der **Autofarm** ebenso. Beide müssen Hindernissen ausweichen, sonst bleiben sie an Bäumen hängen. Plan: einfache Lenkung (seitlich ausweichen, Hindernisse aus der Szenerie-Liste), ohne Pfadfindung, solange es reicht. Der Server prüft Tempo und Position weiter wie bisher (`MoveCheck`).
+- **Handy:** Glaskuppel ohne echte Spiegelung (halbtransparent, Streben als wenige Teile), Reflexion nur angedeutet. Bäume und Felsen als schlanke Modelle, Kollision unsichtbar und einfach. Alles an Teilezahl und Frame-Zeit auf dem Handy prüfen.
+- **Namensschilder:** Ein `BillboardGui` pro Dino ist bei 24 Spielern plus Bots in Ordnung, wenn Größe und Sichtweite begrenzt sind (nur nahe Dinos, aktualisiert im Takt).
+- **Animationen:** Heute bewegt `DinoAnim` Körperteile. Idle, Fressen und Verschwinden bauen darauf auf, bis echte Rigs mit `Motor6D` und Animationsdateien bereit sind. Ob echte Rigs für alle 50 Dinos gebaut werden, ist offen.
+
+**Reihenfolge (jeder Schritt ein Branch mit Plan, wie bisher):**
+
+1. **K1 Kollision:** Hüllen für Bäume, Felsen, Stämme, Wasserrand; Gleiten; Ausweichen für Bots und Autofarm; Tests für die Lenkung.
+2. **K2 Runde Arena und Kuppel:** Kreisboden, runde Wand, Glaskuppel mit Streben, alles auf Radius umgestellt (Spawn, Futter, Szenerie, Bots, Autofarm, Oase). Werte in `Config/Arena`.
+3. **K3 Lobby an der Kuppel:** Lobby seitlich, Sichtfenster, Kreise im Stil der Forschungsstation, Ranglisten-Tafeln mitziehen, Spielkreis führt in die Arena.
+4. **K4 Namen:** Name und Size über dem Kopf, Skalierung nach Größe und Entfernung, Respawn-Name für Bots.
+5. **K5 UI und Icons:** Icon-Satz für Stamina, Sprint, Size, Münzen, Autofarm; Hauptmenü, Scoreboard.
+6. **K6 Futter:** Futtermodelle je Größe, Feedback beim Fressen, Hinweis „Eat to grow“.
+7. **K7 Dino-Modelle und Animationen:** Blender-Modelle und Animationen, zuerst eine Körperform als Test, dann die übrigen.
+8. **K8 Dschungel-Feinschliff:** Farne, Lianen, Wasser, Deckung und Engstellen, Spielbarkeit für Kleine und Große (mit Messdaten aus Studio).
+
 ## Weiterhin offen
+
+- Kuppel (V3): Durchmesser (Vorschlag 600 Studs), Zahl der echten Rigs für die 50 Dinos (alle einzeln oder pro Körperform mit Variation), Stil der Icons, Lage der Lobby (Seite der Kuppel, Höhe) und ob sie weiter 24 Spieler fasst.
 
 - Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.
 - Sprint: Verbrauch, Aufladerate, ob man beim Sprinten fressen darf (Werte beim Testen).
