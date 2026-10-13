@@ -51,7 +51,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] K4 Name und Size über dem Kopf (Spieler und Bots; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - [ ] K5 UI und Icons: **K5a Icons gebaut** (Platzhalter-Symbole, echte Bilder liefert der Spielentwickler, siehe docs/ICONS.md); offen: Hauptmenü und Scoreboard mit Icons (Entscheidung nötig)
 - [x] K6 Futtermodelle je Größe, Feedback beim Fressen (Code fertig mit Platzhalterformen, echte Meshes und Sound-ID offen; Studio-Test offen, siehe docs/TESTLISTE.md)
-- [ ] K7 Dino-Modelle und Animationen (Blender)
+- [x] K7 Dino-Modelle und Animationen: sechs Blender-Formen mit Laufen waren schon da; neu Idle, Fressen und Körperwippen (Code fertig, Studio-Test offen); eigener Kopf für echtes Beißen offen
 - [ ] K8 Dschungel-Feinschliff (Deckung, Engstellen, Lianen, Wasser)
 - Entfallen laut Entscheidung vom 13. Oktober 2026: Health, Bite, Hunger, Nahrungstyp je Dino.
 

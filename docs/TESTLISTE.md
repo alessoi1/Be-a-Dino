@@ -481,3 +481,17 @@ Feedback:
 - [ ] Am Rundenanfang steht oben in der Mitte „Eat the food to grow!“; der Hinweis verschwindet nach dem ersten gefressenen Stück oder nach 8 Sekunden und kommt in der nächsten Runde wieder.
 - [ ] Ohne Sound-ID bleibt es still, mit Sound-ID klingt es nicht nervig (Lautstärke und Tonhöhe in `Config/FoodEffects`).
 - [ ] Auf dem Handy: gute Bildrate mit Futter-Teilen (510 Teile mit je einem Mesh-Anhang) und Partikeln.
+
+## K7a Idle, Fressen und Körperwippen
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Animation.luau`. Nur echte Formen (Meshes) bewegen sich; Dinos mit Platzhalter-Look bleiben starr. **Ob die Gelenke zusammenhalten und wie es aussieht, zeigt erst Studio.**
+
+- [ ] Der Dino ist am Spielstart (Compy) **genau so gebaut wie vorher**: Körper, Beine und Schwanz sitzen an der richtigen Stelle, nichts verschoben oder verdreht (das neue Gelenk `body` ersetzt die Schweißnaht).
+- [ ] Im Stand atmet der Körper ganz leicht (hebt und senkt sich), der Schwanz pendelt wie vorher. Die Füße bleiben dabei nicht deutlich im Boden stecken oder schweben.
+- [ ] Beim Laufen wippt der Körper leicht im Schritt und lehnt sich minimal nach vorn; die Beine laufen wie vorher.
+- [ ] Beim Fressen nickt der Dino kurz nach unten (Kopf runter, Schwanz leicht hoch) und duckt sich ein wenig. Auch Bots und andere Spieler in der Nähe nicken, wenn sie fressen. Viele schnelle Bisse hintereinander zittern nicht.
+- [ ] Das gilt bei kleinen und bei großen Dinos (Größe 8: das Nicken ist nicht zu stark, kein Verschwinden im Boden). Falls doch, `eatPitch`, `eatDip` und `breathLift` verkleinern.
+- [ ] Weit weg (über 140 Studs) bewegen sich die Dinos nicht (spart Leistung); beim Näherkommen beginnt es wieder ohne Zucken.
+- [ ] Nach einem Stufenwechsel (neues Modell, Wolke) funktioniert alles weiter; auch nach dem Wechsel der Variante im Dinodex.
+- [ ] Keine Fehler im Output (`animation failed`, `animation config invalid`).
+- [ ] Auf dem Handy bleibt die Bildrate mit mehreren Dinos in der Nähe gut.

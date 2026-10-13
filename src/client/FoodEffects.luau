@@ -12,6 +12,8 @@ local FoodEffect = require(Shared:WaitForChild("FoodEffect"))
 local Log = require(Shared:WaitForChild("Log"))
 local EffectConfig = require(Shared:WaitForChild("Config"):WaitForChild("FoodEffects"))
 
+local DinoAnimator = require(script.Parent:WaitForChild("DinoAnimator"))
+
 local FOLDER_NAME = "Food"
 -- Seconds to wait for the food folder to appear.
 local FOLDER_WAIT = 30
@@ -103,6 +105,8 @@ function FoodEffects.start()
 			if not child:IsA("BasePart") then
 				return
 			end
+			-- The dino that ate it munches (a nod), wherever the camera is.
+			DinoAnimator.notifyEat(child.Position)
 			local camera = workspace.CurrentCamera
 			if camera == nil or (child.Position - camera.CFrame.Position).Magnitude > EffectConfig.effectRange then
 				return

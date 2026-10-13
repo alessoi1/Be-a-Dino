@@ -20,6 +20,15 @@ Jede Form hat eine eigene **Farbfamilie** (Läufer olivgrün und sandbraun, bipe
 
 Die beweglichen Teile hängen mit einem Motor6D am festen Körper (`root` der Vorlage in `Config/DinoMeshes`; `limb` und `joint` pro Teil). Der Client (`DinoAnimator`) dreht die Gelenke nach `DinoAnim`: die Beine schwingen gegeneinander (Zweibeiner `legLeft` und `legRight`; Vierbeiner im Passgang: vorne links mit hinten rechts, vorne rechts mit hinten links), der Schwanz pendelt, und die Schrittlänge hängt vom Tempo und der Größe ab, damit die Füße nicht rutschen. Im Stand pendelt nur der Schwanz leicht. Die Werte stehen in `Config/Animation`. Das läuft nur auf dem Client, nur nahe an der Kamera (`maxDistance`), und der Server wird nicht belastet. Die Winkel werden in `PreSimulation` geschrieben: Der Animator des Charakters setzt jedes Bild alle Gelenke gerade, danach gelten unsere Werte. Dinos mit Platzhalter-Look haben keine Gelenke und bleiben starr.
 
+### Idle, Fressen und Verschwinden
+
+Zusätzlich zu den Gliedern bewegt der Client den **ganzen Körper** über ein Gelenk `body` (ein Motor6D statt der Schweißnaht, am Mittelpunkt der Figur; nur bei echten Formen, Platzhalter bleiben starr):
+- **Idle:** Im Stand hebt und senkt sich der Körper langsam wie beim Atmen (`breathLift`), dazu pendelt der Schwanz wie bisher.
+- **Laufen:** Der Körper wippt pro Schritt zweimal (`bobLift`) und lehnt sich leicht nach vorn (`walkLean`).
+- **Fressen („Happs“):** Wenn in der Nähe eines Dinos (`eatReach` Studs je Größe) ein Futterstück verschwindet, nickt er kurz nach unten und duckt sich (`eatPitch`, `eatDip`, `eatSeconds`). Das gilt für Spieler und Bots. Schnelle Bisse starten die Bewegung erst ab ihrer Mitte neu, damit nichts zittert.
+- **Verschwinden:** Wird ein Dino gefressen, löst er sich wie bisher in einer Wolke auf (Partikel, `playCloud`); eine eigene Todes-Animation gibt es nicht (kein Blut, siehe CLAUDE.md).
+Alles ist reine Optik auf dem Client, der Server ändert nur die Verbindung (Motor6D `body`). Eine echte Beiß-Animation mit beweglichem Kopf braucht ein eigenes Kopfteil im Mesh (heute steckt der Kopf im Körperteil); das wäre ein Umbau der sechs Blender-Formen.
+
 ### Neue Form bauen
 
 1. `tools/blender/dinos.py` in Blender ausführen (zum Beispiel über die MCP-Verbindung mit `exec`), `build("<form>")` baut die Meshes, `preview(...)` rendert Bilder, `export_fbx("<form>", "assets/blender/<form>.fbx")` schreibt die FBX-Datei. Der Export dreht das Modell um 180 Grad und skaliert mit 0,01: Roblox behält die Blender-Richtung (Blender +Y wird Roblox +Z) und liest Blender-Einheiten als Zentimeter. `dump_parts("<form>", pfad)` schreibt die Geometrie und die Mitte jedes Teils als JSON (Mitte = Versatz im Spiel; ein späterer Direkt-Upload aus Studio könnte darauf aufbauen, `AssetService:CreateAssetAsync` ist aber noch „not available yet").
