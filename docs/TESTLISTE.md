@@ -585,7 +585,7 @@ Autofarm-Steuerung:
 
 ## P5 Futtermodelle
 
-Stand: noch nicht in Studio getestet. Erst nach dem Import (siehe `docs/MODELLE.md`, Abschnitt Futter) und dem Eintragen der Mesh-IDs in `Config/Food`.
+Stand: im Playtest geprüft (Bild: Beeren pink, Fisch blau mit orangem Schwanz, Samen gelb, Blätter grün, Pilz orange mit hellem Stiel, alle neun Meshes geladen, 460 MeshParts); der Rest ist noch nicht angesehen.
 
 - [ ] Beere, Blatt, Samen, Frucht, Melone, Pilz, Fleisch, Fisch und Ei erscheinen als kleine Modelle statt als Kugeln und Formen. Jedes sieht aus wie sein Name, auch aus der Entfernung.
 - [ ] Die **Farben** sind die gemalten (rote Beere, grünes Blatt, orange Frucht, gestreifte Melone, oranger Pilz mit hellen Flecken, rote Keule, blauer Fisch, helles Ei). Zeigt ein Stück nur Weiß oder Grau, zeigt der `SpecialMesh` die Vertex-Farben nicht: melden.

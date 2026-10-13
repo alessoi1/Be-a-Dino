@@ -83,7 +83,9 @@ Die neun Modelle gibt es schon: `tools/blender/food.py` baut sie in Blender (Bee
 1. In Roblox Studio im Asset Manager **Bulk Import** und `assets/blender/food.fbx` wählen. Es entsteht ein Model mit neun MeshParts (`food_Berry`, `food_Leaf`, `food_Seed`, `food_Fruit`, `food_Melon`, `food_Mushroom`, `food_Meat`, `food_Fish`, `food_Egg`); die Meshes werden hochgeladen (Moderation abwarten).
 2. Die **Mesh-ID** jedes MeshParts kopieren (Eigenschaft `MeshId`, nur die Zahl).
 3. In `src/shared/Config/Food.luau` bei dem Aussehen mit dem passenden Namen (`berry`, `leaf`, ...) `meshId = 0` durch die Zahl ersetzen. `meshScale` bleibt `1,1,1`; ist ein Mesh zu groß oder zu klein, den Wert dort ändern.
-4. In Studio prüfen: Das Stück sieht richtig aus (Farben wie gemalt, nicht im Boden, nicht zu groß oder zu klein). **Zeigt ein Stück keine Farben** (nur weiß oder grau), dann zeigt das Stück die Vertex-Farben nicht: bitte melden, dann stellen wir das Futter auf MeshParts um.
+4. In Studio prüfen: Das Stück sieht richtig aus (Farben wie gemalt, nicht im Boden, nicht zu groß oder zu klein).
+
+Eingetragen sind die neun IDs seit dem 13. Oktober 2026. Das Futter ist mit Mesh ein **MeshPart** (ein `SpecialMesh` zeigte die gemalten Vertex-Farben nicht, nur Weiß): Beim Start lädt der Server jedes Mesh einmal (`AssetService:CreateMeshPartAsync`) und klont es; es gibt einen Pool pro Aussehen, damit ein Stück sein Mesh nie wechseln muss. Aussehen ohne `meshId` oder mit einem Ladefehler (Log `food mesh not loaded`) bleiben die einfachen Formen. Das importierte Model `Workspace.food` aus Studio wird nicht mehr gebraucht und sollte gelöscht werden (es gehört nicht ins Spiel).
 
 **Sound:** Für den Fress-Ton eine Roblox-Sound-ID („rbxassetid://…“) bei `soundId` in `Config/FoodEffects` eintragen (nur eigene oder geprüfte Sounds, kein Toolbox-Ungeprüftes). Ohne ID bleibt es still.
 

@@ -1,8 +1,10 @@
 --!strict
--- Food on the arena: a fixed pool of parts, a data structure with the positions,
--- one server tick that checks distances (no Touched events) and a queue for the
--- pieces that grow back. Only checkable in Roblox Studio.
+-- Food on the arena: pools of parts (one pool per look, so a mesh piece never changes its mesh), a
+-- data structure with the positions, one server tick that checks distances (no Touched events) and a
+-- queue for the pieces that grow back. A look with a mesh is a MeshPart cloned from a template (the
+-- painted vertex colors show); a look without one is a simple form. Only checkable in Roblox Studio.
 
+local AssetService = game:GetService("AssetService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -28,12 +30,20 @@ local FLOAT_HEIGHT = 1
 -- Tries to place an outer piece outside the oasis before it is accepted anyway (a bad config
 -- must not hang the server).
 local OUTSIDE_TRIES = 10
+-- Seconds the food meshes may take to load, and the pause between two looks at the loading.
+local MESH_WAIT_SECONDS = 20
+local MESH_WAIT_STEP = 0.1
 
 local log = Log.new("FoodService")
 local random = Random.new()
 
 local field = FoodField.new()
-local parts: { [number]: Part } = {}
+-- The part of every piece that is on the floor now, and which pool it belongs to.
+local parts: { [number]: BasePart } = {}
+local partKeys: { [number]: string } = {}
+-- Mesh parts loaded once per look (key = kind id / look id), and the parts that are free again.
+local templates: { [string]: MeshPart } = {}
+local freeParts: { [string]: { BasePart } } = {}
 local pending: { Pending } = {}
 -- Pieces that belong to the oasis in the middle; they always grow back there.
 local inOasis: { [number]: boolean } = {}
@@ -65,28 +75,93 @@ local function createPart(): Part
 	return part
 end
 
--- Gives the piece the look of a variant: a simple form, or the mesh once there is one.
-local function applyLook(part: Part, kind: FoodConfig.FoodKind, variant: FoodConfig.FoodVariant)
+-- Gives a stand-in piece the simple form and color of its look.
+local function applyStandIn(part: Part, kind: FoodConfig.FoodKind, variant: FoodConfig.FoodVariant)
 	local mesh = part:FindFirstChild("Look")
 	if mesh == nil or not mesh:IsA("SpecialMesh") then
 		return
 	end
 	local scale = Vector3.new(variant.scale.x, variant.scale.y, variant.scale.z)
 	part.Size = Vector3.one * kind.size * scale
-	if variant.meshId ~= 0 then
-		-- The mesh (about 1 stud, painted with vertex colors) is drawn as big as the piece; the part
-		-- stays white so the painted colors show.
-		part.Color = Color3.new(1, 1, 1)
-		mesh.MeshType = Enum.MeshType.FileMesh
-		mesh.VertexColor = Vector3.one
-		mesh.MeshId = "rbxassetid://" .. tostring(variant.meshId)
-		mesh.Scale = part.Size * Vector3.new(variant.meshScale.x, variant.meshScale.y, variant.meshScale.z)
-	else
-		part.Color = Color3.fromRGB(variant.color.r, variant.color.g, variant.color.b)
-		mesh.MeshType = MESH_TYPES[variant.shape] or Enum.MeshType.Sphere
-		mesh.MeshId = ""
-		mesh.Scale = Vector3.one
+	part.Color = Color3.fromRGB(variant.color.r, variant.color.g, variant.color.b)
+	mesh.MeshType = MESH_TYPES[variant.shape] or Enum.MeshType.Sphere
+	mesh.MeshId = ""
+	mesh.Scale = Vector3.one
+end
+
+local function lookKey(kind: FoodConfig.FoodKind, variant: FoodConfig.FoodVariant): string
+	return kind.id .. "/" .. variant.id
+end
+
+-- Loads the mesh of every look that has one, all at once; a mesh that cannot be loaded leaves its
+-- look as the simple form (and is logged).
+local function loadTemplates()
+	local waiting = 0
+	local wanted = 0
+	for _, kind in FoodConfig.kinds do
+		for _, variant in kind.variants do
+			if variant.meshId ~= 0 then
+				wanted += 1
+				waiting += 1
+				local key = lookKey(kind, variant)
+				task.spawn(function()
+					local ok, result = pcall(function()
+						return AssetService:CreateMeshPartAsync(Content.fromAssetId(variant.meshId))
+					end)
+					if ok then
+						templates[key] = result
+					else
+						log.error(
+							"food mesh not loaded",
+							{ look = key, meshId = variant.meshId, error = tostring(result) }
+						)
+					end
+					waiting -= 1
+				end)
+			end
+		end
 	end
+	local waited = 0
+	while waiting > 0 and waited < MESH_WAIT_SECONDS do
+		task.wait(MESH_WAIT_STEP)
+		waited += MESH_WAIT_STEP
+	end
+	local loaded = 0
+	for _ in templates do
+		loaded += 1
+	end
+	if waiting > 0 then
+		log.warn("food meshes still loading, those looks use the simple form", { missing = waiting })
+	end
+	log.info("food meshes loaded", { loaded = loaded, wanted = wanted })
+end
+
+-- A part for a piece with this look: a free one of its pool, or a new one (a clone of the mesh
+-- template, or a simple stand-in). Returns the part and its pool key.
+local function takePart(kind: FoodConfig.FoodKind, variant: FoodConfig.FoodVariant): (BasePart, string)
+	local key = lookKey(kind, variant)
+	local pool = freeParts[key]
+	if pool ~= nil and #pool > 0 then
+		return table.remove(pool) :: BasePart, key
+	end
+	local template = templates[key]
+	if template ~= nil then
+		local clone = template:Clone()
+		clone.Name = "Food"
+		clone.Anchored = true
+		clone.CanCollide = false
+		clone.CanTouch = false
+		clone.CanQuery = false
+		clone.CastShadow = false
+		clone.Massless = true
+		-- The mesh keeps its proportions; the part is as big as the kind says. White shows the painted colors.
+		clone.Size = template.Size * kind.size
+		clone.Color = Color3.new(1, 1, 1)
+		return clone, key
+	end
+	local stand = createPart()
+	applyStandIn(stand, kind, variant)
+	return stand, key
 end
 
 local function roll(): number
@@ -110,15 +185,17 @@ local function placeFood(id: number)
 		log.warn("food id already in use", { id = id })
 		return
 	end
-	local part = parts[id]
 	local variantIndex = FoodKinds.pickVariant(kind, roll())
 	local variant = kind.variants[variantIndex]
-	if variant ~= nil then
-		applyLook(part, kind, variant)
-	else
+	if variant == nil then
 		log.warn("food kind without a look", { kind = kind.id })
-		part.Size = Vector3.one * kind.size
+		FoodField.remove(field, id)
+		table.insert(pending, FoodSpawn.schedule(id, ServerClock.now(), FoodConfig.respawnSeconds))
+		return
 	end
+	local part, key = takePart(kind, variant)
+	parts[id] = part
+	partKeys[id] = key
 	-- Turned at random, so the pieces do not all point the same way.
 	part.CFrame = CFrame.new(x, part.Size.Y / 2 + FLOAT_HEIGHT, z) * CFrame.Angles(0, roll() * math.pi * 2, 0)
 	-- Display only: the autofarm of the client prefers valuable pieces.
@@ -128,7 +205,18 @@ end
 
 local function releaseFood(id: number, now: number)
 	FoodField.remove(field, id)
-	parts[id].Parent = nil
+	local part = parts[id]
+	if part ~= nil then
+		part.Parent = nil
+		local key = partKeys[id]
+		local pool = freeParts[key]
+		if pool == nil then
+			pool = {}
+			freeParts[key] = pool
+		end
+		table.insert(pool, part)
+		parts[id] = nil
+	end
 	table.insert(pending, FoodSpawn.schedule(id, now, FoodConfig.respawnSeconds))
 end
 
@@ -223,9 +311,10 @@ function FoodService.start()
 	newFolder.Parent = workspace
 	folder = newFolder
 
+	loadTemplates()
+
 	for id = 1, FoodConfig.count do
 		inOasis[id] = id <= oasis.count
-		parts[id] = createPart()
 		placeFood(id)
 	end
 	log.info("food placed", { count = FoodField.count(field), oasis = oasis.count })

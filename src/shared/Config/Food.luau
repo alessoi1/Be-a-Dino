@@ -39,11 +39,11 @@ local function vec(x: number, y: number, z: number): Vec
 	return { x = x, y = y, z = z }
 end
 
-local function look(id: string, shape: string, color: RGB, scale: Vec, weight: number): FoodVariant
+local function look(id: string, shape: string, color: RGB, scale: Vec, weight: number, meshId: number): FoodVariant
 	return {
 		id = id,
 		shape = shape,
-		meshId = 0,
+		meshId = meshId,
 		meshScale = vec(1, 1, 1),
 		scale = scale,
 		color = color,
@@ -52,7 +52,7 @@ local function look(id: string, shape: string, color: RGB, scale: Vec, weight: n
 end
 
 -- The mesh of a look is the piece `food_<Id>` of assets/blender/food.fbx (berry = food_Berry, leaf =
--- food_Leaf, and so on; see docs/MODELLE.md). Until its `meshId` is set, the stand-in form is drawn.
+-- food_Leaf, and so on; see docs/MODELLE.md). The ids come from the Studio import of that file; with `meshId = 0` the stand-in form is drawn.
 --
 -- Small pieces are berries and leaves, medium ones fruit and mushrooms, big ones meat, fish and
 -- eggs. The looks are stand-ins from simple forms; real models replace them one by one by setting
@@ -65,9 +65,9 @@ local kinds: { FoodKind } = {
 		size = 1,
 		color = rgb(120, 220, 90),
 		variants = {
-			look("berry", "ball", rgb(206, 64, 112), vec(1, 1, 1), 40),
-			look("leaf", "wedge", rgb(110, 214, 84), vec(1.3, 0.5, 1.5), 35),
-			look("seed", "ball", rgb(226, 190, 96), vec(0.8, 0.8, 1.2), 25),
+			look("berry", "ball", rgb(206, 64, 112), vec(1, 1, 1), 40, 122433072184492),
+			look("leaf", "wedge", rgb(110, 214, 84), vec(1.3, 0.5, 1.5), 35, 115143048934229),
+			look("seed", "ball", rgb(226, 190, 96), vec(0.8, 0.8, 1.2), 25, 113653160260378),
 		},
 	},
 	{
@@ -77,9 +77,9 @@ local kinds: { FoodKind } = {
 		size = 1.6,
 		color = rgb(255, 200, 60),
 		variants = {
-			look("fruit", "ball", rgb(255, 160, 40), vec(1, 1, 1), 40),
-			look("melon", "ball", rgb(120, 196, 70), vec(1.15, 0.95, 1.15), 30),
-			look("mushroom", "cylinder", rgb(236, 226, 206), vec(0.7, 1.1, 1.1), 30),
+			look("fruit", "ball", rgb(255, 160, 40), vec(1, 1, 1), 40, 123324093222242),
+			look("melon", "ball", rgb(120, 196, 70), vec(1.15, 0.95, 1.15), 30, 80821517762627),
+			look("mushroom", "cylinder", rgb(236, 226, 206), vec(0.7, 1.1, 1.1), 30, 115113768657633),
 		},
 	},
 	{
@@ -89,9 +89,9 @@ local kinds: { FoodKind } = {
 		size = 2.4,
 		color = rgb(255, 100, 100),
 		variants = {
-			look("meat", "cylinder", rgb(204, 78, 70), vec(0.9, 1.4, 1.1), 40),
-			look("fish", "wedge", rgb(92, 160, 222), vec(1.6, 0.6, 0.9), 35),
-			look("egg", "ball", rgb(244, 236, 210), vec(0.9, 1.25, 0.9), 25),
+			look("meat", "cylinder", rgb(204, 78, 70), vec(0.9, 1.4, 1.1), 40, 75342146736680),
+			look("fish", "wedge", rgb(92, 160, 222), vec(1.6, 0.6, 0.9), 35, 115329182352529),
+			look("egg", "ball", rgb(244, 236, 210), vec(0.9, 1.25, 0.9), 25, 97539013336945),
 		},
 	},
 }
