@@ -406,10 +406,10 @@ Boden und Wand:
 - [ ] Die Felsen vor der Wand stehen rundherum, drehen sich mit der Wand mit und ragen nicht durch sie.
 
 Kuppel:
-- [ ] Von innen sieht man das Gerüst (Rippen und Ringe) und durch die Lücken den Himmel; das Glas selbst ist von innen unsichtbar (normal). Die Rippen stören die Sicht nicht und flackern nicht.
+- [ ] Von innen sieht man das Gerüst (Rippen und Ringe) mit dem Glas dazwischen (seit P3). Die Rippen stören die Sicht nicht und flackern nicht.
 - [ ] Von außen (im Studio-Fenster herauszoomen) ist die Kuppel eine leicht getönte Glasschale mit dem Gerüst.
 - [ ] Die Lobby (seit K3 südlich neben der Kuppel) ist sichtbar und nicht verdeckt.
-- [ ] Bildrate auf einem echten Handy (Rippen: etwa 280 Teile): Wenn es ruckelt, in `Config/Dome` `ribs`, `ribSegments` oder die Ringe verringern.
+- [ ] Bildrate auf einem echten Handy (Rippen etwa 280 Teile, dazu 72 Glasplatten seit P3): Wenn es ruckelt, in `Config/Dome` `ribs`, `ribSegments` oder die Ringe verringern.
 
 Platzierung im Kreis:
 - [ ] Futter liegt gleichmäßig über der ganzen Scheibe, nicht an der Wand zusammengedrängt, und nicht außerhalb (nichts hinter der Wand). Die Oase in der Mitte ist unverändert.
@@ -550,3 +550,15 @@ Stand: noch nicht in Studio getestet. Werte in `src/client/UiTheme.luau`, `src/s
 - [ ] Die **Menü-Leiste** in der Lobby hat denselben Stil (blaue Knöpfe, aktiver Knopf orange).
 - [ ] Die Felder (Status, Bestenliste, Fenster) sind lesbar, die Texte haben eine dunkle Umrandung.
 - [ ] Auf dem Handy (360 × 640 und mit Notch): nichts überlappt, alle Knöpfe sind groß genug.
+
+## P3 Kuppel mit echtem Glas
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Dome.luau` (`glass`). **Die Optik zeigt erst Studio und das Handy.**
+
+- [ ] Output zeigt `DomeService dome built beams=278 panels=72`.
+- [ ] **Von innen** ist zwischen den Rippen und Ringen jetzt Glas zu sehen (leicht bläulich, durchsichtig), die Kuppel wirkt geschlossen und nicht mehr wie ein nacktes Gerüst. Man sieht durch das Glas weiter Himmel, Sonne und Wolken.
+- [ ] **Von außen** (herauszoomen, oder von der Lobby aus) sieht man die Kuppel als Glasschale mit Gerüst; durch das Sichtfenster in der Wand sieht man weiter in die Arena.
+- [ ] Zwischen den Platten sind keine hellen Spalten und keine dunklen Streifen; die Platten flackern nicht (kein Z-Fighting) und die Überlappungen sind nicht auffällig dunkler.
+- [ ] Die Glasplatten stören die Kamera und das Fressen nicht (keine Kollision, die Kamera zoomt nicht heran).
+- [ ] Auf dem Handy: gute Bildrate; viel durchsichtiges Glas kostet Leistung. Falls es ruckelt: `transparency` höher setzen oder `ribs` und `ringElevations` verkleinern (weniger Platten).
+- [ ] Wenn das Glas zu dunkel oder zu milchig wirkt: `transparency` (höher = klarer) und `color` in `Config/Dome` anpassen.

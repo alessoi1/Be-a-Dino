@@ -1,7 +1,7 @@
 --!strict
--- The glass dome over the arena: a big transparent half sphere (seen from outside) and a frame of
--- ribs and rings from straight beams (what the players see from inside). Looks only, no
--- collision; the wall at the foot is built by the ArenaService. Only checkable in Roblox Studio.
+-- The glass dome over the arena: a frame of ribs and rings from straight beams, and thin flat glass
+-- panels in every cell between them (seen from inside and from outside). Looks only, no collision;
+-- the wall at the foot is built by the ArenaService. Only checkable in Roblox Studio.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -36,19 +36,27 @@ local function lookless(part: BasePart)
 	part.CastShadow = false
 end
 
-local function buildGlass(folder: Instance, radius: number)
+local function buildGlass(folder: Instance, radius: number): number
 	local glass = DomeConfig.glass
-	local part = Instance.new("Part")
-	part.Name = "Glass"
-	part.Shape = Enum.PartType.Ball
-	part.Size = Vector3.one * radius * 2
-	part.Position = Vector3.zero
-	lookless(part)
-	part.Color = color(glass.color)
-	part.Material = material(glass.material)
-	part.Transparency = glass.transparency
-	part.Reflectance = glass.reflectance
-	part.Parent = folder
+	local frame = DomeConfig.frame
+	local panels = DomeShape.panels(radius, frame.ribs, frame.ringElevations, glass.overlap)
+	local tint = color(glass.color)
+	local surface = material(glass.material)
+	for _, panel in panels do
+		local part = Instance.new("Part")
+		part.Name = "Glass"
+		part.Size = Vector3.new(panel.width, panel.height, glass.thickness)
+		-- The thin side (local Z) points out of the dome.
+		local middle = Vector3.new(panel.x, panel.y, panel.z)
+		part.CFrame = CFrame.lookAt(middle, middle + Vector3.new(panel.nx, panel.ny, panel.nz))
+		lookless(part)
+		part.Color = tint
+		part.Material = surface
+		part.Transparency = glass.transparency
+		part.Reflectance = glass.reflectance
+		part.Parent = folder
+	end
+	return #panels
 end
 
 local function buildBeams(folder: Instance, radius: number)
@@ -84,10 +92,10 @@ function DomeService.build(parent: Instance)
 	local radius = Arena.radius + Arena.wallThickness / 2
 	local folder = Instance.new("Folder")
 	folder.Name = "Dome"
-	buildGlass(folder, radius + Arena.wallThickness / 2)
+	local panels = buildGlass(folder, radius)
 	local beams = buildBeams(folder, radius)
 	folder.Parent = parent
-	log.info("dome built", { radius = radius, beams = beams })
+	log.info("dome built", { radius = radius, beams = beams, panels = panels })
 end
 
 return DomeService
