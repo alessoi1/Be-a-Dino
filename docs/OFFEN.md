@@ -45,8 +45,8 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 ## Kuppel und Dschungel (Version 3, siehe `docs/KONZEPT.md`)
 
-- [ ] K1 Kollision (Bäume, Felsen, Stämme blockieren; Gleiten; Ausweichen für Bots und Autofarm)
-- [ ] K2 Runde Arena unter Glaskuppel (alles auf Radius umstellen)
+- [x] K1 Kollision (Bäume, Felsen, Stämme blockieren; Gleiten; Ausweichen für Bots und Autofarm)
+- [x] K2 Runde Arena unter Glaskuppel (alles auf Radius umgestellt; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - [ ] K3 Lobby seitlich an der Kuppel mit Sichtfenster
 - [ ] K4 Name und Size über dem Kopf (Spieler und Bots)
 - [ ] K5 UI und Icons (Icons liefert der Spielentwickler)

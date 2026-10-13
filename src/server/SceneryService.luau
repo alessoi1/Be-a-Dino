@@ -120,10 +120,10 @@ local function visualBlock(
 	return part
 end
 
-local function buildPatches(folder: Instance, half: number, rng: () -> number)
+local function buildPatches(folder: Instance, radius: number, rng: () -> number)
 	local ground = Scenery.ground
 	local patches = ScenerySpawn.patches(
-		half,
+		radius,
 		ground.patchMargin,
 		ground.patchCount,
 		ground.patchMinRadius,
@@ -148,7 +148,7 @@ local function buildPatches(folder: Instance, half: number, rng: () -> number)
 	end
 end
 
-local function buildPaths(folder: Instance, half: number, rng: () -> number)
+local function buildPaths(folder: Instance, radius: number, rng: () -> number)
 	local ground = Scenery.ground
 	local oasis = FoodConfig.zones.center
 	local startRadius = oasis.radius + Scenery.waterhole.ringStoneMax
@@ -160,7 +160,7 @@ local function buildPaths(folder: Instance, half: number, rng: () -> number)
 		local points = ScenerySpawn.pathPoints(
 			angle,
 			startRadius,
-			half,
+			radius,
 			ground.pathWallInset,
 			ground.pathStep,
 			ground.pathWobble,
@@ -185,9 +185,9 @@ local function buildPaths(folder: Instance, half: number, rng: () -> number)
 	log.info("paths built", { paths = ground.pathCount, segments = segments })
 end
 
-local function buildWallRocks(folder: Instance, half: number, rng: () -> number)
+local function buildWallRocks(folder: Instance, radius: number, rng: () -> number)
 	local walls = Scenery.walls
-	local rocks = ScenerySpawn.wallRocks(half, {
+	local rocks = ScenerySpawn.wallRocks(radius, {
 		spacing = walls.rockSpacing,
 		minWidth = walls.rockMinWidth,
 		maxWidth = walls.rockMaxWidth,
@@ -202,18 +202,10 @@ local function buildWallRocks(folder: Instance, half: number, rng: () -> number)
 	local surface = material(walls.rockMaterial)
 	for _, rock in rocks do
 		-- Center sits slightly outside the inner wall face, so only part of the rock stands in the arena.
-		local across = half + rock.depth * 0.2
-		local position: Vector3
-		local facing: number
-		if rock.side == "north" then
-			position, facing = Vector3.new(rock.along, 0, -across), 0
-		elseif rock.side == "south" then
-			position, facing = Vector3.new(rock.along, 0, across), 0
-		elseif rock.side == "west" then
-			position, facing = Vector3.new(-across, 0, rock.along), math.pi / 2
-		else
-			position, facing = Vector3.new(across, 0, rock.along), math.pi / 2
-		end
+		local across = radius + rock.depth * 0.2
+		local position = Vector3.new(math.cos(rock.angle) * across, 0, math.sin(rock.angle) * across)
+		-- The depth of the rock points away from the middle.
+		local facing = math.pi / 2 - rock.angle
 		position += Vector3.new(0, rock.height / 2 - rock.height * ROCK_SINK, 0)
 		local cframe = CFrame.new(position) * CFrame.Angles(0, facing + rock.yaw, 0)
 		visualBlock(
@@ -487,7 +479,7 @@ end
 
 -- Spreads the props over the floor with space around the waterhole and the walls, remembers
 -- where they are, and builds them. The loading of meshes may wait, so it runs on its own.
-local function placeProps(folder: Instance, half: number)
+local function placeProps(folder: Instance, radius: number)
 	local placement = Scenery.placement
 	local oasis = FoodConfig.zones.center
 	local exclusions =
@@ -499,7 +491,7 @@ local function placeProps(folder: Instance, half: number)
 		wanted += kind.count
 	end
 	placedProps =
-		ScenerySpawn.scatter(half, placement.wallMargin, exclusions, kinds, placement.candidates, makeRandom())
+		ScenerySpawn.scatter(radius, placement.wallMargin, exclusions, kinds, placement.candidates, makeRandom())
 	if #placedProps < wanted then
 		log.warn("not every prop found room", { placed = #placedProps, wanted = wanted })
 	end
@@ -517,9 +509,9 @@ local function placeProps(folder: Instance, half: number)
 	end)
 end
 
--- The wall parts (solid) get a rock look; everything else is built in front of them.
+-- The wall pieces (solid) get a rock look; everything else is built in front of them.
 function SceneryService.build(folder: Instance)
-	local half = Arena.size / 2
+	local radius = Arena.radius
 	local rng = makeRandom()
 
 	local ok, err = pcall(applyLighting)
@@ -532,22 +524,24 @@ function SceneryService.build(folder: Instance)
 		floor.Color = color(Scenery.ground.base)
 		floor.Material = Enum.Material.Grass
 	end
-	for _, wallName in { "WallNorth", "WallSouth", "WallWest", "WallEast" } do
-		local wall = folder:FindFirstChild(wallName)
-		if wall ~= nil and wall:IsA("BasePart") then
-			wall.Color = color(Scenery.walls.color)
-			wall.Material = material(Scenery.walls.material)
+	local walls = folder:FindFirstChild("Walls")
+	if walls ~= nil then
+		for _, wall in walls:GetChildren() do
+			if wall:IsA("BasePart") then
+				wall.Color = color(Scenery.walls.color)
+				wall.Material = material(Scenery.walls.material)
+			end
 		end
 	end
 
 	local decoration = Instance.new("Folder")
 	decoration.Name = "Scenery"
 	decoration.Parent = folder
-	buildPatches(decoration, half, rng)
-	buildPaths(decoration, half, rng)
+	buildPatches(decoration, radius, rng)
+	buildPaths(decoration, radius, rng)
 	buildWaterhole(decoration, rng)
-	buildWallRocks(decoration, half, rng)
-	placeProps(decoration, half)
+	buildWallRocks(decoration, radius, rng)
+	placeProps(decoration, radius)
 	log.info("scenery built")
 end
 

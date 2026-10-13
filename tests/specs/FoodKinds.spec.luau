@@ -70,11 +70,11 @@ end)
 local zones = { center = { radius = 60, count = 80, spawnClearance = 20, weights = { a = 40, b = 40, c = 20 } } }
 
 test("FoodKinds: validateZones accepts a good zone", function()
-	assertEquals(#FoodKinds.validateZones(kinds, zones, 500, 450, 4), 0)
+	assertEquals(#FoodKinds.validateZones(kinds, zones, 300, 450, 4), 0)
 end)
 
 test("FoodKinds: the real zone config is valid", function()
-	local errors = FoodKinds.validateZones(FoodConfig.kinds, FoodConfig.zones, 500, FoodConfig.count, FoodConfig.margin)
+	local errors = FoodKinds.validateZones(FoodConfig.kinds, FoodConfig.zones, 300, FoodConfig.count, FoodConfig.margin)
 	assertEquals(table.concat(errors, "; "), "")
 end)
 
@@ -82,13 +82,13 @@ test("FoodKinds: validateZones reports broken zones", function()
 	local function problems(change: (zone: any) -> ()): { string }
 		local zone = { radius = 60, count = 80, spawnClearance = 20, weights = { a = 40, b = 40, c = 20 } }
 		change(zone)
-		return FoodKinds.validateZones(kinds, { center = zone }, 500, 450, 4)
+		return FoodKinds.validateZones(kinds, { center = zone }, 300, 450, 4)
 	end
 	assertTrue(#problems(function(zone)
 		zone.radius = 0
 	end) > 0, "radius 0")
 	assertTrue(#problems(function(zone)
-		zone.radius = 300
+		zone.radius = 298
 	end) > 0, "disc leaves the arena")
 	assertTrue(#problems(function(zone)
 		zone.count = 500

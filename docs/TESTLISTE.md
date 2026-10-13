@@ -394,3 +394,26 @@ Vorbereitung: `showColliders = true` in `Config/Collision` setzen, damit die Hü
 - [ ] **Bots:** Sie laufen um Bäume und Felsen herum, statt daran hängen zu bleiben (Bot beobachten, der Futter hinter einem Baum anläuft). Keine Bots, die minutenlang an einer Stelle stehen.
 - [ ] **Autofarm:** Mit eingeschaltetem „Auto“ läuft der Dino um Bäume und Felsen herum, auch zu Futter direkt hinter einem Baum und bei der Flucht. Output zeigt einmal `AutoFarmControl obstacles read count=…`.
 - [ ] Keine Fehler im Output, und der Server-Tempoprüfer (`MoveCheck`) zieht niemanden zurück, der an einer Hülle entlanggleitet.
+
+## K2 Runde Arena und Kuppel
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Arena.luau` (`radius`, `wallSegments`), `Config/Dome.luau` und `Config/Food.luau` (`count`). Reine Logik (`DomeShape`, Kreis-Platzierung) ist mit Tests abgedeckt, **die Optik und die Kollision zeigen erst Studio.**
+
+Boden und Wand:
+- [ ] Output zeigt `ArenaService arena built radius=300 walls=64`, `DomeService dome built` und `colliders built`. Im Workspace: `Arena` mit `Floor`, `Walls` (64 Teile), `Dome` und `Scenery`.
+- [ ] Der Boden ist rund (Durchmesser 600), ohne Spalt und ohne Flackern. Die graue Baseplate ist weg.
+- [ ] Die Wand ist rund und geschlossen: Man läuft ringsum an der Wand entlang und **gleitet** daran, ohne an den Ecken der Wandstücke hängen zu bleiben und ohne durch Lücken zu fallen (mit Compy und einem großen Dino).
+- [ ] Die Felsen vor der Wand stehen rundherum, drehen sich mit der Wand mit und ragen nicht durch sie.
+
+Kuppel:
+- [ ] Von innen sieht man das Gerüst (Rippen und Ringe) und durch die Lücken den Himmel; das Glas selbst ist von innen unsichtbar (normal). Die Rippen stören die Sicht nicht und flackern nicht.
+- [ ] Von außen (im Studio-Fenster herauszoomen) ist die Kuppel eine leicht getönte Glasschale mit dem Gerüst.
+- [ ] Die schwebende Lobby (noch unverändert, bis K3) ist sichtbar und nicht verdeckt.
+- [ ] Bildrate auf einem echten Handy (Rippen: etwa 280 Teile): Wenn es ruckelt, in `Config/Dome` `ribs`, `ribSegments` oder die Ringe verringern.
+
+Platzierung im Kreis:
+- [ ] Futter liegt gleichmäßig über der ganzen Scheibe, nicht an der Wand zusammengedrängt, und nicht außerhalb (nichts hinter der Wand). Die Oase in der Mitte ist unverändert.
+- [ ] Bäume, Felsen, Pfade und Flecken liegen nur innerhalb des Kreises; Pfade enden vor der Wand.
+- [ ] Niemand erscheint in oder hinter der Wand (mehrfach neu starten, auch Bots).
+- [ ] Bots und Autofarm laufen nicht in die Wand und bleiben nicht an der Rundung hängen (Flucht an der Wand entlang beobachten).
+- [ ] Die Futtermenge fühlt sich gleich dicht an wie vorher (510 Stücke). Wenn nicht, `count` anpassen.

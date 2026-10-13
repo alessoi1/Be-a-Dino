@@ -28,7 +28,7 @@ Größere Dinos sind stärker, aber nicht zwingend schneller, damit Kleine entko
 
 ## Arena
 
-- Eine quadratische, flache Arena mit Begrenzung, später mehrere Zonen oder Hindernisse zum Verstecken.
+- Eine runde, flache Arena unter einer Glaskuppel (ursprünglich ein Quadrat, seit K2 rund), später mehrere Zonen oder Hindernisse zum Verstecken.
 - Futter ist über die Karte verteilt und wächst nach. Größere Futterarten geben mehr Punkte.
 - Kleine Karte, damit sich Spieler oft begegnen (Agar.io-Prinzip). Spielerzahl pro Server wird in Studio gemessen.
 
@@ -203,7 +203,7 @@ Der Spielentwickler hat eine Feature-Liste zu Futter, Arena, Lobby, Modellen, Na
 | Bereich | Schon da | Neu | Entfällt |
 | --- | --- | --- | --- |
 | Essen | Futter-Pool, drei Größen, Oase, Aufnahme per Server-Takt | Eigene Futtermodelle je Größe, Feedback beim Fressen (Partikel, Sound, kurzer Happs), Hinweis, wofür man frisst (Wachstum) | Nahrungstyp je Dino, Hunger/Heilung |
-| Arena | Quadrat 500 × 500, Mauern, Dschungel-Szenerie (Bäume, Palmen, Felsen, Baumstämme, Wasserloch) | Runde Arena unter Glaskuppel mit Streben, Dschungel ausbauen (Farne, Lianen, Wasser, Deckung, Engstellen) | |
+| Arena | Quadrat 500 × 500 (seit K2 rund, siehe unten), Mauern, Dschungel-Szenerie (Bäume, Palmen, Felsen, Baumstämme, Wasserloch) | Runde Arena unter Glaskuppel mit Streben, Dschungel ausbauen (Farne, Lianen, Wasser, Deckung, Engstellen) | |
 | Lobby | Plattform 140 × 140 schwebend 100 Studs über der Mitte, Kreise für Play/Shop/Dex/Boosters | Lobby **seitlich an der Kuppel**, Sichtfenster in die Arena, gleicher Forschungsstation-Stil | schwebende Lobby über der Arena |
 | Dinos | 50 Dinos aus 6 Platzhalterformen mit Laufanimation (Teile bewegen) | Eigenes Modell je Dino, Animationen Laufen, Idle, Fressen (statt Beißen), Verschwinden (statt Tod) | Health und Bite je Dino |
 | Namen | Bots haben zufällige Namen (Liste plus Nummer) | Name und Size über dem Kopf (Spieler und Bots), skaliert mit Dino-Größe und Entfernung | |
@@ -230,6 +230,8 @@ Der Spielentwickler hat eine Feature-Liste zu Futter, Arena, Lobby, Modellen, Na
 5. **K5 UI und Icons:** Icon-Satz für Stamina, Sprint, Size, Münzen, Autofarm; Hauptmenü, Scoreboard.
 6. **K6 Futter:** Futtermodelle je Größe, Feedback beim Fressen, Hinweis „Eat to grow“.
 7. **K7 Dino-Modelle und Animationen:** Blender-Modelle und Animationen, zuerst eine Körperform als Test, dann die übrigen.
+**K2 Runde Arena und Kuppel (gebaut, 13. Oktober 2026):** Der Boden ist eine Kreisscheibe mit **Radius 300** (600 Studs Durchmesser), die Wand ein Ring aus 64 geraden Stücken (`Config/Arena`: `radius`, `wallSegments`). Alles, was vorher ein Quadrat war, ist ein Kreis: Futter, Spawn, Szenerie (Props, Flecken, Pfade, Felsen an der Wand), Bots und Autofarm (Fliehen und Wandern bleiben im Kreis). `Arena.size` gibt es nicht mehr. **Futter:** 510 statt 450 Stücke, damit die Dichte gleich bleibt (die Fläche ist etwa 13 % größer). **Kuppel:** Eine durchsichtige Halbkugel (nur von außen zu sehen, von innen zeichnet Roblox sie nicht) und ein Gerüst aus 12 Rippen und 5 Ringen aus geraden Balken (`DomeShape`, `DomeService`, `Config/Dome`), nur Optik ohne Kollision (rund 280 Teile). Die schwebende Lobby steht bis K3 unverändert in der Kuppel. Die Werte sind Startwerte.
+
 8. **K8 Dschungel-Feinschliff:** Farne, Lianen, Wasser, Deckung und Engstellen, Spielbarkeit für Kleine und Große (mit Messdaten aus Studio).
 
 ## Weiterhin offen

@@ -173,7 +173,7 @@ function AutoFarmControl.start()
 			loadObstacles()
 		end
 
-		local target = AutoFarm.pickTarget(AutoFarmConfig, Arena, me, foods, others, Arena.size)
+		local target = AutoFarm.pickTarget(AutoFarmConfig, Arena, me, foods, others, Arena.radius)
 		if target.kind == "idle" then
 			humanoid:MoveTo(root.Position)
 		else

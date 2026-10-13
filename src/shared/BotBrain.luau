@@ -60,14 +60,18 @@ function BotBrain.mayGrow(stageIndex: number, maxStageIndex: number): boolean
 	return stageIndex < maxStageIndex
 end
 
--- Keeps a point inside the square arena, `limit` studs from the middle on each axis.
+-- Keeps a point inside the round arena, at most `limit` studs from the middle. A point outside
+-- is moved straight toward the middle; a point that is not a number goes to the middle.
 function BotBrain.clampToArena(x: number, z: number, limit: number): Point
-	return { x = math.clamp(x, -limit, limit), z = math.clamp(z, -limit, limit) }
-end
-
--- A random point inside the arena from two rolls between 0 and 1.
-function BotBrain.randomPoint(limit: number, rollX: number, rollZ: number): Point
-	return { x = (rollX * 2 - 1) * limit, z = (rollZ * 2 - 1) * limit }
+	if not isFinite(x) or not isFinite(z) then
+		return { x = 0, z = 0 }
+	end
+	local distance = math.sqrt(x * x + z * z)
+	if distance <= limit then
+		return { x = x, z = z }
+	end
+	local factor = math.max(0, limit) / distance
+	return { x = x * factor, z = z * factor }
 end
 
 local function distanceBetween(a: Point, b: Point): number

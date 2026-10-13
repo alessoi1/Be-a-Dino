@@ -4,6 +4,7 @@ local FoodSpawn = require("../../src/shared/FoodSpawn")
 
 local test = Framework.test
 local assertEquals = Framework.assertEquals
+local assertNear = Framework.assertNear
 local assertTrue = Framework.assertTrue
 
 test("FoodSpawn: missing count fills up to the target, never above", function()
@@ -36,29 +37,29 @@ test("FoodSpawn: takeDue splits mixed queues", function()
 	assertEquals(remaining[1].id, 3)
 end)
 
-test("FoodSpawn: positions stay inside the arena", function()
+test("FoodSpawn: positions stay inside the round arena", function()
 	local seed = 0
 	local function rng(): number
 		seed = (seed * 37 + 11) % 101
 		return seed / 100
 	end
 	for _ = 1, 500 do
-		local x, z = FoodSpawn.pickPosition(400, 4, rng)
-		assertTrue(x >= -196 and x <= 196, "x " .. x)
-		assertTrue(z >= -196 and z <= 196, "z " .. z)
+		local x, z = FoodSpawn.pickPosition(200, 4, rng)
+		assertTrue(math.sqrt(x * x + z * z) <= 196 + 1e-9, "inside " .. x .. " " .. z)
 	end
 end)
 
-test("FoodSpawn: rng extremes map to the borders", function()
-	local x, z = FoodSpawn.pickPosition(400, 0, function()
+test("FoodSpawn: rng extremes map to the middle and the border", function()
+	local x, z = FoodSpawn.pickPosition(200, 0, function()
 		return 0
 	end)
-	assertEquals(x, -200)
-	assertEquals(z, -200)
-	local x2 = FoodSpawn.pickPosition(400, 0, function()
+	assertEquals(x, 0)
+	assertEquals(z, 0)
+	local x2, z2 = FoodSpawn.pickPosition(200, 0, function()
 		return 1
 	end)
-	assertEquals(x2, 200)
+	assertNear(x2, 200, 1e-6)
+	assertNear(z2, 0, 1e-6)
 end)
 
 local function lcg(seed: number): () -> number
@@ -109,16 +110,16 @@ end)
 test("FoodSpawn: pickPositionOutsideDisc keeps out of the disc and inside the arena", function()
 	local rng = lcg(5)
 	for _ = 1, 1000 do
-		local x, z = FoodSpawn.pickPositionOutsideDisc(500, 4, 0, 0, 60, rng, 20)
+		local x, z = FoodSpawn.pickPositionOutsideDisc(250, 4, 0, 0, 60, rng, 20)
 		assertTrue(math.sqrt(x * x + z * z) > 60, "outside the disc")
-		assertTrue(math.abs(x) <= 246 and math.abs(z) <= 246, "inside the arena")
+		assertTrue(math.sqrt(x * x + z * z) <= 246 + 1e-9, "inside the arena")
 	end
 end)
 
 test("FoodSpawn: pickPositionOutsideDisc gives up after the tries and still returns a position", function()
 	-- an rng that always picks the center, so every try is inside the disc
-	local x, z = FoodSpawn.pickPositionOutsideDisc(500, 4, 0, 0, 60, function()
-		return 0.5
+	local x, z = FoodSpawn.pickPositionOutsideDisc(250, 4, 0, 0, 60, function()
+		return 0
 	end, 3)
 	assertEquals(x, 0)
 	assertEquals(z, 0)

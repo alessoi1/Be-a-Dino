@@ -68,7 +68,8 @@ local function placeFood(id: number)
 		x, z = FoodSpawn.pickPositionInDisc(0, 0, oasis.radius, roll)
 	else
 		kindIndex = FoodKinds.pick(FoodConfig.kinds, roll())
-		x, z = FoodSpawn.pickPositionOutsideDisc(Arena.size, FoodConfig.margin, 0, 0, oasis.radius, roll, OUTSIDE_TRIES)
+		x, z =
+			FoodSpawn.pickPositionOutsideDisc(Arena.radius, FoodConfig.margin, 0, 0, oasis.radius, roll, OUTSIDE_TRIES)
 	end
 	local kind = FoodConfig.kinds[kindIndex]
 	if not FoodField.place(field, id, x, z, kindIndex) then
@@ -167,7 +168,7 @@ end
 function FoodService.start()
 	local problems = FoodKinds.validate(FoodConfig.kinds)
 	for _, problem in
-		FoodKinds.validateZones(FoodConfig.kinds, FoodConfig.zones, Arena.size, FoodConfig.count, FoodConfig.margin)
+		FoodKinds.validateZones(FoodConfig.kinds, FoodConfig.zones, Arena.radius, FoodConfig.count, FoodConfig.margin)
 	do
 		table.insert(problems, problem)
 	end

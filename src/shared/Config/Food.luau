@@ -38,8 +38,9 @@ local zones: { [string]: Zone } = {
 return {
 	kinds = kinds,
 	zones = zones,
-	-- How many pieces exist at most.
-	count = 450,
+	-- How many pieces exist at most (the round arena is about 13 % larger than the old 500 x 500
+	-- square, so the density stays the same).
+	count = 510,
 	-- Seconds until an eaten piece comes back.
 	respawnSeconds = 8,
 	-- Pickup radius in studs: base plus this much per unit of the dino scale.

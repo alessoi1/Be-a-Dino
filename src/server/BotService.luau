@@ -77,7 +77,7 @@ local folder: Folder? = nil
 local lastId = 0
 
 -- How far from the middle a bot may walk on each axis.
-local limit = ArenaConfig.size / 2 - BotsConfig.wallMargin
+local limit = ArenaConfig.radius - BotsConfig.wallMargin
 
 local brainConfig: BotBrain.Config = {
 	eatRatio = ArenaConfig.eatRatio,
