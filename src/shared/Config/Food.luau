@@ -1,19 +1,95 @@
 --!strict
 -- Food values, to be balanced. Points are growth points; sizes are in studs.
 
+export type RGB = { r: number, g: number, b: number }
+export type Vec = { x: number, y: number, z: number }
+
+-- One look of a piece of food (all looks of a kind are worth the same). Until a mesh is uploaded
+-- (`meshId`, 0 = not yet), `shape` draws a simple stand-in: "ball", "block", "cylinder" or "wedge".
+export type FoodVariant = {
+	id: string,
+	shape: string,
+	meshId: number,
+	-- Scale of the mesh (only with a meshId): how big the mesh shows inside the piece.
+	meshScale: Vec,
+	-- Stretches the piece; multiplied by the size of the kind.
+	scale: Vec,
+	color: RGB,
+	-- Relative chance among the looks of the kind.
+	weight: number,
+}
+
 export type FoodKind = {
 	id: string,
 	value: number,
 	-- Relative chance when a piece is placed.
 	weight: number,
 	size: number,
-	color: { r: number, g: number, b: number },
+	-- Base color of the kind (effects and fallbacks); the looks have their own colors.
+	color: RGB,
+	variants: { FoodVariant },
 }
 
+local function rgb(r: number, g: number, b: number): RGB
+	return { r = r, g = g, b = b }
+end
+
+local function vec(x: number, y: number, z: number): Vec
+	return { x = x, y = y, z = z }
+end
+
+local function look(id: string, shape: string, color: RGB, scale: Vec, weight: number): FoodVariant
+	return {
+		id = id,
+		shape = shape,
+		meshId = 0,
+		meshScale = vec(1, 1, 1),
+		scale = scale,
+		color = color,
+		weight = weight,
+	}
+end
+
+-- Small pieces are berries and leaves, medium ones fruit and mushrooms, big ones meat, fish and
+-- eggs. The looks are stand-ins from simple forms; real models replace them one by one by setting
+-- `meshId` (see docs/MODELLE.md).
 local kinds: { FoodKind } = {
-	{ id = "small", value = 1, weight = 85, size = 1, color = { r = 120, g = 220, b = 90 } },
-	{ id = "medium", value = 3, weight = 12, size = 1.6, color = { r = 255, g = 200, b = 60 } },
-	{ id = "large", value = 10, weight = 3, size = 2.4, color = { r = 255, g = 100, b = 100 } },
+	{
+		id = "small",
+		value = 1,
+		weight = 85,
+		size = 1,
+		color = rgb(120, 220, 90),
+		variants = {
+			look("berry", "ball", rgb(206, 64, 112), vec(1, 1, 1), 40),
+			look("leaf", "wedge", rgb(110, 214, 84), vec(1.3, 0.5, 1.5), 35),
+			look("seed", "ball", rgb(226, 190, 96), vec(0.8, 0.8, 1.2), 25),
+		},
+	},
+	{
+		id = "medium",
+		value = 3,
+		weight = 12,
+		size = 1.6,
+		color = rgb(255, 200, 60),
+		variants = {
+			look("fruit", "ball", rgb(255, 160, 40), vec(1, 1, 1), 40),
+			look("melon", "ball", rgb(120, 196, 70), vec(1.15, 0.95, 1.15), 30),
+			look("mushroom", "cylinder", rgb(236, 226, 206), vec(0.7, 1.1, 1.1), 30),
+		},
+	},
+	{
+		id = "large",
+		value = 10,
+		weight = 3,
+		size = 2.4,
+		color = rgb(255, 100, 100),
+		variants = {
+			look("meat", "cylinder", rgb(204, 78, 70), vec(0.9, 1.4, 1.1), 40),
+			look("fish", "wedge", rgb(92, 160, 222), vec(1.6, 0.6, 0.9), 35),
+			look("egg", "ball", rgb(244, 236, 210), vec(0.9, 1.25, 0.9), 25),
+		},
+	},
 }
 
 export type Zone = {

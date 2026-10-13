@@ -8,7 +8,24 @@ local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
 
 local function kind(id: string, value: number, weight: number): FoodKinds.Kind
-	return { id = id, value = value, weight = weight, size = 1, color = { r = 0, g = 0, b = 0 } }
+	return {
+		id = id,
+		value = value,
+		weight = weight,
+		size = 1,
+		color = { r = 0, g = 0, b = 0 },
+		variants = {
+			{
+				id = "plain",
+				shape = "ball",
+				meshId = 0,
+				meshScale = { x = 1, y = 1, z = 1 },
+				scale = { x = 1, y = 1, z = 1 },
+				color = { r = 0, g = 0, b = 0 },
+				weight = 1,
+			},
+		},
+	}
 end
 
 local kinds = { kind("a", 1, 85), kind("b", 3, 12), kind("c", 10, 3) }
@@ -108,4 +125,63 @@ test("FoodKinds: validateZones reports broken zones", function()
 	assertTrue(#problems(function(zone)
 		zone.spawnClearance = -5
 	end) > 0, "negative clearance")
+end)
+
+local function twoVariants(): FoodKinds.Kind
+	local base = kind("v", 1, 1)
+	local first = base.variants[1]
+	local second = table.clone(first)
+	second.id = "second"
+	second.weight = 3
+	base.variants = { first, second }
+	return base
+end
+
+test("FoodKinds: pickVariant follows the variant weights", function()
+	local food = twoVariants()
+	assertEquals(FoodKinds.pickVariant(food, 0), 1)
+	assertEquals(FoodKinds.pickVariant(food, 0.24), 1)
+	assertEquals(FoodKinds.pickVariant(food, 0.25), 2)
+	assertEquals(FoodKinds.pickVariant(food, 0.999), 2)
+	assertEquals(FoodKinds.pickVariant(food, 5), 2, "too big a roll")
+	assertEquals(FoodKinds.pickVariant(food, 0 / 0), 1, "invalid roll")
+end)
+
+test("FoodKinds: a variant without weight is never picked, no variants give 0", function()
+	local food = twoVariants()
+	food.variants[1].weight = 0
+	for i = 0, 9 do
+		assertEquals(FoodKinds.pickVariant(food, i / 10), 2)
+	end
+	food.variants = {}
+	assertEquals(FoodKinds.pickVariant(food, 0.5), 0)
+end)
+
+test("FoodKinds: broken variants are reported", function()
+	local function problems(change: (variant: FoodKinds.Variant) -> ()): number
+		local food = kind("a", 1, 5)
+		change(food.variants[1])
+		return #FoodKinds.validate({ food })
+	end
+	assertTrue(problems(function(variant)
+		variant.shape = "cube"
+	end) > 0, "unknown shape")
+	assertTrue(problems(function(variant)
+		variant.scale = { x = 1, y = 0, z = 1 }
+	end) > 0, "scale 0")
+	assertTrue(problems(function(variant)
+		variant.weight = 0
+	end) > 0, "no weight at all")
+	assertTrue(problems(function(variant)
+		variant.meshId = -3
+	end) > 0, "negative mesh id")
+	local none = kind("a", 1, 5)
+	none.variants = {}
+	assertTrue(#FoodKinds.validate({ none }) > 0, "no variants")
+end)
+
+test("FoodKinds: every kind in the real config has several looks", function()
+	for _, food in FoodConfig.kinds do
+		assertTrue(#food.variants >= 2, food.id .. " should have at least two looks")
+	end
 end)

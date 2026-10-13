@@ -464,3 +464,20 @@ Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Icons.luau`. *
 - [ ] **„Lobby“-Knopf** (in der Arena unten): ein Haus-Icon links vom Text, der Text ist nicht abgeschnitten, auch beim Countdown „Leaving in 5…“.
 - [ ] Die Symbolzeichen werden auf Handy und PC angezeigt (nicht als leeres Kästchen). Falls nicht, die echten Bilder einbauen (`docs/ICONS.md`) oder das Zeichen in `Config/Icons` ändern.
 - [ ] Nichts überlappt auf dem Handy-Emulator (360 × 640 und ein Gerät mit Notch).
+
+## K6 Futter
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/Food.luau` (`variants`) und `Config/FoodEffects.luau`. **Das Aussehen, die Partikel und die Leistung zeigen erst Studio und das Handy.**
+
+Aussehen:
+- [ ] Das Futter sieht abwechslungsreich aus: kleine Stücke als Beeren (rot), Blätter (grün, flach) und Samen (gelb), mittlere als Früchte (orange), Melonen (grün) und Pilze (hell), große als Fleisch (rot-braun), Fische (blau) und Eier (hell). Die Größen bleiben klein, mittel, groß erkennbar.
+- [ ] Die Stücke liegen auf dem Boden schwebend wie vorher (nicht im Boden, nicht zu hoch) und sind zufällig gedreht.
+- [ ] Wachstum und Münzen ändern sich nicht gegenüber vorher: ein Stück gleicher Größe gibt immer gleich viel, egal welches Aussehen.
+- [ ] Output ohne Fehler (`food config invalid`, `food kind without a look`).
+
+Feedback:
+- [ ] Beim Fressen steigt ein kleiner Partikelschwarm in der Farbe des Stücks auf; bei großem Futter sind es mehr Teilchen. Das gilt auch, wenn **andere** oder Bots in der Nähe fressen.
+- [ ] Weit weg (über 80 Studs) gibt es keinen Effekt. Bei vielen Essenden gleichzeitig ruckelt nichts (maximal 20 Effekte pro Sekunde).
+- [ ] Am Rundenanfang steht oben in der Mitte „Eat the food to grow!“; der Hinweis verschwindet nach dem ersten gefressenen Stück oder nach 8 Sekunden und kommt in der nächsten Runde wieder.
+- [ ] Ohne Sound-ID bleibt es still, mit Sound-ID klingt es nicht nervig (Lautstärke und Tonhöhe in `Config/FoodEffects`).
+- [ ] Auf dem Handy: gute Bildrate mit Futter-Teilen (510 Teile mit je einem Mesh-Anhang) und Partikeln.
