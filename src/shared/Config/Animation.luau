@@ -20,6 +20,18 @@ return {
 	tailIdleSwing = 0.12,
 	-- Seconds per sway of the tail while standing.
 	tailIdleSeconds = 2.4,
+	-- Whole-body motion (the "body" joint at the middle of the figure). Lifts are in studs at scale 1,
+	-- angles in radians. Standing: the body rises and falls with the breath (same clock as the tail).
+	breathLift = 0.1,
+	-- Walking: the body bobs up and down twice per step cycle, and leans a little forward.
+	bobLift = 0.08,
+	walkLean = 0.03,
+	-- Eating (the "munch"): the dino nods down and dips, over `eatSeconds`. Only a piece eaten within
+	-- `eatReach` studs per unit of scale of the dino starts it.
+	eatPitch = 0.35,
+	eatDip = 0.15,
+	eatSeconds = 0.35,
+	eatReach = 6,
 	-- The limbs of dinos that are further away from the camera than this are not animated (studs).
 	maxDistance = 140,
 	-- Dinos closer than this are updated in every frame (smooth), the ones between this and

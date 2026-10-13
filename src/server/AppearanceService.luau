@@ -29,6 +29,10 @@ local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 local LOOK_NAME = "DinoLook"
 -- Set on the parts that move; the client turns their joints (see DinoAnimator).
 local LIMB_ATTRIBUTE = "Limb"
+-- Marks the fixed body of a real shape: it hangs on the figure with a Motor6D called "body" (so the
+-- client can nod and bob the whole dino) instead of a weld.
+local BODY_ROOT_ATTRIBUTE = "BodyRoot"
+local BODY_JOINT = "body"
 local MODELS_FOLDER = "Models"
 -- Seconds to wait for the parts of a new character.
 local CHARACTER_WAIT = 5
@@ -270,6 +274,7 @@ local function buildMeshLook(stageId: string, variantId: string?): Model?
 	-- The moving parts turn around their joint, relative to the fixed root part.
 	local rootPart = created[template.root]
 	if rootPart ~= nil then
+		rootPart:SetAttribute(BODY_ROOT_ATTRIBUTE, true)
 		for _, spec in template.parts do
 			local part = created[spec.name]
 			local joint = spec.joint
@@ -360,6 +365,18 @@ local function weld(root: BasePart, part: BasePart)
 	part.Massless = true
 	-- A moving part (leg, tail) hangs on a Motor6D of the look instead (see buildMeshLook).
 	if part:GetAttribute(LIMB_ATTRIBUTE) ~= nil then
+		return
+	end
+	if part:GetAttribute(BODY_ROOT_ATTRIBUTE) == true then
+		-- The joint sits at the middle of the figure (the root of the character), so the whole dino can
+		-- nod and bob around it; straight, it holds the body exactly where the weld would.
+		local motor = Instance.new("Motor6D")
+		motor.Name = BODY_JOINT
+		motor.Part0 = root
+		motor.Part1 = part
+		motor.C0 = CFrame.identity
+		motor.C1 = part.CFrame:ToObjectSpace(root.CFrame)
+		motor.Parent = part
 		return
 	end
 	local constraint = Instance.new("WeldConstraint")

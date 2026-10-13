@@ -28,7 +28,12 @@ type Entry = {
 	lastTime: number,
 	-- Whether the joints were moved at the last update (they are reset when the dino is far away).
 	posed: boolean,
+	-- When the munch began (os.clock), nil when not munching.
+	eatStart: number?,
 }
+
+-- One entry per look model; a new look (a new stage) gets a new entry.
+local entries: { [Model]: Entry } = {}
 
 local log = Log.new("DinoAnimator")
 
@@ -56,6 +61,7 @@ local function newEntry(container: Model, look: Model): Entry?
 		lastPosition = root.Position,
 		lastTime = os.clock(),
 		posed = false,
+		eatStart = nil,
 	}
 end
 
@@ -81,11 +87,46 @@ local function update(entry: Entry, now: number)
 	local scale = entry.container:GetScale()
 	entry.state = DinoAnim.step(AnimationConfig, entry.state, speed, scale, elapsed)
 	local amount = DinoAnim.amount(AnimationConfig, speed)
+	local eating = DinoAnim.eatProgress(AnimationConfig, entry.eatStart, now)
+	if eating == nil then
+		entry.eatStart = nil
+	end
 	for name, motor in entry.motors do
-		local angle = DinoAnim.angle(AnimationConfig, entry.state, name, amount)
-		motor.Transform = if name == "tail" then CFrame.Angles(0, angle, 0) else CFrame.Angles(angle, 0, 0)
+		if name == "body" then
+			local pose = DinoAnim.bodyPose(AnimationConfig, entry.state, amount, eating)
+			-- The lift is in studs at scale 1; the joint is not scaled by the model.
+			motor.Transform = CFrame.new(0, pose.lift * scale, 0) * CFrame.Angles(pose.pitch, 0, 0)
+		else
+			local angle = DinoAnim.angle(AnimationConfig, entry.state, name, amount)
+			motor.Transform = if name == "tail" then CFrame.Angles(0, angle, 0) else CFrame.Angles(angle, 0, 0)
+		end
 	end
 	entry.posed = true
+end
+
+-- A piece of food was eaten at `position`: the nearest dino within reach starts to munch (a nod).
+-- A munch that is already running is not restarted before its middle, so quick bites do not jitter.
+function DinoAnimator.notifyEat(position: Vector3)
+	local now = os.clock()
+	local best: Entry? = nil
+	local bestDistance = math.huge
+	for look, entry in entries do
+		if look.Parent ~= nil and entry.root.Parent ~= nil then
+			local distance = (entry.root.Position - position).Magnitude
+			local reach = AnimationConfig.eatReach * entry.container:GetScale()
+			if distance <= reach and distance < bestDistance then
+				best = entry
+				bestDistance = distance
+			end
+		end
+	end
+	if best == nil then
+		return
+	end
+	local progress = DinoAnim.eatProgress(AnimationConfig, best.eatStart, now)
+	if progress == nil or progress >= 0.5 then
+		best.eatStart = now
+	end
 end
 
 function DinoAnimator.start()
@@ -94,9 +135,6 @@ function DinoAnimator.start()
 		log.error("animation config invalid, not started", { problems = table.concat(problems, "; ") })
 		return
 	end
-
-	-- One entry per look model; a new look (a new stage) gets a new entry.
-	local entries: { [Model]: Entry } = {}
 
 	local function consider(container: Instance)
 		if not container:IsA("Model") then

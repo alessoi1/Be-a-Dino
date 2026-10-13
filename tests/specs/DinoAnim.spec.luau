@@ -147,3 +147,55 @@ test("DinoAnim: the four-legged legs are straight when standing", function()
 		assertTrue(DinoAnim.LIMBS[limb])
 	end
 end)
+
+test("DinoAnim: bad values of the body motion are reported", function()
+	local bad = table.clone(config)
+	bad.eatSeconds = 0
+	bad.breathLift = -1
+	bad.eatPitch = 3
+	assertEquals(#DinoAnim.validate(bad), 3)
+end)
+
+test("DinoAnim: the munch runs from 0 to 1 and then is over", function()
+	assertEquals(DinoAnim.eatProgress(config, nil, 5), nil)
+	assertEquals(DinoAnim.eatProgress(config, 5, 5), 0)
+	assertNear(DinoAnim.eatProgress(config, 5, 5 + config.eatSeconds / 2) :: number, 0.5, 0.0001)
+	assertEquals(DinoAnim.eatProgress(config, 5, 5 + config.eatSeconds + 0.001), nil)
+	assertEquals(DinoAnim.eatProgress(config, 5, 4), nil, "a clock that went backwards")
+	assertEquals(DinoAnim.eatProgress(config, 5, 0 / 0), nil)
+end)
+
+test("DinoAnim: standing the body breathes, rising and falling around the middle", function()
+	local top = DinoAnim.bodyPose(config, { phase = 0, idle = config.tailIdleSeconds / 4 }, 0, nil)
+	local bottom = DinoAnim.bodyPose(config, { phase = 0, idle = config.tailIdleSeconds * 3 / 4 }, 0, nil)
+	assertNear(top.lift, config.breathLift, 0.0001)
+	assertNear(bottom.lift, -config.breathLift, 0.0001)
+	assertEquals(top.pitch, 0)
+end)
+
+test("DinoAnim: walking the body bobs twice per step and leans forward", function()
+	local atZero = DinoAnim.bodyPose(config, { phase = 0, idle = 0 }, 1, nil)
+	local atQuarter = DinoAnim.bodyPose(config, { phase = math.pi / 2, idle = 0 }, 1, nil)
+	local atHalf = DinoAnim.bodyPose(config, { phase = math.pi, idle = 0 }, 1, nil)
+	assertNear(atZero.lift, config.bobLift, 0.0001)
+	assertNear(atQuarter.lift, -config.bobLift, 0.0001)
+	assertNear(atHalf.lift, config.bobLift, 0.0001, "the second bob of the cycle")
+	assertTrue(atZero.pitch < 0, "nose a little down")
+end)
+
+test("DinoAnim: munching nods down most in the middle and ends where it began", function()
+	local state = { phase = 0, idle = 0 }
+	local calm = DinoAnim.bodyPose(config, state, 0, nil)
+	local start = DinoAnim.bodyPose(config, state, 0, 0)
+	local middle = DinoAnim.bodyPose(config, state, 0, 0.5)
+	local finish = DinoAnim.bodyPose(config, state, 0, 1)
+	assertNear(start.pitch, calm.pitch, 0.0001)
+	assertNear(finish.pitch, calm.pitch, 0.0001)
+	assertNear(middle.pitch, calm.pitch - config.eatPitch, 0.0001)
+	assertNear(middle.lift, calm.lift - config.eatDip, 0.0001)
+end)
+
+test("DinoAnim: the body joint is one of the animated limbs, and gets no angle of its own", function()
+	assertTrue(DinoAnim.LIMBS.body == true)
+	assertEquals(DinoAnim.angle(config, { phase = 1, idle = 1 }, "body", 1), 0)
+end)

@@ -12,10 +12,21 @@ export type Config = {
 	tailSwing: number,
 	tailIdleSwing: number,
 	tailIdleSeconds: number,
+	breathLift: number,
+	bobLift: number,
+	walkLean: number,
+	eatPitch: number,
+	eatDip: number,
+	eatSeconds: number,
+	eatReach: number,
 }
 
 -- `phase` runs through one full step cycle in 2 pi; `idle` counts seconds for the slow sway.
 export type State = { phase: number, idle: number }
+
+-- How the whole body of a dino is moved: `pitch` (radians, negative = nose down) and `lift` (studs at
+-- scale 1, positive = up) at the middle of the figure.
+export type Pose = { pitch: number, lift: number }
 
 export type Limb = "legLeft" | "legRight" | "legFrontLeft" | "legFrontRight" | "legBackLeft" | "legBackRight" | "tail"
 
@@ -31,6 +42,8 @@ DinoAnim.LIMBS = {
 	legBackLeft = true,
 	legBackRight = true,
 	tail = true,
+	-- The joint of the whole body (see AppearanceService), moved by bodyPose.
+	body = true,
 }
 
 function DinoAnim.newState(): State
@@ -87,6 +100,36 @@ function DinoAnim.angle(config: Config, state: State, limb: string, amount: numb
 	return 0
 end
 
+-- How far the munch has come at time `now`: 0 at the start, 1 at the end, nil when it is over (or
+-- never began, or the clock is invalid).
+function DinoAnim.eatProgress(config: Config, startedAt: number?, now: number): number?
+	if startedAt == nil or not isFinite(startedAt) or not isFinite(now) or config.eatSeconds <= 0 then
+		return nil
+	end
+	local progress = (now - startedAt) / config.eatSeconds
+	if progress < 0 or progress >= 1 then
+		return nil
+	end
+	return progress
+end
+
+-- The movement of the whole body. Standing it breathes (rises and falls slowly); walking it bobs
+-- twice per step and leans forward a little; while munching (`eating` = progress from eatProgress,
+-- nil when not) it nods down and dips, smoothly in and out.
+function DinoAnim.bodyPose(config: Config, state: State, amount: number, eating: number?): Pose
+	local moving = math.clamp(amount, 0, 1)
+	local breath = math.sin(state.idle / config.tailIdleSeconds * TWO_PI) * config.breathLift * (1 - moving)
+	local bob = math.cos(state.phase * 2) * config.bobLift * moving
+	local pitch = -config.walkLean * moving
+	local lift = breath + bob
+	if eating ~= nil then
+		local pulse = math.sin(math.clamp(eating, 0, 1) * math.pi)
+		pitch -= config.eatPitch * pulse
+		lift -= config.eatDip * pulse
+	end
+	return { pitch = pitch, lift = lift }
+end
+
 -- Returns a list of problems (empty when the values are usable).
 function DinoAnim.validate(config: Config): { string }
 	local errors: { string } = {}
@@ -95,6 +138,21 @@ function DinoAnim.validate(config: Config): { string }
 		if not isFinite(value) or value <= 0 then
 			table.insert(errors, key .. " must be above 0")
 		end
+	end
+	for _, key in { "eatSeconds", "eatReach" } do
+		local value = (config :: any)[key]
+		if not isFinite(value) or value <= 0 then
+			table.insert(errors, key .. " must be above 0")
+		end
+	end
+	for _, key in { "breathLift", "bobLift", "walkLean", "eatPitch", "eatDip" } do
+		local value = (config :: any)[key]
+		if not isFinite(value) or value < 0 then
+			table.insert(errors, key .. " must be 0 or more")
+		end
+	end
+	if isFinite(config.eatPitch) and config.eatPitch > math.pi / 2 then
+		table.insert(errors, "eatPitch is too large")
 	end
 	for _, key in { "standSpeed", "legSwing", "quadLegSwing", "tailSwing", "tailIdleSwing" } do
 		local value = (config :: any)[key]
