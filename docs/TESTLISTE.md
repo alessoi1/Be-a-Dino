@@ -436,3 +436,17 @@ Bedienung:
 - [ ] Die vier Kreise (PLAY, SHOP, DINODEX, BOOSTERS) funktionieren wie vorher; PLAY bringt dich in die Arena (Teleport), „Lobby“ und das Todes-Fenster bringen dich zurück auf die Plattform.
 - [ ] Die drei Ranglisten-Tafeln hängen an der Südseite und sind von der Mitte aus lesbar, sie verdecken die Sicht zum Fenster nicht.
 - [ ] Die Kamera in der Lobby ist angenehm (kein Springen an der Kuppel oder am Geländer).
+
+## K4 Namen über dem Kopf
+
+Stand: noch nicht in Studio getestet. Werte in `src/shared/Config/NameTags.luau` und `Config/Bots.luau` (`renameOnRespawn`). **Die Optik und die Lesbarkeit zeigen erst Studio und das Handy.**
+
+- [ ] Über jedem Dino in der Arena (eigener, andere Spieler, Bots) steht ein Schild: oben der Name, darunter die Size (zum Beispiel „12.3K“). Der **Roblox-Name** über dem Kopf ist weg. Der eigene Name ist gelb.
+- [ ] Die Size auf dem Schild stimmt mit der Anzeige links oben überein und wächst beim Fressen mit (kleine Verzögerung bis etwa 0,2 s ist normal).
+- [ ] Das Schild wächst mit dem Dino und schwebt höher, bleibt aber lesbar (bei Größe 8 nicht riesig, bei Größe 1 nicht winzig). Mit der Entfernung wird es kleiner, am Ende der Reichweite blendet es aus.
+- [ ] Ein großer Dino ist von weiter weg lesbar als ein kleiner. Ein Schild verschwindet, wenn der Dino weit weg ist (Reichweite 120 plus 40 mal Skalierung Studs).
+- [ ] Spieler in der Lobby haben kein Schild; beim Betreten der Arena erscheint es.
+- [ ] Bots haben Namen aus der Liste. Wird ein Bot gefressen, kommt er nach 5 Sekunden mit **neuem Namen** zurück (Log `bot renamed` auf `debug`).
+- [ ] Das „BOUNTY ×3“-Schild eines Markierten schwebt **über** dem Namensschild und überdeckt es nicht.
+- [ ] Auf dem Handy: Schilder gut lesbar, keine Ruckler mit vielen Dinos in der Nähe (Name-Updates laufen etwa 5-mal pro Sekunde).
+- [ ] Keine Fehler im Output (`name tag refresh failed`).

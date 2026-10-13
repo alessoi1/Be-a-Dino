@@ -66,6 +66,8 @@ local REMOVE_DELAY = 1.5
 -- A bot below this height fell out of the arena.
 local LOWEST_Y = -50
 local MODEL_NAME = "Bot"
+-- Model attribute with the size of the bot, for the name tag on the clients.
+local POINTS_ATTRIBUTE = "Points"
 local FOLDER_NAME = "Bots"
 
 local log = Log.new("BotService")
@@ -157,10 +159,13 @@ local function spawnBody(bot: Bot)
 	humanoid.HipHeight = BotsConfig.hipHeight
 	humanoid.DisplayName = bot.name
 	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+	-- The own name tag (client, NameTags) replaces the one of Roblox.
+	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = 0
 	humanoid.Parent = model
 
+	model:SetAttribute(POINTS_ATTRIBUTE, math.floor(bot.state.points))
 	model:PivotTo(CFrame.new(position))
 	model.Parent = folder
 	-- The server walks the bot, so no player's device may take over its physics.
@@ -292,6 +297,7 @@ function BotService.addPoints(id: number, amount: number)
 	if model == nil then
 		return
 	end
+	model:SetAttribute(POINTS_ATTRIBUTE, math.floor(updated.points))
 	local scale = Growth.scaleFor(Dinos, updated)
 	if changed or math.abs(scale - bot.appliedScale) >= GrowthConfig.scaleApplyStep then
 		bot.appliedScale = scale
@@ -375,6 +381,11 @@ local function tick()
 				think(bot, now, all)
 			elseif bot.respawnAt > 0 and now >= bot.respawnAt then
 				bot.state = newState()
+				if BotsConfig.renameOnRespawn then
+					local oldName = bot.name
+					bot.name = pickName()
+					log.debug("bot renamed", { id = bot.id, oldName = oldName, name = bot.name })
+				end
 				spawnBody(bot)
 			end
 		end)

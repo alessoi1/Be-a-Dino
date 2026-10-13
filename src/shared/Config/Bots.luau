@@ -15,6 +15,8 @@ return {
 	thinkInterval = 0.25,
 	-- Seconds between two checks of the number of bots.
 	reconcileInterval = 1,
+	-- A bot that comes back after being eaten gets a new random name.
+	renameOnRespawn = true,
 	-- Seconds between being eaten and coming back, and the protection after coming back.
 	respawnSeconds = 5,
 	protectionSeconds = 4,

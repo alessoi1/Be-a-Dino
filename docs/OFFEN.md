@@ -48,7 +48,7 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] K1 Kollision (Bäume, Felsen, Stämme blockieren; Gleiten; Ausweichen für Bots und Autofarm)
 - [x] K2 Runde Arena unter Glaskuppel (alles auf Radius umgestellt; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K3 Lobby seitlich an der Kuppel mit Sichtfenster (Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
-- [ ] K4 Name und Size über dem Kopf (Spieler und Bots)
+- [x] K4 Name und Size über dem Kopf (Spieler und Bots; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
 - [ ] K5 UI und Icons (Icons liefert der Spielentwickler)
 - [ ] K6 Futtermodelle je Größe, Feedback beim Fressen
 - [ ] K7 Dino-Modelle und Animationen (Blender)

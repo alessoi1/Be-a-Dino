@@ -136,6 +136,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/Lobby.spec")
 	end,
+	function()
+		require("./specs/NameTag.spec")
+	end,
 }
 
 local passed = 0
