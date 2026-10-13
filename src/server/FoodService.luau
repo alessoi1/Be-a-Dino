@@ -73,12 +73,16 @@ local function applyLook(part: Part, kind: FoodConfig.FoodKind, variant: FoodCon
 	end
 	local scale = Vector3.new(variant.scale.x, variant.scale.y, variant.scale.z)
 	part.Size = Vector3.one * kind.size * scale
-	part.Color = Color3.fromRGB(variant.color.r, variant.color.g, variant.color.b)
 	if variant.meshId ~= 0 then
+		-- The mesh (about 1 stud, painted with vertex colors) is drawn as big as the piece; the part
+		-- stays white so the painted colors show.
+		part.Color = Color3.new(1, 1, 1)
 		mesh.MeshType = Enum.MeshType.FileMesh
+		mesh.VertexColor = Vector3.one
 		mesh.MeshId = "rbxassetid://" .. tostring(variant.meshId)
-		mesh.Scale = Vector3.new(variant.meshScale.x, variant.meshScale.y, variant.meshScale.z)
+		mesh.Scale = part.Size * Vector3.new(variant.meshScale.x, variant.meshScale.y, variant.meshScale.z)
 	else
+		part.Color = Color3.fromRGB(variant.color.r, variant.color.g, variant.color.b)
 		mesh.MeshType = MESH_TYPES[variant.shape] or Enum.MeshType.Sphere
 		mesh.MeshId = ""
 		mesh.Scale = Vector3.one
