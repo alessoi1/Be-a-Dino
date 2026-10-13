@@ -16,7 +16,8 @@ local config: AutoFarm.Config = {
 	arenaMargin = 6,
 }
 local rules: AutoFarm.Rules = { eatRatio = 1.2, eatDistanceFactor = 1.5 }
-local ARENA = 500
+-- The radius of the round arena.
+local ARENA = 300
 
 local me: AutoFarm.Me = { x = 0, z = 0, scale = 1 }
 
@@ -91,12 +92,11 @@ test("AutoFarm: no flight while the danger is outside its reach", function()
 end)
 
 test("AutoFarm: flight stays inside the arena", function()
-	local corner: AutoFarm.Me = { x = 240, z = 240, scale = 1 }
-	local others: { AutoFarm.Other } = { { x = 220, z = 220, scale = 3 } }
+	local corner: AutoFarm.Me = { x = 200, z = 200, scale = 1 }
+	local others: { AutoFarm.Other } = { { x = 180, z = 180, scale = 3 } }
 	local target = AutoFarm.pickTarget(config, rules, corner, {}, others, ARENA)
 	assertEquals(target.kind, "flee")
-	assertTrue(math.abs(target.x) <= ARENA / 2 - config.arenaMargin + 1e-9)
-	assertTrue(math.abs(target.z) <= ARENA / 2 - config.arenaMargin + 1e-9)
+	assertTrue(math.sqrt(target.x * target.x + target.z * target.z) <= ARENA - config.arenaMargin + 1e-9)
 end)
 
 test("AutoFarm: standing on the danger still gives a direction", function()
@@ -142,8 +142,8 @@ test("AutoFarm: the real config works with the real eating rules", function()
 	local real: AutoFarm.Config = AutoFarmConfig
 	local realRules: AutoFarm.Rules = Arena
 	local big: { AutoFarm.Other } = { { x = 20, z = 0, scale = 5 } }
-	assertEquals(AutoFarm.pickTarget(real, realRules, me, { food(-50, 0, 1) }, big, Arena.size).kind, "flee")
-	assertEquals(AutoFarm.pickTarget(real, realRules, me, { food(-50, 0, 1) }, {}, Arena.size).kind, "food")
+	assertEquals(AutoFarm.pickTarget(real, realRules, me, { food(-50, 0, 1) }, big, Arena.radius).kind, "flee")
+	assertEquals(AutoFarm.pickTarget(real, realRules, me, { food(-50, 0, 1) }, {}, Arena.radius).kind, "food")
 end)
 
 test("AutoFarm: a session ends after the maximum time", function()

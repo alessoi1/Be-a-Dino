@@ -52,8 +52,14 @@ local function threatsOf(me: Me, others: { Other }, rules: Rules): { Other }
 	return threats
 end
 
-local function clamp(value: number, limit: number): number
-	return math.clamp(value, -limit, limit)
+-- Keeps a point inside the round arena (at most `limit` studs from the middle).
+local function clampToDisc(x: number, z: number, limit: number): (number, number)
+	local distance = math.sqrt(x * x + z * z)
+	if distance <= limit then
+		return x, z
+	end
+	local factor = math.max(0, limit) / distance
+	return x * factor, z * factor
 end
 
 -- Chooses what to do now. A danger close by wins: run in the opposite direction (inside the
@@ -65,13 +71,13 @@ function AutoFarm.pickTarget(
 	me: Me,
 	foods: { Food },
 	others: { Other },
-	arenaSize: number
+	arenaRadius: number
 ): Target
 	local idle: Target = { kind = "idle", x = me.x, z = me.z }
 	if not isFinite(me.x) or not isFinite(me.z) or not isFinite(me.scale) then
 		return idle
 	end
-	local limit = arenaSize / 2 - config.arenaMargin
+	local limit = arenaRadius - config.arenaMargin
 	local threats = threatsOf(me, others, rules)
 
 	-- Run away from the danger I am in (the one I am deepest in).
@@ -91,11 +97,9 @@ function AutoFarm.pickTarget(
 		if length < 1e-6 then
 			dx, dz, length = 1, 0, 1
 		end
-		return {
-			kind = "flee",
-			x = clamp(me.x + dx / length * config.fleeDistance, limit),
-			z = clamp(me.z + dz / length * config.fleeDistance, limit),
-		}
+		local x, z =
+			clampToDisc(me.x + dx / length * config.fleeDistance, me.z + dz / length * config.fleeDistance, limit)
+		return { kind = "flee", x = x, z = z }
 	end
 
 	local best: Food? = nil

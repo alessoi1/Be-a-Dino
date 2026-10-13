@@ -127,6 +127,9 @@ local specs: { () -> () } = {
 	function()
 		require("./specs/Avoidance.spec")
 	end,
+	function()
+		require("./specs/DomeShape.spec")
+	end,
 }
 
 local passed = 0

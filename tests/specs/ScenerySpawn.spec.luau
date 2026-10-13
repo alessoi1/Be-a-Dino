@@ -7,7 +7,8 @@ local test = Framework.test
 local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
 
-local HALF = 250
+-- Radius of the round arena.
+local RADIUS = 300
 
 local function kinds(): { ScenerySpawn.Kind }
 	local list: { ScenerySpawn.Kind } = {}
@@ -20,7 +21,7 @@ end
 local function scatterAll(seed: number): { ScenerySpawn.Placed }
 	local discs = { { x = 0, z = 0, r = 90 } }
 	return ScenerySpawn.scatter(
-		HALF,
+		RADIUS,
 		Scenery.placement.wallMargin,
 		discs,
 		kinds(),
@@ -41,8 +42,8 @@ test("ScenerySpawn: props keep away from the waterhole, the walls and each other
 	local placed = scatterAll(2)
 	for index, prop in placed do
 		assertTrue(math.sqrt(prop.x * prop.x + prop.z * prop.z) >= 90 + prop.radius, "inside the waterhole clearance")
-		local limit = HALF - Scenery.placement.wallMargin - prop.radius
-		assertTrue(math.abs(prop.x) <= limit + 1e-9 and math.abs(prop.z) <= limit + 1e-9, "too close to a wall")
+		local limit = RADIUS - Scenery.placement.wallMargin - prop.radius
+		assertTrue(math.sqrt(prop.x * prop.x + prop.z * prop.z) <= limit + 1e-9, "too close to the wall")
 		for other = index + 1, #placed do
 			local dx, dz = prop.x - placed[other].x, prop.z - placed[other].z
 			assertTrue(math.sqrt(dx * dx + dz * dz) >= prop.radius + placed[other].radius, "props overlap")
@@ -109,33 +110,33 @@ local function rockSpec(): ScenerySpawn.RockSpec
 	}
 end
 
-test("ScenerySpawn: wall rocks stand along all four walls inside the size limits", function()
+test("ScenerySpawn: wall rocks stand all around the wall inside the size limits", function()
 	local spec = rockSpec()
-	local rocks = ScenerySpawn.wallRocks(HALF, spec, Framework.seededRng(6))
-	local perSide = math.floor(2 * HALF / spec.spacing)
-	assertEquals(#rocks, perSide * 4)
-	local sides: { [string]: number } = {}
+	local rocks = ScenerySpawn.wallRocks(RADIUS, spec, Framework.seededRng(6))
+	assertEquals(#rocks, math.floor(2 * math.pi * RADIUS / spec.spacing))
+	local quarters = { 0, 0, 0, 0 }
 	for _, rock in rocks do
-		sides[rock.side] = (sides[rock.side] or 0) + 1
-		assertTrue(math.abs(rock.along) <= HALF)
+		local turn = rock.angle % (2 * math.pi)
+		local quarter = math.min(4, math.floor(turn / (math.pi / 2)) + 1)
+		quarters[quarter] += 1
 		assertTrue(rock.width >= spec.minWidth and rock.width <= spec.maxWidth)
 		assertTrue(rock.height >= spec.minHeight and rock.height <= spec.maxHeight)
 		assertTrue(rock.depth >= spec.minDepth and rock.depth <= spec.maxDepth)
 		assertTrue(rock.tone >= 1 and rock.tone <= spec.tones)
 	end
-	for _, side in { "north", "south", "east", "west" } do
-		assertEquals(sides[side], perSide, side)
+	for index, count in quarters do
+		assertTrue(count > #rocks / 8, "quarter " .. index .. " is nearly empty")
 	end
 end)
 
 test("ScenerySpawn: a path runs outward from the start and stays inside the walls", function()
 	local ground = Scenery.ground
-	local limit = HALF - ground.pathWallInset
+	local limit = RADIUS - ground.pathWallInset
 	for angle = 0, 5 do
 		local points = ScenerySpawn.pathPoints(
 			angle,
 			70,
-			HALF,
+			RADIUS,
 			ground.pathWallInset,
 			ground.pathStep,
 			ground.pathWobble,
@@ -149,19 +150,19 @@ test("ScenerySpawn: a path runs outward from the start and stays inside the wall
 			"path does not go outward"
 		)
 		for _, point in points do
-			assertTrue(math.abs(point.x) <= limit and math.abs(point.z) <= limit, "path leaves the arena")
+			assertTrue(math.sqrt(point.x * point.x + point.z * point.z) <= limit, "path leaves the arena")
 		end
 	end
 end)
 
 test("ScenerySpawn: a path that would start outside is empty", function()
-	assertEquals(#ScenerySpawn.pathPoints(0, 300, HALF, 10, 18, 0.2, Framework.seededRng(1)), 0)
+	assertEquals(#ScenerySpawn.pathPoints(0, 320, RADIUS, 10, 18, 0.2, Framework.seededRng(1)), 0)
 end)
 
 test("ScenerySpawn: patches lie fully inside the arena", function()
 	local ground = Scenery.ground
 	local patches = ScenerySpawn.patches(
-		HALF,
+		RADIUS,
 		ground.patchMargin,
 		ground.patchCount,
 		ground.patchMinRadius,
@@ -171,8 +172,9 @@ test("ScenerySpawn: patches lie fully inside the arena", function()
 	)
 	assertEquals(#patches, ground.patchCount)
 	for _, patch in patches do
-		assertTrue(math.abs(patch.x) + patch.radius <= HALF - ground.patchMargin + 1e-9)
-		assertTrue(math.abs(patch.z) + patch.radius <= HALF - ground.patchMargin + 1e-9)
+		assertTrue(
+			math.sqrt(patch.x * patch.x + patch.z * patch.z) + patch.radius <= RADIUS - ground.patchMargin + 1e-9
+		)
 		assertTrue(patch.tone >= 1 and patch.tone <= #ground.patchColors)
 	end
 end)

@@ -118,7 +118,7 @@ end
 function FoodKinds.validateZones(
 	kinds: { Kind },
 	zones: { [string]: Zone },
-	arenaSize: number,
+	arenaRadius: number,
 	totalCount: number,
 	margin: number
 ): { string }
@@ -133,7 +133,7 @@ function FoodKinds.validateZones(
 		local where = "zone " .. name
 		if not isFinite(zone.radius) or zone.radius <= 0 then
 			table.insert(errors, where .. ": radius must be above 0")
-		elseif zone.radius + margin > arenaSize / 2 then
+		elseif zone.radius + margin > arenaRadius then
 			table.insert(errors, where .. ": the disc does not fit into the arena")
 		end
 		if not isFinite(zone.count) or zone.count < 0 or zone.count % 1 ~= 0 then

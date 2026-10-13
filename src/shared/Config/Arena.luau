@@ -3,8 +3,10 @@
 -- no magic numbers in the code. Sizes are in studs.
 
 return {
-	-- Side length of the square arena floor.
-	size = 500,
+	-- Radius of the round arena floor under the glass dome (600 studs across).
+	radius = 300,
+	-- The wall is a ring of this many straight pieces (the more, the rounder).
+	wallSegments = 64,
 	-- Walls around the arena (studs).
 	wallHeight = 20,
 	wallThickness = 4,

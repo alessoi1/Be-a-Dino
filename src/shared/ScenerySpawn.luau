@@ -9,9 +9,9 @@ export type Placed = { id: string, x: number, z: number, yaw: number, radius: nu
 export type Point = { x: number, z: number }
 export type Patch = { x: number, z: number, radius: number, tone: number }
 export type WallRock = {
-	side: string,
-	-- Position along the wall, from -half to half.
-	along: number,
+	-- Direction from the arena center (radians) in which the rock stands at the wall.
+	angle: number,
+	-- Turn around the upright axis relative to the wall.
 	yaw: number,
 	width: number,
 	height: number,
@@ -42,6 +42,14 @@ local function between(rng: Rng, low: number, high: number): number
 	return low + (high - low) * rng()
 end
 
+-- A random point evenly spread over the disc of `limit` around the middle (the square root of
+-- the distance roll keeps the points from piling up in the middle).
+local function discPoint(limit: number, rng: Rng): (number, number)
+	local angle = between(rng, 0, TWO_PI)
+	local distance = limit * math.sqrt(rng())
+	return distance * math.cos(angle), distance * math.sin(angle)
+end
+
 -- Free space of a spot (studs) to the nearest disc and to the nearest placed prop. Negative
 -- means it overlaps.
 local function gaps(x: number, z: number, radius: number, discs: { Disc }, placed: { Placed }): (number, number)
@@ -58,11 +66,11 @@ local function gaps(x: number, z: number, radius: number, discs: { Disc }, place
 	return toDisc, toProp
 end
 
--- Places `count` props of each kind inside the square (side 2 * half) with `margin` to the
--- walls. Big props first. Of `candidates` random spots the valid one with the most free space to
+-- Places `count` props of each kind inside the round arena (of `radius`) with `margin` to the
+-- wall. Big props first. Of `candidates` random spots the valid one with the most free space to
 -- the other props wins, so the props spread evenly. A prop that finds no valid spot is left out.
 function ScenerySpawn.scatter(
-	half: number,
+	radius: number,
 	margin: number,
 	exclusions: { Disc },
 	kinds: { Kind },
@@ -78,14 +86,13 @@ function ScenerySpawn.scatter(
 		return a.id < b.id
 	end)
 	for _, kind in order do
-		local limit = half - margin - kind.radius
+		local limit = radius - margin - kind.radius
 		if limit > 0 then
 			for _ = 1, kind.count do
 				local best: Placed? = nil
 				local bestGap = -math.huge
 				for _ = 1, candidates do
-					local x = between(rng, -limit, limit)
-					local z = between(rng, -limit, limit)
+					local x, z = discPoint(limit, rng)
 					local toDisc, toProp = gaps(x, z, kind.radius, exclusions, placed)
 					if toDisc >= 0 and toProp >= 0 and toProp > bestGap then
 						best = { id = kind.id, x = x, z = z, yaw = between(rng, 0, TWO_PI), radius = kind.radius }
@@ -101,47 +108,43 @@ function ScenerySpawn.scatter(
 	return placed
 end
 
--- Rock blocks standing in front of the four walls, one every `spacing` studs (shifted by a
--- random share of it). Sizes and tones are random inside the spec.
-function ScenerySpawn.wallRocks(half: number, spec: RockSpec, rng: Rng): { WallRock }
+-- Rock blocks standing in front of the wall ring, one every `spacing` studs along the wall
+-- (shifted by a random share of it). Sizes and tones are random inside the spec.
+function ScenerySpawn.wallRocks(radius: number, spec: RockSpec, rng: Rng): { WallRock }
 	local rocks: { WallRock } = {}
-	local sides = { "north", "south", "east", "west" }
-	local count = math.max(1, math.floor(2 * half / spec.spacing))
-	for _, side in sides do
-		for index = 1, count do
-			local along = -half + (index - 0.5) * (2 * half / count)
-			along += between(rng, -spec.jitter, spec.jitter) * spec.spacing
-			table.insert(rocks, {
-				side = side,
-				along = math.clamp(along, -half, half),
-				yaw = between(rng, -spec.yaw, spec.yaw),
-				width = between(rng, spec.minWidth, spec.maxWidth),
-				height = between(rng, spec.minHeight, spec.maxHeight),
-				depth = between(rng, spec.minDepth, spec.maxDepth),
-				tone = math.floor(rng() * spec.tones) + 1,
-			})
-		end
+	local count = math.max(1, math.floor(TWO_PI * radius / spec.spacing))
+	for index = 1, count do
+		local angle = (index - 0.5) / count * TWO_PI
+		angle += between(rng, -spec.jitter, spec.jitter) * spec.spacing / radius
+		table.insert(rocks, {
+			angle = angle,
+			yaw = between(rng, -spec.yaw, spec.yaw),
+			width = between(rng, spec.minWidth, spec.maxWidth),
+			height = between(rng, spec.minHeight, spec.maxHeight),
+			depth = between(rng, spec.minDepth, spec.maxDepth),
+			tone = math.floor(rng() * spec.tones) + 1,
+		})
 	end
 	return rocks
 end
 
 -- Points of a dirt path that runs from `startRadius` (distance from the middle) in direction
--- `angle` until it is closer than `inset` to a wall. It wobbles by at most `wobble` radians
+-- `angle` until it is closer than `inset` to the wall. It wobbles by at most `wobble` radians
 -- per step but is pulled back to the original direction.
 function ScenerySpawn.pathPoints(
 	angle: number,
 	startRadius: number,
-	half: number,
+	radius: number,
 	inset: number,
 	step: number,
 	wobble: number,
 	rng: Rng
 ): { Point }
-	local limit = half - inset
+	local limit = radius - inset
 	local points: { Point } = {}
 	local x = math.cos(angle) * startRadius
 	local z = math.sin(angle) * startRadius
-	if math.abs(x) > limit or math.abs(z) > limit then
+	if x * x + z * z > limit * limit then
 		return points
 	end
 	table.insert(points, { x = x, z = z })
@@ -151,7 +154,7 @@ function ScenerySpawn.pathPoints(
 		heading = angle + (heading - angle) * (1 - PATH_PULL)
 		x += math.cos(heading) * step
 		z += math.sin(heading) * step
-		if math.abs(x) > limit or math.abs(z) > limit then
+		if x * x + z * z > limit * limit then
 			break
 		end
 		table.insert(points, { x = x, z = z })
@@ -159,9 +162,9 @@ function ScenerySpawn.pathPoints(
 	return points
 end
 
--- Round ground patches of random size and tone, fully inside the square with `margin` to the walls.
+-- Round ground patches of random size and tone, fully inside the round arena with `margin` to the wall.
 function ScenerySpawn.patches(
-	half: number,
+	arenaRadius: number,
 	margin: number,
 	count: number,
 	minRadius: number,
@@ -172,11 +175,12 @@ function ScenerySpawn.patches(
 	local patches: { Patch } = {}
 	for _ = 1, count do
 		local radius = between(rng, minRadius, maxRadius)
-		local limit = half - margin - radius
+		local limit = arenaRadius - margin - radius
 		if limit > 0 then
+			local x, z = discPoint(limit, rng)
 			table.insert(patches, {
-				x = between(rng, -limit, limit),
-				z = between(rng, -limit, limit),
+				x = x,
+				z = z,
 				radius = radius,
 				tone = math.floor(rng() * tones) + 1,
 			})
