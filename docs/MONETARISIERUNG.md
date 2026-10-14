@@ -44,11 +44,22 @@ Vor dem Bau von L8 gilt: aktuelle Roblox-Richtlinien prüfen, die Produkte im Cr
 
 Alle sechs ohne Listung im Shop anlegen (nur im Spiel verkaufen).
 
-## Richtlinienprüfung (Roblox-Dokumentation, 12. Oktober 2026 gelesen)
+## Richtlinienprüfung (Roblox-Dokumentation, 12. Oktober 2026 gelesen; Wiederholung unten)
 
 - **Developer Products:** `ProcessReceipt` genau einmal in einem Server-Skript, `PurchaseGranted` erst nach dem Vergeben, sonst `NotProcessedYet`. `PromptProductPurchase(player, productId)` wird auf der Seite noch ohne Warnung als der Weg zum Auslösen genannt, vom Client nach einem Tipp. Roblox speichert keinen Kaufverlauf pro Spieler; das Merken (Idempotenz) liegt bei uns. Produkte nicht im Shop listen (nur im Spiel verkaufen). Verkauf zwischen Spielen ist seit 30. Mai 2026 abgeschaltet.
 - **Bezahlte Zufallsobjekte** (nur relevant, falls Glückseier doch kommen): alle Chancen als Prozent, Summe genau 100 %, vor dem Kauf; `ArePaidRandomItemsRestricted` per `PolicyService` pro Spieler prüfen und dann Ersatzweg anbieten oder ausblenden; kein Handel mit den Ergebnissen. Zufall, der nur durch Spielen oder mit Münzen (nie mit Robux gekauft) entsteht, braucht keine Offenlegung.
 - Weiterhin offen und von einem Menschen zu lesen: die Community Standards und Nutzungsbedingungen zu Druck-Praktiken und Ausgaben von Minderjährigen (siehe unten).
+
+## Richtlinienprüfung, zweite Runde (14. Oktober 2026)
+
+Die Seiten Developer Products, Paid random items und MarketplaceService im Creator Hub wurden erneut gelesen. Ergebnis: **kein Code muss geändert werden.**
+
+- `ProcessReceipt` bleibt der Weg für Developer Products: ein Skript auf dem Server, `PurchaseGranted` erst nach dem Vergeben, sonst `NotProcessedYet`. `PromptProductPurchaseFinished` wird nicht zum Vergeben benutzt (wir tun das auch nicht).
+- `PromptProductPurchase` ist in der Methodenliste weiterhin als veraltet markiert, die Developer-Products-Seite nennt sie aber ohne Warnung als den Weg und nennt keinen Nachfolger. `PromptPurchase` ist kein Ersatz (sie nimmt eine Asset-ID). Der Aufruf steht nur in `PurchasePrompt.luau` und ist dort leicht austauschbar. Weiter in Studio testen.
+- `BindReceiptHandler` ist laut Referenz für Robux-Überweisungen gedacht und ersetzt `ProcessReceipt` nicht. Wir lassen es dabei.
+- Bezahlte Zufallsobjekte: unverändert (Chancen als Prozent, `ArePaidRandomItemsRestricted`, `IsPaidItemTradingAllowed`). Betrifft uns nicht, solange es keine Glückseier gegen Robux gibt. Auch bezahlte Spielwährung zählt dazu; Münzen gibt es bei uns nie gegen Robux.
+- Neu zu beachten: Produkte werden nur ausserhalb des Spiels verkauft, wenn sie gelistet sind. Unsere sechs Produkte bleiben ungelistet.
+- Die Regeln zu Druck-Praktiken und Ausgaben von Minderjährigen konnte ich weiterhin nicht als Regeltext finden; das muss ein Mensch lesen (Checkliste unten).
 
 ## Wie ein Kauf ablaufen soll
 
