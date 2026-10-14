@@ -12,6 +12,7 @@ local TimeFormat = require(Shared:WaitForChild("TimeFormat"))
 local OfferConfig = require(Shared:WaitForChild("Config"):WaitForChild("Offers"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 -- Base sizes in pixels.
@@ -29,12 +30,16 @@ function PotionHud.start()
 	UiKit.showOnlyInMode(gui, "playing")
 
 	local panel = UiKit.newPanel(gui)
-	panel.Position = UDim2.fromOffset(
-		UiTheme.margin,
-		UiTheme.margin * 4 + UiTheme.statusPanelHeight + UiTheme.lobbyButtonHeight + COIN_DISPLAY_HEIGHT
-	)
 	panel.Visible = false
 	UiKit.addScale(panel)
+	-- Under the coin counter; the panels above grow with the screen scale.
+	UiMetrics.watch(function()
+		panel.Position = UDim2.fromOffset(
+			UiTheme.margin,
+			UiTheme.margin * 4
+				+ (UiTheme.statusPanelHeight + UiTheme.lobbyButtonHeight + COIN_DISPLAY_HEIGHT) * UiMetrics.scale()
+		)
+	end)
 
 	local label = UiKit.newLabel(panel, UiTheme.bodySize)
 	label.Position = UDim2.fromOffset(PADDING, PADDING / 2)

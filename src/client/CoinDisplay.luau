@@ -11,6 +11,7 @@ local NumberFormat = require(Shared:WaitForChild("NumberFormat"))
 local Strings = require(Shared:WaitForChild("Strings"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 -- Base sizes in pixels.
@@ -48,11 +49,12 @@ function CoinDisplay.start()
 		-- Below the status panel in the arena, at the corner in the lobby.
 		local top = UiTheme.margin
 		if player:GetAttribute("Mode") == "playing" then
-			-- Under the status panel and the lobby button.
-			top = UiTheme.margin * 3 + UiTheme.statusPanelHeight + UiTheme.lobbyButtonHeight
+			-- Under the status panel and the lobby button (both grow with the screen scale).
+			top = UiTheme.margin * 3 + (UiTheme.statusPanelHeight + UiTheme.lobbyButtonHeight) * UiMetrics.scale()
 		end
 		panel.Position = UDim2.fromOffset(UiTheme.margin, top)
 	end
+	UiMetrics.watch(refresh)
 
 	player:GetAttributeChangedSignal("Coins"):Connect(refresh)
 	player:GetAttributeChangedSignal("Mode"):Connect(refresh)

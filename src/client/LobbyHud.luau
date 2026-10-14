@@ -13,6 +13,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
+local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 -- Base sizes in pixels.
@@ -50,7 +51,6 @@ function LobbyHud.start()
 	local leave = Instance.new("TextButton")
 	leave.Name = "LeaveButton"
 	leave.AnchorPoint = Vector2.new(0, 0)
-	leave.Position = UDim2.fromOffset(UiTheme.margin, UiTheme.margin * 2 + UiTheme.statusPanelHeight)
 	leave.Size = UDim2.fromOffset(UiTheme.lobbyButtonWidth, UiTheme.lobbyButtonHeight)
 	leave.FontFace = UiTheme.font
 	leave.TextSize = UiTheme.bodySize
@@ -71,6 +71,11 @@ function LobbyHud.start()
 	corner.CornerRadius = UDim.new(0.3, 0)
 	corner.Parent = leave
 	UiKit.addScale(leave)
+	-- Under the status panel, which grows with the screen scale (a scaled panel keeps its offset).
+	UiMetrics.watch(function()
+		leave.Position =
+			UDim2.fromOffset(UiTheme.margin, UiTheme.margin * 2 + UiTheme.statusPanelHeight * UiMetrics.scale())
+	end)
 
 	-- Tapping asks the server to start the wait, or to cancel it while it runs.
 	leave.Activated:Connect(function()
