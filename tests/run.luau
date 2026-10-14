@@ -53,6 +53,9 @@ local specs: { () -> () } = {
 		require("./specs/DailyReward.spec")
 	end,
 	function()
+		require("./specs/Combo.spec")
+	end,
+	function()
 		require("./specs/ProfileData.spec")
 	end,
 	function()

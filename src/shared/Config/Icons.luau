@@ -48,6 +48,7 @@ return {
 	locked = icon("\u{1F512}", 255, 255, 255),
 	-- Messages.
 	ate = icon("\u{1F60B}", 255, 255, 255),
+	combo = icon("\u{1F525}", 255, 255, 255),
 	party = icon("\u{1F389}", 255, 255, 255),
 	timer = icon("\u{23F3}", 255, 255, 255),
 	on = icon("\u{2705}", 255, 255, 255),
