@@ -100,17 +100,17 @@ return {
 		button = "Dinos",
 		title = "Collection",
 		-- %d of %d dinos reached
-		count = "%d of %d dinos",
+		count = "\u{1F996} %d / %d",
 		-- %s = size (short number)
-		best = "Best size: %s",
-		locked = "???",
+		best = "\u{1F3C6} %s",
+		locked = "\u{1F512}",
 		-- %s = size needed (short number)
-		hint = "Reach %s size",
+		hint = "\u{1F4AA} %s",
 		guest = "Not saved",
 		close = "X",
 		back = "<",
 		-- Shown below the best size while the progress is saved: %d of %d variants found.
-		variantsLine = "Variants: %d of %d (tap a dino)",
+		variantsLine = "\u{2728} %d / %d",
 		variantEquipped = "Equipped",
 		variantEquip = "Equip",
 		variantLocked = "Find it in eggs",
@@ -189,12 +189,12 @@ return {
 	eggs = {
 		title = "Dino egg",
 		-- %s = price (short number)
-		price = "%s coins",
+		price = "%s",
 		-- %s = coins the player has (short number)
-		balance = "You have %s coins",
+		balance = "%s",
 		open = "Open egg",
 		opening = "Opening...",
-		notEnough = "Not enough coins",
+		notEnough = "Need more coins",
 		chancesTitle = "Chances",
 		-- %s = variant name, %s = percent number
 		chance = "%s: %s%%",
@@ -244,12 +244,12 @@ return {
 	death = {
 		headline = "Eaten!",
 		-- %s = name of the one who ate you
-		title = "You were eaten by %s",
+		title = "%s ate you",
 		-- %d = seconds until the window closes
 		closing = "Closing in %d",
-		revive = "Revive at your size",
+		revive = "Revive",
 		-- %s = name of the one who ate you
-		bounty = "Bounty on %s",
+		bounty = "Bounty",
 		-- Shown instead of the bounty choice when a bot ate you.
 		bountyBot = "No bounty on bots",
 		-- %d = saved ones that are used with a tap
@@ -258,7 +258,7 @@ return {
 		offer = "View offer",
 		-- Shown on a paid choice that cannot be used (guest, or the profile is not loaded).
 		needsSave = "Needs saved progress",
-		lobby = "Back to lobby",
+		lobby = "Lobby",
 	},
 	respawn = {
 		-- %d = seconds

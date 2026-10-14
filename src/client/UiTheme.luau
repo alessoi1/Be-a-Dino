@@ -44,8 +44,8 @@ return {
 	-- Height of the status panel at the top left (base size).
 	statusPanelHeight = 76,
 	-- Height and width of the "Lobby" button under the status panel (base size).
-	lobbyButtonHeight = 36,
-	lobbyButtonWidth = 210,
+	lobbyButtonHeight = 44,
+	lobbyButtonWidth = 96,
 	-- Colors for dinos that are not reached yet.
 	lockedCard = Color3.fromRGB(70, 70, 70),
 	lockedText = Color3.fromRGB(190, 190, 190),

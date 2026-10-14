@@ -48,10 +48,10 @@ function NoticeToast.start()
 
 	-- Only the newest message is shown; an older timer must not hide it.
 	local shown = 0
-	local function show(text: string, color: Color3?)
+	local function show(text: string, color: Color3?, iconName: string?)
 		shown += 1
 		local mine = shown
-		label.Text = text
+		label.Text = if iconName ~= nil then UiKit.withIcon(iconName, text) else text
 		if edge ~= nil then
 			edge.Color = color or UiTheme.panelEdge
 			edge.Transparency = if color ~= nil then 0 else UiTheme.panelEdgeTransparency
@@ -79,23 +79,28 @@ function NoticeToast.start()
 				local text = if bounty == true then Strings.notice.ateBounty else Strings.notice.ateCoins
 				show(
 					string.format(text, otherName, NumberFormat.compact(points), NumberFormat.compact(coins)),
-					UiTheme.good
+					UiTheme.good,
+					"ate"
 				)
 			else
-				show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)), UiTheme.good)
+				show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)), UiTheme.good, "ate")
 			end
 		elseif kind == "eaten" then
-			show(string.format(Strings.notice.eaten, otherName), UiTheme.danger)
+			show(string.format(Strings.notice.eaten, otherName), UiTheme.danger, "eaten")
 		elseif kind == "revived" then
-			show(Strings.notice.revived, UiTheme.good)
+			show(Strings.notice.revived, UiTheme.good, "revive")
 		elseif kind == "reviveFailed" then
 			show(Strings.notice.reviveFailed)
 		elseif kind == "bountyPlaced" then
-			show(string.format(Strings.notice.bountyPlaced, otherName))
+			show(string.format(Strings.notice.bountyPlaced, otherName), UiTheme.accent, "bounty")
 		elseif kind == "bountyFailed" then
 			show(string.format(Strings.notice.bountyFailed, otherName))
 		elseif kind == "potion" then
-			show(string.format(Strings.notice.potion, Strings.potions.names[otherName] or otherName))
+			show(
+				string.format(Strings.notice.potion, Strings.potions.names[otherName] or otherName),
+				UiTheme.good,
+				"potion_" .. otherName
+			)
 		elseif kind == "potionEnded" then
 			show(string.format(Strings.notice.potionEnded, Strings.potions.names[otherName] or otherName))
 		end
@@ -117,7 +122,7 @@ function NoticeToast.start()
 		local stage = player:GetAttribute("Stage")
 		if typeof(index) == "number" and typeof(lastIndex) == "number" and index > lastIndex then
 			if typeof(stage) == "string" then
-				show(string.format(Strings.notice.evolved, Strings.dinos[stage] or stage), UiTheme.gold)
+				show(string.format(Strings.notice.evolved, Strings.dinos[stage] or stage), UiTheme.gold, "party")
 			end
 		end
 		lastIndex = index

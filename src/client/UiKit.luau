@@ -103,6 +103,21 @@ function UiKit.newIcon(parent: Instance, name: string, size: UDim2): GuiObject
 	return view
 end
 
+-- The symbol character of an icon, for texts that mix a symbol with a number or word.
+function UiKit.glyph(name: string): string
+	local icon = (Icons :: { [string]: Icons.Icon })[name]
+	if icon == nil then
+		log.warn("unknown icon", { name = name })
+		return "?"
+	end
+	return icon.glyph
+end
+
+-- A text with the symbol of an icon in front of it.
+function UiKit.withIcon(name: string, text: string): string
+	return UiKit.glyph(name) .. " " .. text
+end
+
 -- A small "X" button in the top right corner of a window; `onClose` runs when it is tapped.
 function UiKit.addCloseButton(window: GuiObject, onClose: () -> ()): TextButton
 	local button = Instance.new("TextButton")

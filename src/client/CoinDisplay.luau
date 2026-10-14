@@ -38,6 +38,7 @@ function CoinDisplay.start()
 	label.Position = UDim2.fromOffset(PADDING + ICON_SIZE + ICON_GAP, 0)
 	label.Size = UDim2.new(1, -PADDING * 2 - ICON_SIZE - ICON_GAP, 1, 0)
 	label.TextColor3 = UiTheme.own
+	label.TextSize = UiTheme.titleSize
 
 	local function refresh()
 		local coins = player:GetAttribute("Coins")

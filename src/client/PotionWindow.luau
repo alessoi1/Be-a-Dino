@@ -112,23 +112,17 @@ function PotionWindow.start()
 		for _, row in rows do
 			local potion = OfferConfig.potions[row.id]
 			local left = running[row.id] or 0
-			local text = Strings.potions.names[row.id]
+			local time = TimeFormat.compact(if left > 0 then left else potion.durationSeconds)
+			row.info.Text = UiKit.withIcon("potion_" .. row.id, Strings.potions.names[row.id])
 				.. "\n"
 				.. effectText(potion)
 				.. "\n"
-				.. string.format(Strings.potions.duration, TimeFormat.compact(potion.durationSeconds))
-			if left > 0 then
-				text = Strings.potions.names[row.id]
-					.. "\n"
-					.. effectText(potion)
-					.. "\n"
-					.. string.format(Strings.potions.left, TimeFormat.compact(left))
-			end
-			row.info.Text = text
+				.. UiKit.withIcon("timer", time)
 
 			local full = left + potion.durationSeconds > OfferConfig.maxPotionSeconds
 			local enabled = saved and not full
-			row.button.Text = if full then Strings.potions.full else Strings.potions.offer
+			row.button.Text = if full then UiKit.glyph("locked") else UiKit.glyph("offer")
+			row.button.TextSize = UiTheme.titleSize * 1.4
 			row.button.Active = enabled
 			row.button.AutoButtonColor = enabled
 			row.button.BackgroundColor3 = if enabled then UiTheme.accent else UiTheme.lockedCard

@@ -8,7 +8,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Offers = require(Shared:WaitForChild("Offers"))
-local Strings = require(Shared:WaitForChild("Strings"))
 local TimeFormat = require(Shared:WaitForChild("TimeFormat"))
 local OfferConfig = require(Shared:WaitForChild("Config"):WaitForChild("Offers"))
 
@@ -49,7 +48,7 @@ function PotionHud.start()
 		for _, potionId in OfferConfig.potionOrder do
 			local left = running[potionId]
 			if left ~= nil then
-				table.insert(lines, Strings.potions.names[potionId] .. " " .. TimeFormat.compact(left))
+				table.insert(lines, UiKit.withIcon("potion_" .. potionId, TimeFormat.compact(left)))
 			end
 		end
 		panel.Visible = #lines > 0
