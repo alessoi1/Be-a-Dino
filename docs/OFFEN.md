@@ -43,6 +43,8 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 
 ## Hinweise
 
+- 14. Oktober 2026: Futter etwa 1,5-mal grösser (Config/Food), Oberfläche überarbeitet (Glanz-Verlauf, Balken, neues Todes-Fenster, Meldungen mit Farbkante, Size-Icon pro Bestenlistenzeile), Richtlinienprüfung wiederholt (siehe `docs/MONETARISIERUNG.md`). Alle Entwicklungspunkte sind damit im Code erledigt; offen bleiben Studio-Testrunde, Dino-Optik und die Punkte, die von aussen kommen (Branch-Schutz, Developer Products, Icon-Bilder, Sound-ID).
+
 ## Kuppel und Dschungel (Version 3, siehe `docs/KONZEPT.md`)
 
 - [x] K1 Kollision (Bäume, Felsen, Stämme blockieren; Gleiten; Ausweichen für Bots und Autofarm)
