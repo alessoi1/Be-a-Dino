@@ -117,6 +117,10 @@ return {
 	},
 	variants = variantNames,
 	-- Messages when eating or being eaten (%s = name, then the size gained as a short number).
+	frenzy = {
+		-- Banner while the food frenzy runs.
+		title = "Food frenzy",
+	},
 	daily = {
 		title = "Daily gift",
 		-- %d = day number in the row of gifts

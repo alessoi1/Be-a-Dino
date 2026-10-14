@@ -19,7 +19,7 @@ local TweenService = game:GetService("TweenService")
 local WIDTH = 320
 local HEIGHT = 56
 -- Vertical position as a share of the screen height (upper third, clear of the panels).
-local TOP_SHARE = 0.22
+local TOP_SHARE = 0.3
 -- How far the message drops in from above (share of the screen height) and how long that takes.
 local DROP_SHARE = 0.03
 local DROP_SECONDS = 0.25
