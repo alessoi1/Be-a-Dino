@@ -87,6 +87,8 @@ function NoticeToast.start()
 			end
 		elseif kind == "eaten" then
 			show(string.format(Strings.notice.eaten, otherName), UiTheme.danger, "eaten")
+		elseif kind == "daily" then
+			show(string.format(Strings.notice.daily, NumberFormat.compact(points)), UiTheme.gold, "gift")
 		elseif kind == "revived" then
 			show(Strings.notice.revived, UiTheme.good, "revive")
 		elseif kind == "reviveFailed" then

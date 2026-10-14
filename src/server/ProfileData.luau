@@ -27,6 +27,9 @@ export type Data = {
 	credits: { [string]: number },
 	-- The most recent purchase ids, oldest first (a repeated receipt is not granted again).
 	receipts: { string },
+	-- Day number (UTC) of the last claimed daily reward (0 = never), and the streak day of that claim.
+	dailyClaimDay: number,
+	dailyStreak: number,
 }
 
 export type Limits = {
@@ -49,7 +52,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 6
+ProfileData.VERSION = 7
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -80,6 +83,8 @@ function ProfileData.new(now: number): Data
 		potionSeconds = {},
 		credits = {},
 		receipts = {},
+		dailyClaimDay = 0,
+		dailyStreak = 0,
 	}
 end
 
@@ -153,7 +158,7 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 		return false, "coins must be a whole number between 0 and the limit"
 	end
 
-	for _, field in { "kills", "playSeconds" } do
+	for _, field in { "kills", "playSeconds", "dailyClaimDay", "dailyStreak" } do
 		local value = data[field]
 		if not isFiniteNumber(value) or value < 0 or value % 1 ~= 0 or value > limits.maxStat then
 			return false, field .. " must be a whole number between 0 and the limit"

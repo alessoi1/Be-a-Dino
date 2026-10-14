@@ -39,9 +39,12 @@ local Remotes = {
 		-- server -> client event: (dinoId: string, variantId: string, duplicate: boolean,
 		-- refund: number), what the egg gave; display only
 		eggResult = "EggResult",
-		-- server -> client event: (kind: "ate" | "eaten", otherName: string, points: number,
-		-- coins: number?, bounty: boolean?), display only
+		-- server -> client event: (kind: "ate" | "eaten" | "daily" ..., otherName: string,
+		-- points: number, coins: number?, bounty: boolean?), display only
 		notice = "Notice",
+		-- client -> server event: (no arguments), the player claims the daily reward; the server checks
+		-- the profile and the day
+		claimDaily = "ClaimDaily",
 	},
 }
 

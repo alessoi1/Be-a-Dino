@@ -40,4 +40,11 @@ return {
 		data.version = 6
 		return data
 	end,
+	-- 6 -> 7: the daily reward (day of the last claim and the streak).
+	function(data: any): any
+		data.dailyClaimDay = 0
+		data.dailyStreak = 0
+		data.version = 7
+		return data
+	end,
 }

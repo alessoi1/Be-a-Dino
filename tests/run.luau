@@ -50,6 +50,9 @@ local specs: { () -> () } = {
 		require("./specs/UiLayout.spec")
 	end,
 	function()
+		require("./specs/DailyReward.spec")
+	end,
+	function()
 		require("./specs/ProfileData.spec")
 	end,
 	function()
