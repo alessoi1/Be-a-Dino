@@ -12,6 +12,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 
+local MenuState = require(script.Parent:WaitForChild("MenuState"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
@@ -89,8 +90,12 @@ function LobbyHud.start()
 
 		if mode == "lobby" then
 			leave.Visible = false
-			-- No hint while a window is open (shop, dinodex, boosters).
-			local windowOpen = zone == "shop" or zone == "dex" or zone == "boost"
+			-- No hint while any window is open (shop, dinodex, boosters, daily gift, quests).
+			local windowOpen = zone == "shop"
+				or zone == "dex"
+				or zone == "boost"
+				or MenuState.get() ~= nil
+				or MenuState.overlayOpen()
 			hint.Visible = not windowOpen
 			if zone == "play" and player:GetAttribute("ArenaFull") == true then
 				hint.Text = UiKit.withIcon("locked", Strings.lobby.full)

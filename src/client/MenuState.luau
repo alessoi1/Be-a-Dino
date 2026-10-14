@@ -22,6 +22,24 @@ local changedEvent = Instance.new("BindableEvent")
 
 MenuState.changed = changedEvent.Event
 
+-- Windows that are not part of the menu bar (the daily gift, the quests) but also cover the lobby.
+-- They register here, so the lobby hint can step aside while any of them is open.
+local overlays: { GuiObject } = {}
+
+function MenuState.registerOverlay(window: GuiObject)
+	table.insert(overlays, window)
+end
+
+-- True while a registered window is visible.
+function MenuState.overlayOpen(): boolean
+	for _, window in overlays do
+		if window.Visible then
+			return true
+		end
+	end
+	return false
+end
+
 function MenuState.get(): string?
 	return current
 end
