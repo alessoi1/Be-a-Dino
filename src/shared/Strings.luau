@@ -117,6 +117,21 @@ return {
 	},
 	variants = variantNames,
 	-- Messages when eating or being eaten (%s = name, then the size gained as a short number).
+	quests = {
+		title = "Daily quests",
+		-- One short line per quest id (see Config/Quests); %d = the goal.
+		names = {
+			food_60 = "Eat food",
+			food_200 = "Eat lots of food",
+			kill_1 = "Eat a player",
+			kill_3 = "Eat 3 players",
+			grow_2 = "Grow 2 dinos",
+			grow_4 = "Grow 4 dinos",
+			combo_10 = "Combo of 10",
+			combo_25 = "Combo of 25",
+			play_600 = "Play 10 minutes",
+		},
+	},
 	frenzy = {
 		-- Banner while the food frenzy runs.
 		title = "Food frenzy",
