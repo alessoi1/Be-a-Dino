@@ -62,7 +62,7 @@ local kinds: { FoodKind } = {
 		id = "small",
 		value = 1,
 		weight = 85,
-		size = 1,
+		size = 1.5,
 		color = rgb(120, 220, 90),
 		variants = {
 			look("berry", "ball", rgb(206, 64, 112), vec(1, 1, 1), 40, 122433072184492),
@@ -74,7 +74,7 @@ local kinds: { FoodKind } = {
 		id = "medium",
 		value = 3,
 		weight = 12,
-		size = 1.6,
+		size = 2.3,
 		color = rgb(255, 200, 60),
 		variants = {
 			look("fruit", "ball", rgb(255, 160, 40), vec(1, 1, 1), 40, 123324093222242),
@@ -86,7 +86,7 @@ local kinds: { FoodKind } = {
 		id = "large",
 		value = 10,
 		weight = 3,
-		size = 2.4,
+		size = 3.4,
 		color = rgb(255, 100, 100),
 		variants = {
 			look("meat", "cylinder", rgb(204, 78, 70), vec(0.9, 1.4, 1.1), 40, 75342146736680),
