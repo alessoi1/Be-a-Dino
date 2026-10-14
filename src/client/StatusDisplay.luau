@@ -17,7 +17,7 @@ local PANEL_WIDTH = 210
 local PADDING = 8
 local TITLE_HEIGHT = 24
 local DETAIL_HEIGHT = 22
-local BAR_HEIGHT = 10
+local BAR_HEIGHT = 12
 local BAR_GAP = 4
 -- Space between an icon and the text next to it.
 local ICON_GAP = 4
@@ -50,17 +50,9 @@ function StatusDisplay.start()
 	detail.Position = UDim2.fromOffset(PADDING, PADDING + TITLE_HEIGHT)
 	detail.Size = UDim2.new(1, -PADDING * 2, 0, DETAIL_HEIGHT)
 
-	local bar = Instance.new("Frame")
+	local bar, fill = UiKit.newBar(panel, UiTheme.good)
 	bar.Position = UDim2.fromOffset(PADDING, PADDING + TITLE_HEIGHT + DETAIL_HEIGHT + BAR_GAP)
 	bar.Size = UDim2.new(1, -PADDING * 2, 0, BAR_HEIGHT)
-	bar.BackgroundColor3 = UiTheme.panel
-	bar.BorderSizePixel = 0
-	bar.Parent = panel
-	local fill = Instance.new("Frame")
-	fill.Size = UDim2.fromScale(0, 1)
-	fill.BackgroundColor3 = UiTheme.good
-	fill.BorderSizePixel = 0
-	fill.Parent = bar
 
 	local function refresh()
 		local stage = player:GetAttribute("Stage")

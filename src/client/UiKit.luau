@@ -141,7 +141,42 @@ function UiKit.newPanel(parent: Instance): Frame
 	edge.Thickness = PANEL_EDGE
 	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	edge.Parent = panel
+	UiKit.addGloss(panel)
 	return panel
+end
+
+-- A soft light-to-dark gradient from top to bottom; it gives flat fills some depth.
+function UiKit.addGloss(target: GuiObject): UIGradient
+	local gradient = Instance.new("UIGradient")
+	gradient.Name = "Gloss"
+	gradient.Color = ColorSequence.new(UiTheme.glossTop, UiTheme.glossBottom)
+	gradient.Rotation = 90
+	gradient.Parent = target
+	return gradient
+end
+
+-- A progress bar: a dark rounded track with a colored fill. Returns the track and the fill; the
+-- caller sets the size of the track and `fill.Size = UDim2.fromScale(share, 1)`.
+function UiKit.newBar(parent: Instance, color: Color3): (Frame, Frame)
+	local track = Instance.new("Frame")
+	track.BackgroundColor3 = UiTheme.barBack
+	track.BackgroundTransparency = 0.2
+	track.BorderSizePixel = 0
+	track.Parent = parent
+	local trackCorner = Instance.new("UICorner")
+	trackCorner.CornerRadius = UDim.new(0.5, 0)
+	trackCorner.Parent = track
+	local fill = Instance.new("Frame")
+	fill.Name = "Fill"
+	fill.Size = UDim2.fromScale(0, 1)
+	fill.BackgroundColor3 = color
+	fill.BorderSizePixel = 0
+	fill.Parent = track
+	local fillCorner = Instance.new("UICorner")
+	fillCorner.CornerRadius = UDim.new(0.5, 0)
+	fillCorner.Parent = fill
+	UiKit.addGloss(fill)
+	return track, fill
 end
 
 -- Makes a button a bright "bubble": solid fill, thick dark outline, white text with a dark outline.
@@ -158,6 +193,9 @@ function UiKit.styleBubble(button: GuiButton, fill: Color3)
 	outline.Color = UiTheme.outline
 	outline.Thickness = BUTTON_OUTLINE
 	outline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	if button:FindFirstChild("Gloss") == nil then
+		UiKit.addGloss(button)
+	end
 end
 
 -- A short word under an icon of a button (fills `size`, shrinks to fit, white with a dark outline).

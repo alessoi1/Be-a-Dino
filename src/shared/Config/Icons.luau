@@ -29,6 +29,9 @@ return {
 	autofarm = icon("\u{21BB}", 255, 255, 255),
 	-- The leaderboard title.
 	leaderboard = icon("\u{2605}", 255, 214, 80),
+	-- The death window: revive and bounty.
+	revive = icon("\u{2665}", 255, 120, 140),
+	bounty = icon("\u{1F3AF}", 255, 255, 255),
 	-- The button back to the lobby.
 	lobby = icon("\u{2302}", 255, 255, 255),
 	-- The menu bar in the lobby: shop, dinodex and boosters.

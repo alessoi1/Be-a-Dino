@@ -75,19 +75,10 @@ function SprintControl.start()
 	-- Taps go to the button, not to the icon.
 	sprintIcon.Active = false
 
-	local bar = Instance.new("Frame")
+	local bar, fill = UiKit.newBar(gui, UiTheme.accent)
 	bar.Name = "StaminaBar"
 	bar.AnchorPoint = Vector2.new(0.5, 1)
-	bar.BackgroundColor3 = UiTheme.panel
-	bar.BackgroundTransparency = UiTheme.panelTransparency
-	bar.BorderSizePixel = 0
-	bar.Parent = gui
-	local fill = Instance.new("Frame")
-	fill.Name = "Fill"
 	fill.Size = UDim2.fromScale(1, 1)
-	fill.BackgroundColor3 = UiTheme.accent
-	fill.BorderSizePixel = 0
-	fill.Parent = bar
 
 	-- The stamina icon sits left of the bar.
 	local staminaIcon = UiKit.newIcon(gui, "stamina", UDim2.fromOffset(BAR_ICON_SIZE, BAR_ICON_SIZE))

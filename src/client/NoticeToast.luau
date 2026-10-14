@@ -14,11 +14,15 @@ local Ui = require(Shared:WaitForChild("Config"):WaitForChild("Ui"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
+local TweenService = game:GetService("TweenService")
 
 local WIDTH = 320
 local HEIGHT = 56
 -- Vertical position as a share of the screen height (upper third, clear of the panels).
 local TOP_SHARE = 0.22
+-- How far the message drops in from above (share of the screen height) and how long that takes.
+local DROP_SHARE = 0.03
+local DROP_SECONDS = 0.25
 
 local NoticeToast = {}
 
@@ -34,6 +38,8 @@ function NoticeToast.start()
 	box.Visible = false
 	UiKit.addScale(box)
 
+	local edge = box:FindFirstChildOfClass("UIStroke")
+
 	local label = UiKit.newLabel(box, UiTheme.bodySize)
 	label.Size = UDim2.fromScale(1, 1)
 	label.TextXAlignment = Enum.TextXAlignment.Center
@@ -42,10 +48,20 @@ function NoticeToast.start()
 
 	-- Only the newest message is shown; an older timer must not hide it.
 	local shown = 0
-	local function show(text: string)
+	local function show(text: string, color: Color3?)
 		shown += 1
 		local mine = shown
 		label.Text = text
+		if edge ~= nil then
+			edge.Color = color or UiTheme.panelEdge
+			edge.Transparency = if color ~= nil then 0 else UiTheme.panelEdgeTransparency
+		end
+		box.Position = UDim2.fromScale(0.5, TOP_SHARE - DROP_SHARE)
+		TweenService:Create(
+			box,
+			TweenInfo.new(DROP_SECONDS, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+			{ Position = UDim2.fromScale(0.5, TOP_SHARE) }
+		):Play()
 		box.Visible = true
 		task.delay(Ui.noticeSeconds, function()
 			if shown == mine then
@@ -61,14 +77,17 @@ function NoticeToast.start()
 		if kind == "ate" then
 			if typeof(coins) == "number" and coins > 0 then
 				local text = if bounty == true then Strings.notice.ateBounty else Strings.notice.ateCoins
-				show(string.format(text, otherName, NumberFormat.compact(points), NumberFormat.compact(coins)))
+				show(
+					string.format(text, otherName, NumberFormat.compact(points), NumberFormat.compact(coins)),
+					UiTheme.good
+				)
 			else
-				show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)))
+				show(string.format(Strings.notice.ate, otherName, NumberFormat.compact(points)), UiTheme.good)
 			end
 		elseif kind == "eaten" then
-			show(string.format(Strings.notice.eaten, otherName))
+			show(string.format(Strings.notice.eaten, otherName), UiTheme.danger)
 		elseif kind == "revived" then
-			show(Strings.notice.revived)
+			show(Strings.notice.revived, UiTheme.good)
 		elseif kind == "reviveFailed" then
 			show(Strings.notice.reviveFailed)
 		elseif kind == "bountyPlaced" then
@@ -98,7 +117,7 @@ function NoticeToast.start()
 		local stage = player:GetAttribute("Stage")
 		if typeof(index) == "number" and typeof(lastIndex) == "number" and index > lastIndex then
 			if typeof(stage) == "string" then
-				show(string.format(Strings.notice.evolved, Strings.dinos[stage] or stage))
+				show(string.format(Strings.notice.evolved, Strings.dinos[stage] or stage), UiTheme.gold)
 			end
 		end
 		lastIndex = index
