@@ -150,6 +150,7 @@ function DeathScreen.start()
 	local lobby = newChoice(panel, 3, "lobby")
 	revive.word.Text = Strings.death.revive
 	lobby.word.Text = Strings.death.lobby
+	lobby.sub.Text = ""
 	makeEnabled(lobby, UiTheme.lobbyButton)
 
 	local closing = UiKit.newLabel(panel, UiTheme.bodySize)
