@@ -370,3 +370,30 @@ test("ProfileData: a version 5 profile is migrated and keeps everything", functi
 	assertEquals(raw.potionSeconds, nil, "input stays untouched")
 	assertTrue((ProfileData.validate(migrated, Profile)))
 end)
+
+test("ProfileData: a version 6 profile is migrated and gets the daily reward fields", function()
+	local raw: any = {
+		version = 6,
+		createdAt = 9,
+		reachedStages = { compy = true },
+		bestPoints = 12,
+		variants = {},
+		equippedVariants = {},
+		coins = 40,
+		kills = 3,
+		playSeconds = 600,
+		potionSeconds = {},
+		credits = {},
+		receipts = {},
+	}
+	local migrated: any = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	assertEquals(migrated.version, ProfileData.VERSION)
+	assertEquals(migrated.coins, 40)
+	assertEquals(migrated.dailyClaimDay, 0)
+	assertEquals(migrated.dailyStreak, 0)
+	assertEquals(raw.dailyClaimDay, nil, "input stays untouched")
+	assertTrue((ProfileData.validate(migrated, Profile)))
+	migrated.dailyStreak = -1
+	assertTrue(not (ProfileData.validate(migrated, Profile)), "a negative streak is invalid")
+end)

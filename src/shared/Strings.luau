@@ -117,7 +117,15 @@ return {
 	},
 	variants = variantNames,
 	-- Messages when eating or being eaten (%s = name, then the size gained as a short number).
+	daily = {
+		title = "Daily gift",
+		-- %d = day number in the row of gifts
+		day = "Day %d",
+		claim = "Claim",
+	},
 	notice = {
+		-- %s = coins received from the daily gift (short number)
+		daily = "Daily gift: +%s coins",
 		ate = "You ate %s (+%s)",
 		-- %s = name, size gained, coins gained (short numbers)
 		ateCoins = "You ate %s (+%s size, +%s coins)",
