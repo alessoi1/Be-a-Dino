@@ -168,6 +168,26 @@ function ScenerySpawn.pathPoints(
 	return points
 end
 
+-- Discs of radius `radius` along a path (a point every `spacing` studs at most, the path points
+-- included), so props can keep off the path. An empty list or a bad spacing gives no discs.
+function ScenerySpawn.pathDiscs(points: { Point }, spacing: number, radius: number): { Disc }
+	local discs: { Disc } = {}
+	if #points == 0 or spacing <= 0 or radius <= 0 then
+		return discs
+	end
+	table.insert(discs, { x = points[1].x, z = points[1].z, r = radius })
+	for index = 2, #points do
+		local from, to = points[index - 1], points[index]
+		local dx, dz = to.x - from.x, to.z - from.z
+		local steps = math.max(1, math.ceil(math.sqrt(dx * dx + dz * dz) / spacing))
+		for step = 1, steps do
+			local share = step / steps
+			table.insert(discs, { x = from.x + dx * share, z = from.z + dz * share, r = radius })
+		end
+	end
+	return discs
+end
+
 -- Round ground patches of random size and tone, fully inside the round arena with `margin` to the wall.
 function ScenerySpawn.patches(
 	arenaRadius: number,

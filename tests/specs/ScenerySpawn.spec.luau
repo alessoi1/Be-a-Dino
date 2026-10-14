@@ -160,6 +160,52 @@ test("ScenerySpawn: a path that would start outside is empty", function()
 	assertEquals(#ScenerySpawn.pathPoints(0, 320, RADIUS, 10, 18, 0.2, Framework.seededRng(1)), 0)
 end)
 
+test("ScenerySpawn: path discs cover the whole path without gaps", function()
+	local points = { { x = 0, z = 0 }, { x = 18, z = 0 }, { x = 18, z = 18 } }
+	local discs = ScenerySpawn.pathDiscs(points, 6, 5)
+	assertEquals(#discs, 1 + 3 + 3)
+	for _, disc in discs do
+		assertEquals(disc.r, 5)
+	end
+	-- Every spot on the path is inside a disc.
+	for along = 0, 18 do
+		local covered = false
+		for _, disc in discs do
+			if math.sqrt((along - disc.x) ^ 2 + (0 - disc.z) ^ 2) <= disc.r then
+				covered = true
+			end
+		end
+		assertTrue(covered, "gap in the discs at " .. along)
+	end
+end)
+
+test("ScenerySpawn: path discs of nothing or with a bad spacing are empty", function()
+	assertEquals(#ScenerySpawn.pathDiscs({}, 6, 5), 0)
+	assertEquals(#ScenerySpawn.pathDiscs({ { x = 0, z = 0 } }, 0, 5), 0)
+	assertEquals(#ScenerySpawn.pathDiscs({ { x = 0, z = 0 } }, 6, 0), 0)
+	assertEquals(#ScenerySpawn.pathDiscs({ { x = 0, z = 0 } }, 6, 5), 1)
+end)
+
+test("ScenerySpawn: props keep off the path discs", function()
+	local points = { { x = 60, z = 0 }, { x = 280, z = 0 } }
+	local discs = ScenerySpawn.pathDiscs(points, 6, Scenery.ground.pathWidth / 2 + Scenery.ground.pathKeepOut)
+	table.insert(discs, { x = 0, z = 0, r = 90 })
+	local placed = ScenerySpawn.scatter(
+		RADIUS,
+		Scenery.placement.wallMargin,
+		discs,
+		kinds(),
+		Scenery.placement.candidates,
+		Framework.seededRng(21)
+	)
+	assertTrue(#placed > 100, "most props are placed")
+	for _, prop in placed do
+		if prop.x > 60 and prop.x < 280 then
+			assertTrue(math.abs(prop.z) >= Scenery.ground.pathWidth / 2 + prop.radius, "prop on the path")
+		end
+	end
+end)
+
 test("ScenerySpawn: patches lie fully inside the arena", function()
 	local ground = Scenery.ground
 	local patches = ScenerySpawn.patches(

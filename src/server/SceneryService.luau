@@ -151,7 +151,9 @@ local function buildPatches(folder: Instance, radius: number, rng: () -> number)
 	end
 end
 
-local function buildPaths(folder: Instance, radius: number, rng: () -> number)
+-- Returns discs along the paths, so the props keep off them.
+local function buildPaths(folder: Instance, radius: number, rng: () -> number): { ScenerySpawn.Disc }
+	local keepOff: { ScenerySpawn.Disc } = {}
 	local ground = Scenery.ground
 	local oasis = FoodConfig.zones.center
 	local startRadius = oasis.radius + Scenery.waterhole.ringStoneMax
@@ -169,6 +171,9 @@ local function buildPaths(folder: Instance, radius: number, rng: () -> number)
 			ground.pathWobble,
 			rng
 		)
+		for _, disc in ScenerySpawn.pathDiscs(points, ground.pathDiscSpacing, ground.pathWidth / 2 + ground.pathKeepOut) do
+			table.insert(keepOff, disc)
+		end
 		for pointIndex = 1, #points - 1 do
 			local from = Vector3.new(points[pointIndex].x, ground.pathHeight, points[pointIndex].z)
 			local to = Vector3.new(points[pointIndex + 1].x, ground.pathHeight, points[pointIndex + 1].z)
@@ -185,7 +190,8 @@ local function buildPaths(folder: Instance, radius: number, rng: () -> number)
 			segments += 1
 		end
 	end
-	log.info("paths built", { paths = ground.pathCount, segments = segments })
+	log.info("paths built", { paths = ground.pathCount, segments = segments, keepOff = #keepOff })
+	return keepOff
 end
 
 local function buildWallRocks(folder: Instance, radius: number, rng: () -> number)
@@ -671,13 +677,22 @@ end
 -- chokepoints (pairs of rocks) and the cover (groups of plants), then the single props with space
 -- around the waterhole, the ponds, these groups and the walls. The loading of meshes may wait, so
 -- it runs on its own.
-local function placeProps(folder: Instance, radius: number, ponds: { ScenerySpawn.Disc })
+local function placeProps(
+	folder: Instance,
+	radius: number,
+	ponds: { ScenerySpawn.Disc },
+	pathDiscs: { ScenerySpawn.Disc }
+)
 	local placement = Scenery.placement
 	local oasis = FoodConfig.zones.center
 	local exclusions: { ScenerySpawn.Disc } =
 		{ { x = 0, z = 0, r = oasis.radius + Scenery.waterhole.ringStoneMax + placement.waterholeClearance } }
 	for _, pond in ponds do
 		table.insert(exclusions, { x = pond.x, z = pond.z, r = pond.r + Scenery.ponds.clearance })
+	end
+	-- The props (also the gates and the cover) keep off the dirt paths.
+	for _, disc in pathDiscs do
+		table.insert(exclusions, disc)
 	end
 
 	local byId: { [string]: Scenery.PropKind } = {}
@@ -797,7 +812,7 @@ function SceneryService.build(folder: Instance)
 	decoration.Name = "Scenery"
 	decoration.Parent = folder
 	buildPatches(decoration, radius, rng)
-	buildPaths(decoration, radius, rng)
+	local pathDiscs = buildPaths(decoration, radius, rng)
 	buildWaterhole(decoration, rng)
 	buildWallRocks(decoration, radius, rng)
 
@@ -815,7 +830,7 @@ function SceneryService.build(folder: Instance)
 	)
 	buildPonds(decoration, ponds)
 	buildVines(decoration, rng)
-	placeProps(decoration, radius, ponds)
+	placeProps(decoration, radius, ponds, pathDiscs)
 	log.info("scenery built")
 end
 
