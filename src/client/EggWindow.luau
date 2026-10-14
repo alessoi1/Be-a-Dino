@@ -24,7 +24,8 @@ local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 local WINDOW_WIDTH = 320
 local PADDING = 12
 local ROW_HEIGHT = 26
-local TITLE_HEIGHT = 40
+local TITLE_HEIGHT = 56
+local TITLE_SIZE = 44
 local BUTTON_HEIGHT = 52
 local RESULT_HEIGHT = 56
 -- Seconds the shaking egg is shown before the result, and how long the button waits at most.
@@ -66,11 +67,17 @@ function EggWindow.start()
 		return label
 	end
 
-	local title = addLabel(Strings.eggs.title, UiTheme.titleSize, TITLE_HEIGHT)
+	local title = addLabel(UiKit.glyph("shop"), TITLE_SIZE, TITLE_HEIGHT)
 	title.TextXAlignment = Enum.TextXAlignment.Center
-	addLabel(string.format(Strings.eggs.price, NumberFormat.compact(EggConfig.price)), UiTheme.bodySize, ROW_HEIGHT)
+	local price = addLabel(
+		UiKit.withIcon("coin", string.format(Strings.eggs.price, NumberFormat.compact(EggConfig.price))),
+		UiTheme.titleSize,
+		ROW_HEIGHT
+	)
+	price.TextXAlignment = Enum.TextXAlignment.Center
 	local balance = addLabel("", UiTheme.bodySize, ROW_HEIGHT)
 	balance.TextColor3 = UiTheme.own
+	balance.TextXAlignment = Enum.TextXAlignment.Center
 
 	local chancesTitle = addLabel(Strings.eggs.chancesTitle, UiTheme.bodySize, ROW_HEIGHT)
 	chancesTitle.TextColor3 = UiTheme.lockedText
@@ -103,7 +110,7 @@ function EggWindow.start()
 	local function refresh()
 		local coins = player:GetAttribute("Coins")
 		local owned = if typeof(coins) == "number" then coins else 0
-		balance.Text = string.format(Strings.eggs.balance, NumberFormat.compact(owned))
+		balance.Text = UiKit.withIcon("coin", string.format(Strings.eggs.balance, NumberFormat.compact(owned)))
 		local saved = player:GetAttribute("DataReady") == true and player:GetAttribute("DataGuest") ~= true
 		if waiting > 0 then
 			button.Text = Strings.eggs.opening
@@ -114,11 +121,11 @@ function EggWindow.start()
 			button.Active = false
 			button.AutoButtonColor = false
 		elseif owned < EggConfig.price then
-			button.Text = Strings.eggs.notEnough
+			button.Text = UiKit.withIcon("locked", Strings.eggs.notEnough)
 			button.Active = false
 			button.AutoButtonColor = false
 		else
-			button.Text = Strings.eggs.open
+			button.Text = UiKit.withIcon("shop", Strings.eggs.open)
 			button.Active = true
 			button.AutoButtonColor = true
 		end

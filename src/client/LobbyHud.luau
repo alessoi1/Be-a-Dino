@@ -16,13 +16,13 @@ local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
 -- Base sizes in pixels.
-local HINT_WIDTH = 420
-local HINT_HEIGHT = 40
+local HINT_WIDTH = 460
+local HINT_HEIGHT = 44
 local HINT_BOTTOM = 24
 -- The home icon in the leave button: size, gap to the text and distance to the left edge.
-local LEAVE_ICON_SIZE = 24
+local LEAVE_ICON_SIZE = 30
 local LEAVE_ICON_GAP = 4
-local LEAVE_ICON_INSET = 10
+local LEAVE_ICON_INSET = 8
 
 local LobbyHud = {}
 
@@ -88,21 +88,24 @@ function LobbyHud.start()
 			local windowOpen = zone == "shop" or zone == "dex" or zone == "boost"
 			hint.Visible = not windowOpen
 			if zone == "play" and player:GetAttribute("ArenaFull") == true then
-				hint.Text = Strings.lobby.full
+				hint.Text = UiKit.withIcon("locked", Strings.lobby.full)
 			elseif zone == "play" and secondsLeft(player:GetAttribute("ZoneUntil")) > 0 then
-				hint.Text =
+				hint.Text = UiKit.withIcon(
+					"timer",
 					string.format(Strings.lobby.entering, math.ceil(secondsLeft(player:GetAttribute("ZoneUntil"))))
+				)
 			else
-				hint.Text = Strings.lobby.hint
+				hint.Text = UiKit.withIcon("step", Strings.lobby.hint)
 			end
 		elseif mode == "playing" then
 			hint.Visible = false
 			leave.Visible = true
 			local left = secondsLeft(player:GetAttribute("LeaveAt"))
 			if left > 0 then
-				leave.Text = string.format(Strings.lobby.leaving, math.ceil(left))
+				-- Only the seconds; tapping again cancels.
+				leave.Text = tostring(math.ceil(left))
 			else
-				leave.Text = Strings.lobby.leave
+				leave.Text = ""
 			end
 		else
 			hint.Visible = false

@@ -9,7 +9,6 @@ local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Remotes = require(Shared:WaitForChild("Remotes"))
-local Strings = require(Shared:WaitForChild("Strings"))
 
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
@@ -22,9 +21,7 @@ local BAR_WIDTH = 0.3
 local BAR_HEIGHT = 14
 local BAR_BOTTOM_MARGIN = 16
 -- Share of the button the icon fills.
-local ICON_SHARE = 0.5
--- Share of the button height the word under the icon takes.
-local CAPTION_SHARE = 0.26
+local ICON_SHARE = 0.7
 -- The stamina icon left of the bar: size and gap to the bar (base pixels).
 local BAR_ICON_SIZE = 22
 local BAR_ICON_GAP = 6
@@ -66,12 +63,8 @@ function SprintControl.start()
 	corner.Parent = button
 
 	local sprintIcon = UiKit.newIcon(button, "sprint", UDim2.fromScale(ICON_SHARE, ICON_SHARE))
-	sprintIcon.AnchorPoint = Vector2.new(0.5, 0)
-	sprintIcon.Position = UDim2.fromScale(0.5, 0.1)
-	-- The word under the icon says what the button does.
-	local caption = UiKit.newCaption(button, Strings.sprint.button, UDim2.fromScale(0.8, CAPTION_SHARE))
-	caption.AnchorPoint = Vector2.new(0.5, 1)
-	caption.Position = UDim2.fromScale(0.5, 0.94)
+	sprintIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	sprintIcon.Position = UDim2.fromScale(0.5, 0.5)
 	-- Taps go to the button, not to the icon.
 	sprintIcon.Active = false
 

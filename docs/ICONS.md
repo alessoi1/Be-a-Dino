@@ -29,3 +29,7 @@ Für Health, Hunger und Bite gibt es keine Icons, die Systeme entfallen (siehe `
 3. In Studio prüfen: das Bild erscheint statt des Symbols. Wird nichts angezeigt, ist die ID falsch oder das Bild noch nicht freigegeben (Moderation dauert manchmal).
 
 Uploads und Asset-IDs macht der Spielentwickler; keine Schlüssel oder Tokens ins Repo.
+
+## Stand 14. Oktober 2026: Symbole für Kinder
+
+Die Oberfläche arbeitet bildlastig: Fast alle Texte sind durch bunte Emoji-Symbole (`glyph` in `Config/Icons`) ersetzt oder ergänzt, damit Kinder sie ohne Lesen verstehen (Sprint- und Autofarm-Knopf nur Symbol, Todes-Fenster mit drei grossen Bild-Knöpfen, Futter-Zähler und Münzen mit Symbol). Emoji behalten ihre eigenen Farben, `color` ändert sie nicht. Neue Symbole: `eaten`, `food`, `next`, `offer`, `locked`, `ate`, `party`, `timer`, `on`, `step` und `potion_<id>` je Trank. Echte Bilder ersetzen sie wie oben beschrieben über `assetId`; dann `color` auf Weiß setzen, wenn das Bild bunt ist.

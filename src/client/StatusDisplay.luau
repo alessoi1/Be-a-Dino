@@ -24,10 +24,6 @@ local ICON_GAP = 4
 
 local StatusDisplay = {}
 
-local function formatScale(scale: number): string
-	return string.format("%.1f", scale)
-end
-
 function StatusDisplay.start()
 	local player = Players.LocalPlayer
 	local gui = UiKit.newGui("StatusDisplay")
@@ -58,7 +54,6 @@ function StatusDisplay.start()
 		local stage = player:GetAttribute("Stage")
 		local points = player:GetAttribute("Points")
 		local progress = player:GetAttribute("StageProgress")
-		local scale = player:GetAttribute("Scale")
 		local nextStage = player:GetAttribute("NextStage")
 		local missing = player:GetAttribute("PointsToNext")
 
@@ -66,25 +61,22 @@ function StatusDisplay.start()
 		local pointsValue = if typeof(points) == "number" then points else 0
 		title.Text = string.format("%s · %s", name, NumberFormat.compact(pointsValue))
 
-		local sizeText = if typeof(scale) == "number"
-			then string.format(Strings.status.size, formatScale(scale))
-			else ""
 		local wayText: string
 		if typeof(nextStage) == "string" and nextStage ~= "" and typeof(missing) == "number" then
-			wayText = string.format(
-				Strings.status.toNext,
-				NumberFormat.compact(missing),
-				Strings.dinos[nextStage] or nextStage
-			)
+			wayText = UiKit.withIcon("food", NumberFormat.compact(missing))
+				.. " "
+				.. UiKit.glyph("next")
+				.. " "
+				.. (Strings.dinos[nextStage] or nextStage)
 		else
-			wayText = Strings.status.maxStage
+			wayText = UiKit.withIcon("party", Strings.status.maxStage)
 		end
-		detail.Text = wayText .. " · " .. sizeText
+		detail.Text = wayText
 
 		fill.Size = UDim2.fromScale(if typeof(progress) == "number" then math.clamp(progress, 0, 1) else 0, 1)
 	end
 
-	for _, attribute in { "Stage", "Points", "StageProgress", "Scale", "NextStage", "PointsToNext" } do
+	for _, attribute in { "Stage", "Points", "StageProgress", "NextStage", "PointsToNext" } do
 		player:GetAttributeChangedSignal(attribute):Connect(refresh)
 	end
 	refresh()
