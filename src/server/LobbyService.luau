@@ -34,7 +34,7 @@ local SPAWN_HEIGHT = 4
 local SPAWN_TRIES = 20
 -- Looks of the platform and the circles (no game values).
 local DISC_THICKNESS = 0.3
-local LABEL_HEIGHT = 8
+local LABEL_HEIGHT = 5
 local LABEL_WIDTH = 220
 local LABEL_HEIGHT_PIXELS = 60
 local LABEL_MAX_DISTANCE = 160

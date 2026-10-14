@@ -21,8 +21,8 @@ local log = Log.new("LobbyDecor")
 -- Looks only (no game values).
 local RAIL_CLEAR = 2
 local SIGN_PIXELS_PER_STUD = 20
-local SIGN_TOP_PIXELS = 40
-local SIGN_HEIGHT_PIXELS = 130
+local SIGN_TOP_PIXELS = 100
+local SIGN_HEIGHT_PIXELS = 94
 local BONE_RIB_TILT = 0.55
 local TAIL_PARTS = 6
 local SPINE_PARTS = 12
