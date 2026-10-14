@@ -45,6 +45,9 @@ local Remotes = {
 		-- client -> server event: (no arguments), the player claims the daily reward; the server checks
 		-- the profile and the day
 		claimDaily = "ClaimDaily",
+		-- client -> server event: (questId: string), the player claims the coins of a finished daily
+		-- quest; the server checks the day, the progress and that it was not claimed yet
+		claimQuest = "ClaimQuest",
 	},
 }
 

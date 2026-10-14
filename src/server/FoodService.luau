@@ -23,6 +23,7 @@ local ComboService = require(script.Parent:WaitForChild("ComboService"))
 local FrenzyService = require(script.Parent:WaitForChild("FrenzyService"))
 local OfferService = require(script.Parent:WaitForChild("OfferService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local QuestService = require(script.Parent:WaitForChild("QuestService"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Pending = { id: number, readyAt: number }
@@ -284,7 +285,9 @@ local function collectFor(player: Player, now: number)
 	-- The food frenzy of the whole server raises it as well.
 	total *= FrenzyService.factor()
 	PlayerState.addPoints(player, total)
-	ComboService.hit(player, now)
+	local combo = ComboService.hit(player, now)
+	QuestService.record(player, "food", 1)
+	QuestService.record(player, "combo", combo)
 	log.debug("food eaten", { userId = player.UserId, points = total })
 end
 

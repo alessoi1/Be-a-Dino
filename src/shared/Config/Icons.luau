@@ -54,6 +54,7 @@ return {
 	on = icon("\u{2705}", 255, 255, 255),
 	step = icon("\u{1F463}", 255, 255, 255),
 	-- Potions (by potion id, see Config/Offers).
+	quest = icon("\u{1F4CB}", 255, 255, 255),
 	gift = icon("\u{1F381}", 255, 255, 255),
 	potion_growth = icon("\u{1F331}", 255, 255, 255),
 	potion_coin = icon("\u{1F4B0}", 255, 255, 255),

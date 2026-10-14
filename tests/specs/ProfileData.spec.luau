@@ -397,3 +397,38 @@ test("ProfileData: a version 6 profile is migrated and gets the daily reward fie
 	migrated.dailyStreak = -1
 	assertTrue(not (ProfileData.validate(migrated, Profile)), "a negative streak is invalid")
 end)
+
+test("ProfileData: a version 7 profile is migrated and gets empty daily quests", function()
+	local raw: any = {
+		version = 7,
+		createdAt = 9,
+		reachedStages = {},
+		bestPoints = 0,
+		variants = {},
+		equippedVariants = {},
+		coins = 5,
+		kills = 0,
+		playSeconds = 0,
+		potionSeconds = {},
+		credits = {},
+		receipts = {},
+		dailyClaimDay = 20000,
+		dailyStreak = 3,
+	}
+	local migrated: any = ProfileData.migrate(raw, Migrations, ProfileData.VERSION)
+	assertTrue(migrated ~= nil)
+	assertEquals(migrated.version, ProfileData.VERSION)
+	assertEquals(migrated.dailyStreak, 3)
+	assertEquals(migrated.quests.day, 0)
+	assertEquals(next(migrated.quests.progress), nil)
+	assertEquals(raw.quests, nil, "input stays untouched")
+	assertTrue((ProfileData.validate(migrated, Profile)))
+	migrated.quests.progress = { a = 1.5 }
+	assertTrue(not (ProfileData.validate(migrated, Profile)), "a fractional progress is invalid")
+	migrated.quests.progress = {}
+	migrated.quests.claimed = { a = false }
+	assertTrue(not (ProfileData.validate(migrated, Profile)), "claimed holds only true")
+	migrated.quests.claimed = {}
+	migrated.quests.day = -1
+	assertTrue(not (ProfileData.validate(migrated, Profile)), "a negative day is invalid")
+end)

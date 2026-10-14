@@ -47,4 +47,10 @@ return {
 		data.version = 7
 		return data
 	end,
+	-- 7 -> 8: the daily quests (day, progress per quest and the claimed ones).
+	function(data: any): any
+		data.quests = { day = 0, progress = {}, claimed = {} }
+		data.version = 8
+		return data
+	end,
 }

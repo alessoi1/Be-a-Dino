@@ -59,6 +59,9 @@ local specs: { () -> () } = {
 		require("./specs/Frenzy.spec")
 	end,
 	function()
+		require("./specs/Quests.spec")
+	end,
+	function()
 		require("./specs/ProfileData.spec")
 	end,
 	function()

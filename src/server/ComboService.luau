@@ -15,11 +15,12 @@ local states: { [Player]: Combo.State } = {}
 local ComboService = {}
 
 -- A piece of food was eaten by the player at server time `now`.
-function ComboService.hit(player: Player, now: number)
+function ComboService.hit(player: Player, now: number): number
 	local state = Combo.bump(states[player], now, ComboConfig.windowSeconds)
 	states[player] = state
 	player:SetAttribute("ComboCount", state.count)
 	player:SetAttribute("ComboUntil", now + ComboConfig.windowSeconds)
+	return state.count
 end
 
 -- Ends the combo at once (the player died or left the arena).

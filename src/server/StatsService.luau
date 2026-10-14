@@ -16,6 +16,7 @@ local ProfileConfig = require(Shared:WaitForChild("Config"):WaitForChild("Profil
 
 local DataService = require(script.Parent:WaitForChild("DataService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
+local QuestService = require(script.Parent:WaitForChild("QuestService"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
 
 type Counters = { kills: number, playSeconds: number }
@@ -45,6 +46,7 @@ function StatsService.addKill(player: Player)
 		return
 	end
 	counters.kills = Stats.add(counters.kills, 1, ProfileConfig.maxStat)
+	QuestService.record(player, "kill", 1)
 	log.debug("kill counted", { userId = player.UserId, kills = counters.kills })
 end
 
@@ -90,6 +92,7 @@ function StatsService.start()
 				local counters = target(player)
 				if whole > 0 and counters ~= nil then
 					counters.playSeconds = Stats.add(counters.playSeconds, whole, ProfileConfig.maxStat)
+					QuestService.record(player, "play", whole)
 				end
 			end
 		end

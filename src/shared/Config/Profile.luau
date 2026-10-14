@@ -22,4 +22,6 @@ return {
 	maxCredits = 100,
 	maxReceipts = 200,
 	maxReceiptLength = 128,
+	-- Most entries in the progress and in the claimed list of the daily quests.
+	maxQuestEntries = 16,
 }

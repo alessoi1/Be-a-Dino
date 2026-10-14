@@ -30,6 +30,8 @@ export type Data = {
 	-- Day number (UTC) of the last claimed daily reward (0 = never), and the streak day of that claim.
 	dailyClaimDay: number,
 	dailyStreak: number,
+	-- The daily quests of the day `quests.day`: progress per quest id and the ones whose coins were taken.
+	quests: { day: number, progress: { [string]: number }, claimed: { [string]: boolean } },
 }
 
 export type Limits = {
@@ -44,6 +46,7 @@ export type Limits = {
 	maxCredits: number,
 	maxReceipts: number,
 	maxReceiptLength: number,
+	maxQuestEntries: number,
 }
 
 -- Turns data of version n into data of version n + 1 (and sets `version`).
@@ -52,7 +55,7 @@ export type Migration = (data: any) -> any
 
 local ProfileData = {}
 
-ProfileData.VERSION = 7
+ProfileData.VERSION = 8
 
 local function isFiniteNumber(value: any): boolean
 	return type(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
@@ -85,6 +88,7 @@ function ProfileData.new(now: number): Data
 		receipts = {},
 		dailyClaimDay = 0,
 		dailyStreak = 0,
+		quests = { day = 0, progress = {}, claimed = {} },
 	}
 end
 
@@ -216,6 +220,34 @@ function ProfileData.validate(data: any, limits: Limits): (boolean, string?)
 	end
 	if receiptCount ~= #data.receipts then
 		return false, "receipts must be a list without gaps"
+	end
+
+	local quests = data.quests
+	if type(quests) ~= "table" then
+		return false, "quests must be a table"
+	end
+	if not isFiniteNumber(quests.day) or quests.day < 0 or quests.day % 1 ~= 0 or quests.day > limits.maxStat then
+		return false, "quests.day must be a whole number between 0 and the limit"
+	end
+	if type(quests.progress) ~= "table" or type(quests.claimed) ~= "table" then
+		return false, "quests.progress and quests.claimed must be tables"
+	end
+	local progressEntries = 0
+	for questId, amount in quests.progress do
+		if type(questId) ~= "string" or not isFiniteNumber(amount) or amount < 0 or amount % 1 ~= 0 then
+			return false, "quests.progress holds only quest ids with whole numbers"
+		end
+		progressEntries += 1
+	end
+	local claimedEntries = 0
+	for questId, flag in quests.claimed do
+		if type(questId) ~= "string" or flag ~= true then
+			return false, "quests.claimed holds only quest ids set to true"
+		end
+		claimedEntries += 1
+	end
+	if progressEntries > limits.maxQuestEntries or claimedEntries > limits.maxQuestEntries then
+		return false, "too many quest entries"
 	end
 	return true, nil
 end
