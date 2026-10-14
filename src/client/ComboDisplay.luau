@@ -20,7 +20,7 @@ local WIDTH = 150
 local HEIGHT = 60
 local TEXT_SIZE = 34
 -- Vertical position as a share of the screen height (between the top panels and the messages).
-local TOP_SHARE = 0.1
+local TOP_SHARE = 0.16
 -- How much bigger the label pops on a new piece and on a milestone, and how long that takes.
 local POP_SCALE = 1.15
 local MILESTONE_POP_SCALE = 1.5

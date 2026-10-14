@@ -20,6 +20,7 @@ local Arena = require(Shared:WaitForChild("Config"):WaitForChild("Arena"))
 local FoodConfig = require(Shared:WaitForChild("Config"):WaitForChild("Food"))
 
 local ComboService = require(script.Parent:WaitForChild("ComboService"))
+local FrenzyService = require(script.Parent:WaitForChild("FrenzyService"))
 local OfferService = require(script.Parent:WaitForChild("OfferService"))
 local PlayerState = require(script.Parent:WaitForChild("PlayerState"))
 local ServerClock = require(script.Parent:WaitForChild("ServerClock"))
@@ -280,6 +281,8 @@ local function collectFor(player: Player, now: number)
 	end
 	-- A running growth potion raises the points from food (not from eating players).
 	total *= OfferService.growthFactor(player)
+	-- The food frenzy of the whole server raises it as well.
+	total *= FrenzyService.factor()
 	PlayerState.addPoints(player, total)
 	ComboService.hit(player, now)
 	log.debug("food eaten", { userId = player.UserId, points = total })
