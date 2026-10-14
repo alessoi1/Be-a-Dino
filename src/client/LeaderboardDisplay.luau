@@ -16,12 +16,14 @@ local Ui = require(Shared:WaitForChild("Config"):WaitForChild("Ui"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
-local PANEL_WIDTH = 150
+local PANEL_WIDTH = 176
 local PADDING = 8
 local TITLE_HEIGHT = 24
 local ROW_HEIGHT = 22
-local POINTS_WIDTH = 48
+local POINTS_WIDTH = 52
 local ICON_GAP = 4
+-- The size icon in front of the points of a row.
+local ROW_ICON = 16
 -- Bots live in this folder of the workspace (see BotService).
 local BOTS_FOLDER = "Bots"
 
@@ -33,6 +35,9 @@ local LeaderboardDisplay = {}
 type Entry = { id: number, name: string, points: number, stageId: string }
 
 type RowViews = { row: Frame, name: TextLabel, points: TextLabel }
+
+-- Name color by rank: the first three get a medal color.
+local RANK_COLORS = { UiTheme.gold, UiTheme.silver, UiTheme.bronze }
 
 local function readEntry(player: Player): Entry
 	local points = player:GetAttribute("Points")
@@ -101,7 +106,11 @@ function LeaderboardDisplay.start()
 		row.Parent = panel
 
 		local name = UiKit.newLabel(row, UiTheme.bodySize)
-		name.Size = UDim2.new(1, -POINTS_WIDTH, 1, 0)
+		name.Size = UDim2.new(1, -POINTS_WIDTH - ROW_ICON - ICON_GAP * 2, 1, 0)
+
+		local sizeIcon = UiKit.newIcon(row, "size", UDim2.fromOffset(ROW_ICON, ROW_ICON))
+		sizeIcon.AnchorPoint = Vector2.new(1, 0.5)
+		sizeIcon.Position = UDim2.new(1, -POINTS_WIDTH - ICON_GAP, 0.5, 0)
 
 		local points = UiKit.newLabel(row, UiTheme.bodySize)
 		points.AnchorPoint = Vector2.new(1, 0)
@@ -134,7 +143,7 @@ function LeaderboardDisplay.start()
 			view.row.Visible = true
 			view.name.Text = string.format("%d. %s", data.rank, data.name)
 			view.points.Text = NumberFormat.compact(data.points)
-			local color = if data.isOwn then UiTheme.own else UiTheme.text
+			local color = if data.isOwn then UiTheme.own else RANK_COLORS[data.rank] or UiTheme.text
 			view.name.TextColor3 = color
 			view.points.TextColor3 = color
 		end

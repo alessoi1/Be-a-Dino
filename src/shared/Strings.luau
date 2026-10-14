@@ -242,19 +242,18 @@ return {
 		"Tank",
 	},
 	death = {
+		headline = "Eaten!",
 		-- %s = name of the one who ate you
 		title = "You were eaten by %s",
 		-- %d = seconds until the window closes
 		closing = "Closing in %d",
 		revive = "Revive at your size",
-		-- %d = saved revives
-		reviveSaved = "Revive at your size (saved: %d)",
 		-- %s = name of the one who ate you
 		bounty = "Bounty on %s",
 		-- Shown instead of the bounty choice when a bot ate you.
 		bountyBot = "No bounty on bots",
-		-- %d = saved bounties
-		bountySaved = "Bounty on %s (saved: %d)",
+		-- %d = saved ones that are used with a tap
+		savedCount = "Use a saved one (%d left)",
 		-- Second line of a paid choice that opens the purchase dialog.
 		offer = "View offer",
 		-- Shown on a paid choice that cannot be used (guest, or the profile is not loaded).

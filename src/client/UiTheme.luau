@@ -16,6 +16,21 @@ return {
 	accent = Color3.fromRGB(255, 170, 40),
 	good = Color3.fromRGB(110, 200, 90),
 	own = Color3.fromRGB(255, 225, 120),
+	danger = Color3.fromRGB(226, 70, 70),
+	-- Ranks 1 to 3 in the leaderboard.
+	gold = Color3.fromRGB(255, 214, 80),
+	silver = Color3.fromRGB(210, 220, 235),
+	bronze = Color3.fromRGB(226, 150, 90),
+	-- Empty part of a progress bar.
+	barBack = Color3.fromRGB(8, 16, 36),
+	-- Dim layer over the whole screen behind the death window.
+	dim = Color3.fromRGB(60, 8, 12),
+	-- Buttons of the death window.
+	reviveButton = Color3.fromRGB(240, 170, 40),
+	bountyButton = Color3.fromRGB(214, 64, 76),
+	-- Gloss of panels and buttons: the top is lighter (multiplied with the fill color).
+	glossTop = Color3.fromRGB(255, 255, 255),
+	glossBottom = Color3.fromRGB(150, 150, 165),
 	-- Bright buttons (the fill; the outline is dark).
 	sprintButton = Color3.fromRGB(255, 150, 30),
 	autoOff = Color3.fromRGB(226, 70, 70),
