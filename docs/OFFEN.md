@@ -55,6 +55,15 @@ Von Hand pflegen. Erledigtes mit `[x]` abhaken.
 - [x] K6 Futtermodelle je Größe, Feedback beim Fressen (Code fertig mit Platzhalterformen, echte Meshes und Sound-ID offen; Studio-Test offen, siehe docs/TESTLISTE.md)
 - [x] K7 Dino-Modelle und Animationen: sechs Blender-Formen mit Laufen waren schon da; neu Idle, Fressen und Körperwippen (Code fertig, Studio-Test offen); eigener Kopf für echtes Beißen offen
 - [x] K8 Dschungel-Feinschliff (Teiche, Engstellen aus Felspaaren, Deckung aus Pflanzengruppen, Lianen; Code fertig, Studio-Test offen, siehe docs/TESTLISTE.md)
+## Bindung und Spielspass (14. Oktober 2026, selbstständig gebaut)
+
+- [x] B1 Tägliches Geschenk mit Sieben-Tage-Serie (Profil Version 7; Code fertig, Studio-Test offen)
+- [x] B2 Tagesaufgaben, drei pro Tag (Profil Version 8; Code fertig, Studio-Test offen)
+- [x] B3 Fress-Kombo als Flamme (nur Anzeige, keine Boni)
+- [x] B4 Futter-Rausch: wiederkehrendes Server-Ereignis mit doppelten Futterpunkten (Werte in `Config/Frenzy`, mit echten Spielern ausbalancieren)
+- [x] B5 Kinder-Oberfläche: Symbole statt Text (siehe `docs/ICONS.md`)
+- [ ] Ideen für später (noch nicht gebaut): Tages-Rangliste, Emotes/Sprechblasen, Wetter oder Tag/Nacht in der Arena, Boss-Dino als Server-Ereignis, Abzeichen über Roblox Badges (im Creator Hub anlegen), Sound und Musik (IDs vom Spielentwickler), Freunde-Bonus.
+
 ## Wünsche nach dem ersten Studio-Test (13. Oktober 2026)
 
 - [x] P1 `fix/eat-reach`: Fress-Reichweite („Körper berühren sich“, `eatReachFactor` in `Config/Arena`) und Autofarm findet die Steuerung (PlayerModule liegt in `StarterPlayer`)

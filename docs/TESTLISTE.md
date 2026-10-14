@@ -592,3 +592,27 @@ Stand: im Playtest geprüft (Bild: Beeren pink, Fisch blau mit orangem Schwanz, 
 - [ ] Die Größen passen zu klein, mittel und groß (große Stücke deutlich größer), nichts steckt im Boden, nichts schwebt zu hoch; der Fisch und die Keule zeigen in verschiedene Richtungen (zufällig gedreht).
 - [ ] Wachstum und Münzen sind unverändert; die Partikel beim Fressen haben weiter die Farbe des Stücks.
 - [ ] Auf dem Handy bleibt die Bildrate gut (510 Stücke mit je einem kleinen Mesh).
+
+## P6 Kinder-Oberfläche und Bindungs-Funktionen (14. Oktober 2026)
+
+Stand: im Code fertig, Tests der reinen Logik grün; nichts davon in Studio angesehen. Werte in `Config/Daily`, `Config/Quests`, `Config/Combo`, `Config/Frenzy`.
+
+Oberfläche für Kinder:
+- [ ] Die Emoji-Symbole erscheinen bunt (nicht als graue Kästchen) auf Handy und PC: Münze, Essen, Pfeil, Lobby-Haus, Geschenk, Flamme, Sanduhr. Fehlt eines, in `Config/Icons` ein anderes Zeichen wählen oder ein Bild nehmen (`docs/ICONS.md`).
+- [ ] Sprint- und Autofarm-Knopf zeigen nur ein Symbol und sind gross genug für Kinderfinger; der „An“-Haken erscheint bei Autofarm.
+- [ ] Todes-Fenster: rötlich abgedunkelter Hintergrund, schwindliges Gesicht, drei grosse Kacheln (Herz = Wiederbeleben, Ziel = Kopfgeld, Haus = Lobby). Warenkorb-Symbol oder „x2“ bei gespeicherten, Schloss wenn nicht möglich. Alle drei Kacheln passen auf ein kleines Handy.
+- [ ] Statusfeld, Münzen, Tränke, Ei-Fenster, Booster-Fenster, Collection und Meldungen zeigen Symbole mit Zahlen; kein Text ist abgeschnitten.
+
+Tägliches Geschenk:
+- [ ] Beim ersten Betreten der Lobby am Tag erscheint das Geschenk-Fenster mit sieben Tagen; Tag 1 ist hervorgehoben. „Claim“ gibt die Münzen (Meldung „Daily gift“), das Fenster schliesst sich.
+- [ ] Zweites Mal am selben Tag: kein Fenster. Am nächsten Tag (Uhr verstellen geht nur im Studio-Server: `os.time`) Streak-Tag 2; nach einem verpassten Tag wieder Tag 1; nach Tag 7 beginnt es von vorn.
+- [ ] Nach dem Neustart des Spiels ist der Stand gespeichert (Münzen und Streak). Gäste (ohne Speichern) bekommen kein Geschenk.
+
+Tagesaufgaben:
+- [ ] In der Lobby steht links in der Mitte der Klemmbrett-Knopf; er öffnet drei Aufgaben mit Symbol, Name, Balken und Münzen-Knopf.
+- [ ] Fortschritt zählt: Futter fressen, Spieler fressen, Dinos wachsen, Kombo, Spielzeit. Sobald das Ziel erreicht ist, wird der Münzen-Knopf gelb und am Klemmbrett erscheint ein Geschenk-Zeichen. Abholen gibt die Münzen genau einmal.
+- [ ] Am nächsten Tag gibt es neue Aufgaben mit leerem Fortschritt.
+
+Kombo und Futter-Rausch:
+- [ ] Wer Futter in kurzer Folge frisst, sieht ab 3 eine Flamme mit „x3 … x10“, die bei jedem Stück kurz aufspringt (stärker alle 10). Nach drei Sekunden ohne Futter verschwindet sie. Es gibt keine Extra-Punkte.
+- [ ] Etwa 90 Sekunden nach dem Serverstart erscheint oben das orange Banner „Food frenzy x2“ mit Countdown (45 Sekunden): in dieser Zeit gibt Futter doppelte Punkte, danach 240 Sekunden Ruhe. Das Banner überdeckt nichts Wichtiges auf dem Handy (Statusfeld links, Bestenliste rechts, Kombo und Meldung darunter).
