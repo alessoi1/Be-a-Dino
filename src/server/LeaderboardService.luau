@@ -36,8 +36,8 @@ type BoardViews = {
 
 -- Looks of the boards (no game values): canvas size in pixels per stud and the row layout.
 local PIXELS_PER_STUD = 20
-local TITLE_HEIGHT = 50
-local ROW_HEIGHT = 30
+local TITLE_HEIGHT = 60
+local ROW_HEIGHT = 36
 local RANK_WIDTH = 50
 local VALUE_WIDTH = 170
 local BOARD_THICKNESS = 0.5

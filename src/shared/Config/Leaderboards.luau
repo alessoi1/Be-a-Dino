@@ -18,7 +18,7 @@ local categories: { Category } = {
 return {
 	categories = categories,
 	-- Entries shown on each board.
-	rows = 10,
+	rows = 8,
 	-- Seconds between two writes of a player (and between two reads of a list).
 	writeSeconds = 120,
 	readSeconds = 120,
