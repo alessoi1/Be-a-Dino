@@ -15,6 +15,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local QuestConfig = require(Shared:WaitForChild("Config"):WaitForChild("Quests"))
 
+local MenuState = require(script.Parent:WaitForChild("MenuState"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiMetrics = require(script.Parent:WaitForChild("UiMetrics"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
@@ -65,6 +66,7 @@ function QuestWindow.start()
 	window.Position = UDim2.fromScale(0.5, 0.5)
 	window.Size = UDim2.fromOffset(WIDTH, height)
 	window.Visible = false
+	MenuState.registerOverlay(window)
 	UiKit.addScale(window)
 
 	local title = UiKit.newLabel(window, UiTheme.titleSize)

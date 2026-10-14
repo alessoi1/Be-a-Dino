@@ -61,6 +61,10 @@ function EatHint.start()
 					label.Visible = false
 				end
 			end
+			-- Not behind the death window.
+			local until_ = player:GetAttribute("DeathUntil")
+			local dead = typeof(until_) == "number" and until_ > workspace:GetServerTimeNow()
+			label.Visible = active and not dead
 		end
 	end)
 end

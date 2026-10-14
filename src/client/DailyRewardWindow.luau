@@ -15,6 +15,7 @@ local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
 local DailyConfig = require(Shared:WaitForChild("Config"):WaitForChild("Daily"))
 
+local MenuState = require(script.Parent:WaitForChild("MenuState"))
 local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local UiTheme = require(script.Parent:WaitForChild("UiTheme"))
 
@@ -52,6 +53,7 @@ function DailyRewardWindow.start()
 	window.Position = UDim2.fromScale(0.5, CENTER_SHARE)
 	window.Size = UDim2.fromOffset(width, height)
 	window.Visible = false
+	MenuState.registerOverlay(window)
 	UiKit.addScale(window)
 
 	local title = UiKit.newLabel(window, TITLE_SIZE)

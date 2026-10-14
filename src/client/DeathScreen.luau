@@ -37,12 +37,13 @@ local SUB_HEIGHT = 28
 local SUB_SIZE = 20
 local CLOSING_HEIGHT = 28
 local EDGE_THICKNESS = 3
--- Vertical position as a share of the screen height, and how far the window pops up from below.
-local TOP_SHARE = 0.5
-local POP_SHARE = 0.06
+-- The window sits at the bottom of the screen (the camera shows the arena from above in the rest);
+-- distance to the bottom edge (above the stamina bar), and how far the window pops up (pixels).
+local BOTTOM_MARGIN = 44
+local POP_OFFSET = 40
 local POP_SECONDS = 0.3
 -- Transparency of the dim layer once it has faded in, and the seconds it takes.
-local DIM_TRANSPARENCY = 0.45
+local DIM_TRANSPARENCY = 0.7
 local DIM_SECONDS = 0.4
 
 local DeathScreen = {}
@@ -120,8 +121,8 @@ function DeathScreen.start()
 	local height = PADDING + FACE_HEIGHT + BYLINE_HEIGHT + PADDING + TILE_HEIGHT + PADDING + CLOSING_HEIGHT + PADDING
 
 	local panel = UiKit.newPanel(gui)
-	panel.AnchorPoint = Vector2.new(0.5, 0.5)
-	panel.Position = UDim2.fromScale(0.5, TOP_SHARE)
+	panel.AnchorPoint = Vector2.new(0.5, 1)
+	panel.Position = UDim2.new(0.5, 0, 1, -BOTTOM_MARGIN)
 	panel.Size = UDim2.fromOffset(WIDTH, height)
 	panel.Visible = false
 	UiKit.addScale(panel)
@@ -191,11 +192,11 @@ function DeathScreen.start()
 
 	-- The window pops up and the dim layer fades in each time the window opens.
 	local function popIn()
-		panel.Position = UDim2.fromScale(0.5, TOP_SHARE + POP_SHARE)
+		panel.Position = UDim2.new(0.5, 0, 1, -BOTTOM_MARGIN + POP_OFFSET)
 		TweenService:Create(
 			panel,
 			TweenInfo.new(POP_SECONDS, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-			{ Position = UDim2.fromScale(0.5, TOP_SHARE) }
+			{ Position = UDim2.new(0.5, 0, 1, -BOTTOM_MARGIN) }
 		):Play()
 		dim.BackgroundTransparency = 1
 		TweenService:Create(dim, TweenInfo.new(DIM_SECONDS), { BackgroundTransparency = DIM_TRANSPARENCY }):Play()
