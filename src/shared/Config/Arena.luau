@@ -18,8 +18,7 @@ return {
 	wallThickness = 4,
 	-- Distance to the walls in which nobody spawns (studs).
 	spawnMargin = 10,
-	-- Eating another player needs this much more size than the victim (1.2 = 20 % more).
-	eatRatio = 1.2,
+	-- Whoever has more points may eat the other one (no ratio: one point more is enough).
 	-- Eating needs the bodies to touch: the distance between the two middles may be at most the sum
 	-- of the two scales times this (studs). A dino is about 9 studs long at scale 1, so two dinos of
 	-- scale 1 reach each other from 4.4 studs; the old 1.5 times the eater's scale (1.5 studs) meant a

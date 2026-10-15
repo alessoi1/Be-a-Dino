@@ -34,7 +34,7 @@ Größere Dinos sind stärker, aber nicht zwingend schneller, damit Kleine entko
 
 ## Regeln für Fressen (Entwurf)
 
-- Ein Spieler darf einen anderen fressen, wenn seine Größe mindestens `eatRatio` mal so groß ist (Start: 1,2) und der Abstand klein genug ist.
+- Ein Spieler darf einen anderen fressen, wenn er mehr Punkte hat als der andere (Entscheidung vom 15. Oktober 2026: nur die Punktzahl zählt, nicht der Dino und nicht die Größe; bei Gleichstand frisst keiner) und der Abstand klein genug ist. Das gilt auch für die Bots. Der frühere Regler `eatRatio` ist entfallen.
 - Nach dem Respawn ist der Spieler kurz geschützt (`spawnProtectionSeconds`).
 - Der Fresser bekommt einen Teil der Punkte des Opfers (Anteil in der Config).
 - Alles entscheidet der Server (siehe CLAUDE.md).

@@ -221,7 +221,7 @@ Zahlen und Tempo:
 - [ ] Die Namen sind kurz und passen in die Karten und in das Statusfeld (längster: „Patagotitan“, „Dreadnought“, „Titanosaur“).
 - [ ] Futter bringt auf jeder Stufe etwa gleich viele Stücke bis zur nächsten (Stichprobe bei den Stufen 5, 20 und 40).
 - [ ] Das Tempo sinkt spürbar von 22 auf 18, ohne dass sich große Dinos zu träge anfühlen. Sprint funktioniert weiter.
-- [ ] Fressen: Ein Dino frisst nur deutlich größere Opfer (etwa 4 bis 5 Stufen größer). Notiere, ob es zu selten oder zu oft passiert (`eatRatio` in `Config/Arena`).
+- [ ] Fressen: Wer mehr Punkte hat, frisst den anderen (auch Bots), bei gleichen Punkten frisst keiner; die Größe und der Dino zählen nicht. Notiere, ob es zu oft passiert (zum Beispiel, ob Bots den Spieler zu schnell fressen).
 
 Dinodex:
 - [ ] Zeigt 50 Karten in zwei Spalten, oben „N of 50 dinos“, erreichte farbig mit Namen, die anderen als „???“ mit „Reach 1.54K size“ und so weiter. Scrollen geht flüssig (auch auf dem Handy-Emulator, 360 × 640).

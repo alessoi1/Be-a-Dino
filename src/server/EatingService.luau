@@ -30,6 +30,7 @@ type Combatant = {
 	x: number,
 	z: number,
 	scale: number,
+	points: number,
 	protectedUntil: number,
 	alive: boolean,
 }
@@ -158,18 +159,15 @@ local function tick()
 	local byId: { [number]: Player } = {}
 	for _, player in Players:GetPlayers() do
 		local humanoid, root = livingParts(player)
-		if
-			humanoid ~= nil
-			and root ~= nil
-			and PlayerState.get(player) ~= nil
-			and PlayerState.getMode(player) == "playing"
-		then
+		local state = PlayerState.get(player)
+		if humanoid ~= nil and root ~= nil and state ~= nil and PlayerState.getMode(player) == "playing" then
 			local position = root.Position
 			table.insert(combatants, {
 				id = player.UserId,
 				x = position.X,
 				z = position.Z,
 				scale = PlayerState.scaleOf(player),
+				points = state.points,
 				protectedUntil = PlayerState.protectedUntil(player),
 				alive = true,
 			})

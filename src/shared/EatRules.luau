@@ -1,9 +1,10 @@
 --!strict
--- Pure eating rules: who may eat whom. The server fills in the values from its
--- own state, never from client input. No Roblox services, no logging.
+-- Pure eating rules: who may eat whom. Whoever has more points may eat the other one (the
+-- dino and the size do not matter); the reach depends on the sizes, so touching bodies count. The
+-- server fills in the values from its own state, never from client input. No Roblox services,
+-- no logging.
 
 export type Config = {
-	eatRatio: number,
 	-- Largest distance between the middles per unit of the two scales added (the bodies touch).
 	eatReachFactor: number,
 }
@@ -11,6 +12,7 @@ export type Config = {
 export type Combatant = {
 	id: number,
 	scale: number,
+	points: number,
 	-- Server time (os.time) until which this player cannot be eaten.
 	protectedUntil: number,
 }
@@ -21,13 +23,14 @@ export type Player = {
 	x: number,
 	z: number,
 	scale: number,
+	points: number,
 	protectedUntil: number,
 	alive: boolean,
 }
 
 export type Eat = { eaterId: number, victimId: number, distance: number }
 
-export type Reason = "invalid" | "self" | "protected" | "too_small" | "too_far"
+export type Reason = "invalid" | "self" | "protected" | "fewer_points" | "too_far"
 
 local EatRules = {}
 
@@ -46,14 +49,17 @@ function EatRules.canEat(
 	if not isFinite(distance) or distance < 0 or not isFinite(now) then
 		return false, "invalid"
 	end
+	if not isFinite(eater.points) or not isFinite(victim.points) then
+		return false, "invalid"
+	end
 	if eater.id == victim.id then
 		return false, "self"
 	end
 	if now < victim.protectedUntil then
 		return false, "protected"
 	end
-	if eater.scale < victim.scale * config.eatRatio then
-		return false, "too_small"
+	if eater.points <= victim.points then
+		return false, "fewer_points"
 	end
 	if distance > (eater.scale + victim.scale) * config.eatReachFactor then
 		return false, "too_far"
@@ -61,15 +67,15 @@ function EatRules.canEat(
 	return true, nil
 end
 
--- All eatings of one server tick. Bigger players act first (ties by id), so the result
+-- All eatings of one server tick. Players with more points act first (ties by id), so the result
 -- does not depend on the order of the list. Every victim is eaten at most once, a player
 -- who was eaten earlier in the tick eats nobody, and one eater may eat several victims
 -- (nearest first).
 function EatRules.findEats(config: Config, players: { Player }, now: number): { Eat }
 	local order: { Player } = table.clone(players)
 	table.sort(order, function(a: Player, b: Player): boolean
-		if a.scale ~= b.scale then
-			return a.scale > b.scale
+		if a.points ~= b.points then
+			return a.points > b.points
 		end
 		return a.id < b.id
 	end)

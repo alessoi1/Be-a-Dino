@@ -3,13 +3,12 @@
 -- next (flee, hunt, eat or wander). No Roblox services, no logging; the BotService calls it with
 -- values from its own state and logs the results.
 
-export type Actor = { id: number, x: number, z: number, scale: number, protectedUntil: number }
+export type Actor = { id: number, x: number, z: number, scale: number, points: number, protectedUntil: number }
 export type Food = { id: number, x: number, z: number, value: number }
 export type Goal = { kind: "flee" | "hunt" | "food" | "wander", x: number, z: number, targetId: number? }
 export type Point = { x: number, z: number }
 
 export type Config = {
-	eatRatio: number,
 	fleeRange: number,
 	huntRange: number,
 	fleeStep: number,
@@ -115,12 +114,12 @@ function BotBrain.choose(
 			continue
 		end
 		local distance = distanceBetween(here, { x = other.x, z = other.z })
-		if other.scale >= bot.scale * config.eatRatio then
+		if other.points > bot.points then
 			if distance <= threatDistance then
 				threat = other
 				threatDistance = distance
 			end
-		elseif bot.scale >= other.scale * config.eatRatio and now >= other.protectedUntil then
+		elseif bot.points > other.points and now >= other.protectedUntil then
 			if distance <= preyDistance then
 				prey = other
 				preyDistance = distance

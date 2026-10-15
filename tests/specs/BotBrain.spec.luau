@@ -8,7 +8,6 @@ local assertNear = Framework.assertNear
 local assertTrue = Framework.assertTrue
 
 local config: BotBrain.Config = {
-	eatRatio = 1.2,
 	fleeRange = 45,
 	huntRange = 35,
 	fleeStep = 40,
@@ -17,7 +16,7 @@ local config: BotBrain.Config = {
 local LIMIT = 200
 
 local function actor(id: number, x: number, z: number, scale: number, protectedUntil: number?): BotBrain.Actor
-	return { id = id, x = x, z = z, scale = scale, protectedUntil = protectedUntil or 0 }
+	return { id = id, x = x, z = z, scale = scale, points = scale * 100, protectedUntil = protectedUntil or 0 }
 end
 
 local wander: BotBrain.Point = { x = 10, z = -10 }
@@ -114,10 +113,20 @@ test("BotBrain: a protected dino is not hunted", function()
 	assertEquals(later.kind, "hunt")
 end)
 
-test("BotBrain: a dino of similar size is neither feared nor hunted", function()
+test("BotBrain: a dino with equal points is neither feared nor hunted", function()
 	local bot = actor(-1, 0, 0, 1)
-	local goal = BotBrain.choose(config, LIMIT, bot, { actor(2, 10, 0, 1.1) }, {}, 100, wander)
+	local goal = BotBrain.choose(config, LIMIT, bot, { actor(2, 10, 0, 1) }, {}, 100, wander)
 	assertEquals(goal.kind, "wander")
+end)
+
+test("BotBrain: one point more is enough to be feared, one point less to be hunted", function()
+	local bot = actor(-1, 0, 0, 1)
+	local stronger = actor(2, 10, 0, 1)
+	stronger.points = bot.points + 1
+	assertEquals(BotBrain.choose(config, LIMIT, bot, { stronger }, {}, 100, wander).kind, "flee")
+	local weaker = actor(2, 10, 0, 3)
+	weaker.points = bot.points - 1
+	assertEquals(BotBrain.choose(config, LIMIT, bot, { weaker }, {}, 100, wander).kind, "hunt")
 end)
 
 test("BotBrain: fleeing comes before hunting", function()
