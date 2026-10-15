@@ -53,6 +53,7 @@ export type Combatant = {
 	x: number,
 	z: number,
 	scale: number,
+	points: number,
 	protectedUntil: number,
 	alive: boolean,
 }
@@ -84,7 +85,6 @@ local lastId = 0
 local limit = ArenaConfig.radius - BotsConfig.wallMargin
 
 local brainConfig: BotBrain.Config = {
-	eatRatio = ArenaConfig.eatRatio,
 	fleeRange = BotsConfig.fleeRange,
 	huntRange = BotsConfig.huntRange,
 	fleeStep = BotsConfig.fleeStep,
@@ -255,7 +255,8 @@ end
 local function playerActors(): { BotBrain.Actor }
 	local actors: { BotBrain.Actor } = {}
 	for _, player in Players:GetPlayers() do
-		if PlayerState.getMode(player) ~= "playing" then
+		local state = PlayerState.get(player)
+		if state == nil or PlayerState.getMode(player) ~= "playing" then
 			continue
 		end
 		local character = player.Character
@@ -267,6 +268,7 @@ local function playerActors(): { BotBrain.Actor }
 				x = root.Position.X,
 				z = root.Position.Z,
 				scale = PlayerState.scaleOf(player),
+				points = state.points,
 				protectedUntil = PlayerState.protectedUntil(player),
 			})
 		end
@@ -284,6 +286,7 @@ local function botActor(bot: Bot): BotBrain.Actor?
 		x = root.Position.X,
 		z = root.Position.Z,
 		scale = Growth.scaleFor(Dinos, bot.state),
+		points = bot.state.points,
 		protectedUntil = bot.protectedUntil,
 	}
 end
@@ -348,6 +351,7 @@ local function think(bot: Bot, now: number, all: { BotBrain.Actor })
 		x = position.X,
 		z = position.Z,
 		scale = scale,
+		points = bot.state.points,
 		protectedUntil = bot.protectedUntil,
 	}
 	local food = FoodService.piecesNear(position.X, position.Z, BotsConfig.foodRange)
@@ -409,6 +413,7 @@ function BotService.combatants(): { Combatant }
 				x = root.Position.X,
 				z = root.Position.Z,
 				scale = Growth.scaleFor(Dinos, bot.state),
+				points = bot.state.points,
 				protectedUntil = bot.protectedUntil,
 				alive = true,
 			})

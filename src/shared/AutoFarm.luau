@@ -2,9 +2,9 @@
 -- Pure autofarm logic: which food the dino walks to, when it runs away, and how long a session
 -- may last. The inputs are plain positions; the client fills them in. No Roblox services.
 
-export type Me = { x: number, z: number, scale: number }
+export type Me = { x: number, z: number, scale: number, points: number }
 export type Food = { x: number, z: number, value: number }
-export type Other = { x: number, z: number, scale: number }
+export type Other = { x: number, z: number, scale: number, points: number }
 
 export type Config = {
 	dangerMargin: number,
@@ -14,7 +14,7 @@ export type Config = {
 }
 
 -- The eating rules (Config/Arena): who could eat me.
-export type Rules = { eatRatio: number, eatReachFactor: number }
+export type Rules = { eatReachFactor: number }
 
 -- "food": walk to the point. "flee": run to the point, away from a danger. "idle": stay.
 export type Target = { kind: "food" | "flee" | "idle", x: number, z: number }
@@ -37,14 +37,15 @@ local function dangerRadius(other: Other, myScale: number, config: Config, rules
 end
 
 -- The players who could eat me (by the eating rule), with valid numbers only.
-local function threatsOf(me: Me, others: { Other }, rules: Rules): { Other }
+local function threatsOf(me: Me, others: { Other }): { Other }
 	local threats: { Other } = {}
 	for _, other in others do
 		if
 			isFinite(other.x)
 			and isFinite(other.z)
 			and isFinite(other.scale)
-			and other.scale >= me.scale * rules.eatRatio
+			and isFinite(other.points)
+			and other.points > me.points
 		then
 			table.insert(threats, other)
 		end
@@ -78,7 +79,7 @@ function AutoFarm.pickTarget(
 		return idle
 	end
 	local limit = arenaRadius - config.arenaMargin
-	local threats = threatsOf(me, others, rules)
+	local threats = threatsOf(me, others)
 
 	-- Run away from the danger I am in (the one I am deepest in).
 	local worst: Other? = nil

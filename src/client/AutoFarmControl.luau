@@ -162,7 +162,13 @@ function AutoFarmControl.start()
 			return
 		end
 
-		local me: AutoFarm.Me = { x = root.Position.X, z = root.Position.Z, scale = character:GetScale() }
+		local ownPoints = player:GetAttribute("Points")
+		local me: AutoFarm.Me = {
+			x = root.Position.X,
+			z = root.Position.Z,
+			scale = character:GetScale(),
+			points = if typeof(ownPoints) == "number" then ownPoints else 0,
+		}
 
 		local foods: { AutoFarm.Food } = {}
 		local folder = workspace:FindFirstChild("Food")
@@ -184,11 +190,13 @@ function AutoFarmControl.start()
 			if other ~= player and other:GetAttribute("Mode") == "playing" then
 				local otherRoot = other.Character and other.Character:FindFirstChild("HumanoidRootPart")
 				local scale = other:GetAttribute("Scale")
+				local points = other:GetAttribute("Points")
 				if otherRoot ~= nil and otherRoot:IsA("BasePart") then
 					table.insert(others, {
 						x = otherRoot.Position.X,
 						z = otherRoot.Position.Z,
 						scale = if typeof(scale) == "number" then scale else 1,
+						points = if typeof(points) == "number" then points else 0,
 					})
 				end
 			end
