@@ -229,15 +229,31 @@ def split(name, mode=None, zcut_frac=None):
     return mode, objects
 
 
-def _paint(obj):
+def _smooth(edge0, edge1, value):
+    t = min(max((value - edge0) / (edge1 - edge0), 0.0), 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def _paint(obj, zlow, zhigh):
+    """Neutral grey values as a natural gradient (the game multiplies them with the color of the
+    dino): a dark back, a lighter belly and a little variation from face to face. The back is the
+    top of the whole dino, so the gradient runs through all parts alike."""
     mesh = obj.data
     if "Pattern" in mesh.color_attributes:
         mesh.color_attributes.remove(mesh.color_attributes["Pattern"])
     attribute = mesh.color_attributes.new(name="Pattern", type="BYTE_COLOR", domain="CORNER")
+    span = max(zhigh - zlow, 1e-3)
     for polygon in mesh.polygons:
-        value = 1.0 if polygon.normal.z < -0.25 else 0.82
-        linear = value ** 2.2
+        # A little different brightness per face keeps the faceted look alive.
+        noise = ((polygon.index * 2654435761) % 1000) / 1000.0 * 0.08 - 0.04
         for loop_index in polygon.loop_indices:
+            z = mesh.vertices[mesh.loops[loop_index].vertex_index].co.z
+            t = (z - zlow) / span
+            value = 1.0 - 0.42 * _smooth(0.2, 0.95, t)
+            if polygon.normal.z < -0.25:
+                value = min(1.0, value + 0.12)
+            value = min(max(value + noise, 0.0), 1.0)
+            linear = value ** 2.2
             attribute.data[loop_index].color = (linear, linear, linear, 1.0)
     mesh.color_attributes.active_color = attribute
     mesh.color_attributes.render_color_index = mesh.color_attributes.find("Pattern")
@@ -248,20 +264,21 @@ def _sphere(bm, center, scale):
                               matrix=Matrix.Translation(center) @ Matrix.Diagonal((scale[0], scale[1], scale[2], 1)))
 
 
-def add_face(name, objects, half_cap=0.7, drop=None, eye_z=None):
-    """Eyes and pupils on the head (the front end of the body), centered on the head. The eye sits
-    at the middle height of the head (or at `eye_z`), as wide as the head is there (at most
-    `half_cap`)."""
+def add_face(name, objects, half_cap=0.7, drop=0.45, back=1.1, eye_z=None):
+    """Eyes and pupils on the head (the front end of the body). The eye sits `drop` studs below the
+    top of the head and `back` studs behind the tip of the snout, centered on the head and as wide as
+    the skull is there (at most `half_cap`)."""
     low = name.lower()
     points = _verts(objects["Body"])
     ymax = max(p.y for p in points)
-    zone = [p for p in points if ymax - 1.3 <= p.y <= ymax - 0.5]
-    cx = sum(p.x for p in zone) / len(zone)
+    zone = [p for p in points if p.y > ymax - 2.0]
     zs = sorted(p.z for p in zone)
-    ez = eye_z if eye_z is not None else zs[len(zs) // 2] + (0.0 if drop is None else -drop)
-    near = sorted(abs(p.x - cx) for p in zone if abs(p.z - ez) < 0.5)
-    half = min(near[int(len(near) * 0.9)] if near else 0.35, half_cap)
-    ey = ymax - 0.9
+    top = zs[int(len(zs) * 0.95)]
+    ez = eye_z if eye_z is not None else top - drop
+    ey = ymax - back
+    cx = sum(p.x for p in zone) / len(zone)
+    near = sorted(abs(p.x - cx) for p in points if abs(p.y - ey) < 0.5 and abs(p.z - ez) < 0.45)
+    half = min(near[int(len(near) * 0.8)] if near else 0.35, half_cap)
     eyes, dark = bmesh.new(), bmesh.new()
     for side in (-1, 1):
         _sphere(eyes, (cx + side * half * 0.92, ey, ez), (0.10, 0.17, 0.17))
@@ -288,9 +305,11 @@ def remove_parts(name):
 
 def finish(name, objects):
     """Skin pattern on the skin parts; returns the geometry and the joints for Config/DinoMeshes."""
-    for part, obj in objects.items():
-        if part not in ("Eyes", "Dark"):
-            _paint(obj)
+    skin = [obj for part, obj in objects.items() if part not in ("Eyes", "Dark")]
+    zlow = min(v.co.z for obj in skin for v in obj.data.vertices)
+    zhigh = max(v.co.z for obj in skin for v in obj.data.vertices)
+    for obj in skin:
+        _paint(obj, zlow, zhigh)
     geometry = {}
     total = 0
     for part, obj in objects.items():
@@ -358,7 +377,7 @@ def import_raw(name, folder):
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 
-def process(name, zcut_frac=None, eye_z=None, half_cap=0.7, slivers=False):
+def process(name, zcut_frac=None, slivers=False, **face):
     """Everything for one dino after `import_raw`: prepare, split, face, skin pattern. Returns the
     result of `finish` plus the mode."""
     remove_parts(name)
@@ -367,7 +386,62 @@ def process(name, zcut_frac=None, eye_z=None, half_cap=0.7, slivers=False):
         obj.data.transform(Matrix.Rotation(math.pi, 4, "Z"))
         obj.data.transform(Matrix.Translation((0, -1.6, 0)))
     mode, objects = split(name, zcut_frac=zcut_frac)
-    add_face(name, objects, half_cap=half_cap, eye_z=eye_z)
+    add_face(name, objects, **face)
     info = finish(name, objects)
     info["mode"] = mode
     return info, objects
+
+
+def head_sheet(names, path, size=4.5):
+    """Renders the head of each dino from the side and from the front-left into one picture, with
+    the eyes in place (to check them)."""
+    import numpy as np
+
+    scene = bpy.context.scene
+    camera = bpy.data.objects["Camera"]
+    camera.data.type = "ORTHO"
+    camera.data.ortho_scale = size
+    scene.render.resolution_x, scene.render.resolution_y = 480, 360
+    palette = {"Eyes": (0.95, 0.62, 0.08), "Dark": (0.02, 0.02, 0.02)}
+    for key, color in palette.items():
+        mat = bpy.data.materials.get("pc_" + key) or bpy.data.materials.new("pc_" + key)
+        mat.use_nodes = True
+        mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (*color, 1)
+    grey = bpy.data.materials.get("pc_Body") or bpy.data.materials.new("pc_Body")
+    grey.use_nodes = True
+    grey.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.75, 0.75, 0.75, 1)
+    tiles = []
+    for name in names:
+        low = name.lower()
+        for obj in bpy.data.objects:
+            if obj.type == "MESH":
+                obj.hide_render = True
+        parts = [o for o in bpy.data.objects if o.name.startswith(low + "_") and o.type == "MESH"]
+        for obj in parts:
+            obj.hide_render = False
+            suffix = obj.name.split("_", 1)[1]
+            obj.data.materials.clear()
+            obj.data.materials.append(bpy.data.materials.get("pc_" + suffix) or grey)
+        body = bpy.data.objects[low + "_Body"]
+        pts = [v.co for v in body.data.vertices]
+        ymax = max(p.y for p in pts)
+        zs = sorted(p.z for p in pts if p.y > ymax - 2.0)
+        center = Vector((0, ymax - 1.0, zs[int(len(zs) * 0.7)]))
+        for location in (Vector((30, 0, 0)), Vector((20, 14, 6))):
+            camera.location = center + location
+            camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
+            scene.render.filepath = path + ".tmp.png"
+            bpy.ops.render.render(write_still=True)
+            image = bpy.data.images.load(scene.render.filepath)
+            tiles.append(np.array(image.pixels[:]).reshape(360, 480, 4))
+            bpy.data.images.remove(image)
+    while len(tiles) % 4:
+        tiles.append(np.zeros_like(tiles[0]))
+    rows = [np.concatenate(tiles[i:i + 4], axis=1) for i in range(0, len(tiles), 4)]
+    sheet = np.concatenate(rows[::-1], axis=0)
+    out = bpy.data.images.new("head_sheet", 1920, 360 * len(rows))
+    out.pixels = sheet.flatten().tolist()
+    out.filepath_raw = path
+    out.file_format = "PNG"
+    out.save()
+    bpy.data.images.remove(out)

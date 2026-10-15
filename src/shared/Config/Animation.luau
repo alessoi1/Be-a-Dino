@@ -29,8 +29,9 @@ return {
 	walkLean = 0.03,
 	-- Eating (the "munch"): the dino nods down and dips, over `eatSeconds`. Only a piece eaten within
 	-- `eatReach` studs per unit of scale of the dino starts it.
-	eatPitch = 0.35,
-	eatDip = 0.15,
+	-- Both are 0: the nod and the dip made the big dinos sink into the floor, so nothing moves.
+	eatPitch = 0,
+	eatDip = 0,
 	eatSeconds = 0.35,
 	eatReach = 6,
 	-- The limbs of dinos that are further away from the camera than this are not animated (studs).
