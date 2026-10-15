@@ -38,21 +38,6 @@ local dinos: { [string]: string } = {
 	brachio = "Brachio",
 	mamenchi = "Mamenchi",
 	trex = "T-Rex",
-	spino = "Spino",
-	giganoto = "Giganoto",
-	carcharo = "Carcharo",
-	mapu = "Mapu",
-	acro = "Acro",
-	toro = "Toro",
-	sauropelta = "Sauropelta",
-	shantungo = "Shantungo",
-	super = "Super",
-	sauropo = "Sauropo",
-	dreadnought = "Dreadnought",
-	argentino = "Argentino",
-	patagotitan = "Patagotitan",
-	puerta = "Puerta",
-	titanosaur = "Titanosaur",
 }
 
 -- Variant names by variant id (see Config/Variants), and the normal look.

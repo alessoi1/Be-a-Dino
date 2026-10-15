@@ -270,3 +270,5 @@ Teile: etwa 150 mehr als vorher (Felstore mit Kollision, Gruppen, Teiche, Lianen
 
 - Skins und Shop (7c, 7d): Richtlinien für Developer Products und Altersgruppen vor 7d nochmals gegen die aktuelle Roblox-Dokumentation prüfen. Die Produkte legt der Spielentwickler im Creator Hub an.
 - Sprint: Verbrauch, Aufladerate, ob man beim Sprinten fressen darf (Werte beim Testen).
+
+**35 statt 50 Dinos (entschieden am 15. Oktober 2026):** Vorerst gibt es nur die ersten 35 Dinos, von Compy bis T-Rex (der letzte). Die 15 größeren (Spino bis Titanosaur) kommen in späteren Updates. Die Schwellen laufen weiter gleichmäßig von 1K (zweiter Dino) bis 1T (T-Rex), also etwa 1,87-mal so viel pro Stufe (vorher 1,52-mal), die Figur wächst von 1 auf 8, das Tempo fällt von 22 auf 18. Damit der Weg zum T-Rex nicht kürzer wird, braucht jede Stufe etwa **60 Futterstücke** statt 40 (`PIECES_PER_STAGE` in `tools/GenerateStages.luau`, erlaubt sind 20 bis 80; zusammen etwa 2.000 Stücke bis zum T-Rex, so viele wie vorher bis zum Titanosaur). Alle Werte sind Startwerte für den Test mit mehreren Spielern.

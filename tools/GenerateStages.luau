@@ -1,6 +1,6 @@
 --!strict
 -- Prints the rows of src/shared/Config/Dinos.luau (thresholds, sizes, speeds, food units) from a
--- few parameters, so the balance can be redone without calculating 50 rows by hand.
+-- few parameters, so the balance can be redone without calculating the rows by hand.
 -- Run: lune run tools/GenerateStages
 -- Then paste the rows into the `stages` list of Config/Dinos.luau. The test suite checks the
 -- result (tests/specs/Dinos.spec.luau, Progression.spec.luau).
@@ -43,27 +43,12 @@ local IDS = {
 	"brachio",
 	"mamenchi",
 	"trex",
-	"spino",
-	"giganoto",
-	"carcharo",
-	"mapu",
-	"acro",
-	"toro",
-	"sauropelta",
-	"shantungo",
-	"super",
-	"sauropo",
-	"dreadnought",
-	"argentino",
-	"patagotitan",
-	"puerta",
-	"titanosaur",
 }
 
 -- Parameters.
 local SECOND_THRESHOLD = 1000 -- the second dino starts here (the first one starts at 0)
 local LAST_THRESHOLD = 1e12 -- the last dino starts here
-local PIECES_PER_STAGE = 40 -- food pieces a stage takes outside the oasis
+local PIECES_PER_STAGE = 60 -- food pieces a stage takes outside the oasis
 local AVERAGE_FOOD_VALUE = 1.51 -- average value of a piece outside the oasis (Config/Food)
 local SCALE_FIRST = 1
 local SCALE_LAST = 8

@@ -13,8 +13,8 @@ local test = Framework.test
 local assertEquals = Framework.assertEquals
 local assertTrue = Framework.assertTrue
 
-test("Dinos: there are 50 dinos and the four old ids keep their names", function()
-	assertEquals(#Dinos, 50)
+test("Dinos: there are 35 dinos and the four old ids keep their names", function()
+	assertEquals(#Dinos, 35)
 	local ids: { [string]: number } = {}
 	for index, stage in Dinos do
 		ids[stage.id] = index
@@ -83,7 +83,7 @@ test("Dinos: lookFor prefers a hand-written look and builds the others", functio
 	assertEquals(DinoBody.lookFor(DinoLooks.looks, DinoLooks.plans, "unknown"), nil)
 end)
 
-test("Dinos: neighbours differ, so the dinodex is not 50 copies", function()
+test("Dinos: neighbours differ, so the dinodex is not 35 copies", function()
 	-- Every dino differs from the one before in shape, size or color.
 	local previous: string? = nil
 	for _, stage in Dinos do
