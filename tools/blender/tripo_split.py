@@ -17,6 +17,9 @@ from mathutils import Matrix, Vector
 LENGTH = 9.46
 TARGET_TRIANGLES = 1200
 FOOT_Z = -3.0
+# A leg is the column around its foot: at most this far to the sides and to the front and back.
+LEG_HALF_WIDTH = 0.85
+LEG_HALF_LENGTH = 1.6
 
 
 def _verts(obj):
@@ -104,33 +107,44 @@ def split(name, mode=None, zcut_frac=None):
     if zcut_frac is None:
         zcut_frac = 0.34 if mode == "biped" else 0.30
     zcut = zmin + zcut_frac * height
+    # The feet decide where the legs are: one column per foot (its middle on the ground plane).
     if mode == "quad":
         gaps = [(foot_ys[i + 1] - foot_ys[i], i) for i in range(len(foot_ys) - 1)]
         _, split_at = max(gaps)
-        back = foot_ys[: split_at + 1]
-        front = foot_ys[split_at + 1 :]
-        y_back = sum(back) / len(back)
-        y_front = sum(front) / len(front)
+        limit_y = foot_ys[split_at]
+        columns_def = [("LegFL", True, -1), ("LegFR", True, 1), ("LegBL", False, -1), ("LegBR", False, 1)]
+        back_ys = [p.y for p in feet if p.y <= limit_y]
+        y_back = sum(back_ys) / len(back_ys)
         y_tail = y_back - 2.2
     else:
+        limit_y = None
+        columns_def = [("LegL", None, -1), ("LegR", None, 1)]
         y_foot = sum(p.y for p in feet) / len(feet)
         y_tail = y_foot - 2.0
+    columns = []
+    for part, front, side in columns_def:
+        group_points = [
+            p for p in feet
+            if (p.x < 0) == (side < 0) and (front is None or (p.y > limit_y) == front)
+        ]
+        if group_points:
+            columns.append((part, sum(p.x for p in group_points) / len(group_points), sum(p.y for p in group_points) / len(group_points)))
     bm = bmesh.new()
     bm.from_mesh(source.data)
 
     def group(face):
         c = face.calc_center_median()
-        if mode == "biped":
-            if c.y < y_tail:
-                return "Tail"
-            if c.z < zcut and abs(c.y - y_foot) < 1.7:
-                return "LegL" if c.x < 0 else "LegR"
-            return "Body"
+        best = None
+        best_distance = None
         if c.z < zcut:
-            if abs(c.y - y_front) < 1.6 and abs(c.y - y_front) <= abs(c.y - y_back):
-                return "LegFL" if c.x < 0 else "LegFR"
-            if abs(c.y - y_back) < 1.6:
-                return "LegBL" if c.x < 0 else "LegBR"
+            for part, fx, fy in columns:
+                dx, dy = abs(c.x - fx), abs(c.y - fy)
+                if dx < LEG_HALF_WIDTH and dy < LEG_HALF_LENGTH:
+                    distance = dx * dx + dy * dy
+                    if best is None or distance < best_distance:
+                        best, best_distance = part, distance
+        if best is not None:
+            return best
         if c.y < y_tail:
             return "Tail"
         return "Body"
@@ -141,6 +155,11 @@ def split(name, mode=None, zcut_frac=None):
         copy = bm.copy()
         bmesh.ops.delete(copy, geom=[f for f in copy.faces if group(f) != part], context="FACES")
         bmesh.ops.delete(copy, geom=[v for v in copy.verts if not v.link_faces], context="VERTS")
+        if not copy.faces:
+            # No face reached this foot (the leg stays part of the body): the part is left out.
+            copy.free()
+            print("split: no faces for", f"{low}_{part}")
+            continue
         mesh = bpy.data.meshes.new(f"{low}_{part}")
         copy.to_mesh(mesh)
         copy.free()
