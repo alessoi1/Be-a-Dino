@@ -196,21 +196,6 @@ local plans: { [string]: Plan } = {
 	apato = plan("longneck", 4, 1.3, 1.1, 0.5),
 	brachio = plan("longneck", 8, 1.0, 1.3, 1.0),
 	mamenchi = plan("longneck", 3, 1.0, 1.0, 1.0),
-	spino = plan("biped", 10, 1.3, 1.1, 1.0),
-	giganoto = plan("biped", 11, 1.2, 1.2, 0.4),
-	carcharo = plan("biped", 5, 1.2, 1.3, 0.6),
-	mapu = plan("biped", 9, 1.2, 1.2, 0.2),
-	acro = plan("biped", 6, 1.1, 1.1, 0.8),
-	toro = plan("horned", 4, 1.3, 1.3, 0.8),
-	sauropelta = plan("armored", 12, 1.2, 1.0, 0.9),
-	shantungo = plan("duckbill", 3, 1.5, 1.4, 0.6),
-	super = plan("longneck", 9, 1.4, 1.2, 0.6),
-	sauropo = plan("longneck", 7, 1.2, 1.2, 1.0),
-	dreadnought = plan("longneck", 11, 1.4, 1.3, 0.5),
-	argentino = plan("longneck", 1, 1.5, 1.4, 0.7),
-	patagotitan = plan("longneck", 2, 1.5, 1.5, 0.8),
-	puerta = plan("longneck", 12, 1.6, 1.4, 0.4),
-	titanosaur = plan("longneck", 5, 1.6, 1.6, 1.0),
 }
 
 return {
