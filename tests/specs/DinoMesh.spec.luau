@@ -43,9 +43,9 @@ test("DinoMesh: the real config is valid", function()
 	assertEquals(#errors, 0, table.concat(errors, "; "))
 end)
 
-test("DinoMesh: every hand-written entry belongs to a dino with a hand-written look", function()
+test("DinoMesh: every hand-written entry belongs to a dino with a look or a plan", function()
 	for id in DinoMeshes.dinos do
-		assertTrue(DinoLooks.looks[id] ~= nil, id .. " has no hand-written look")
+		assertTrue(DinoLooks.looks[id] ~= nil or DinoLooks.plans[id] ~= nil, id .. " has no look and no plan")
 	end
 	local known: { [string]: boolean } = {}
 	for _, stage in Dinos do
