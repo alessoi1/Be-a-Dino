@@ -354,3 +354,126 @@ def theropod(hh=3.4, tr=0.8, tw=0.6, tl=1.7, nk=1.2, nrise=1.2, nth=0.35, hl=1.5
         leg_x=tw * 0.85, arm_x=tw + 0.05, eye=(ne[0] + hl * 0.4, ne[1] + hhh * 0.35), head_half=hw,
         extras=list(extras), claw_len=claw_len,
     )
+
+
+# ---------------------------------------------------------------------------------------------
+# A more detailed two-legged hunter (T-Rex and its kin): round body, a skull with a separate lower
+# jaw and teeth, brow bumps, thick bent legs with three toes and claws, tiny arms. Same measures as
+# theropod() and the same parts as build_biped(). About 1,500 triangles.
+
+
+def _add_toe(bm, base, tip, radius, claw=0.28):
+    loft_bmesh(bm, [(*base, radius, radius * 0.9), (*tip, radius * 0.55, radius * 0.5)], sides=4, up=(0, 0, 1))
+    cone_bmesh(bm, tip, (tip[0], tip[1] + 0.25, tip[2] - claw * 0.55), radius * 0.5, sides=3)
+
+
+def build_hunter(prefix, hh=3.8, tr=1.3, tw=1.0, tl=2.2, nk=0.9, nrise=0.9, nth=1.05, hl=2.3, hw=0.8, hhh=0.8,
+                 tail=4.6, lt=0.85, arm=0.7, at=0.1, material=None, teeth=True, pitch=0.0):
+    """pitch: how much higher the chest is than the hips (studs)."""
+    clear(prefix)
+    hc = hh + tr * 0.35
+    ney, neh = tl + nk, hc + pitch * 0.8 + nrise
+
+    def z(h):
+        return h - 3.0
+
+    body = bmesh.new()
+    chain = [
+        (0, -tl - 0.3, z(hc - 0.05 - pitch * 0.5), tw * 0.7, tr * 0.75),
+        (0, -tl, z(hc - pitch * 0.4), tw * 0.95, tr * 0.95),
+        (0, 0.0, z(hc + 0.05), tw, tr),
+        (0, tl * 0.8, z(hc + 0.1 + pitch * 0.5), tw * 0.95, tr * 0.95),
+        (0, tl + 0.3, z(hc + 0.2 + pitch * 0.8), nth * 1.05, nth * 1.1),
+        (0, tl + nk * 0.5, z(hc + pitch * 0.8 + nrise * 0.55), nth * 0.9, nth * 0.95),
+        (0, ney, z(neh), hw * 0.95, hhh * 1.0),
+        (0, ney + hl * 0.3, z(neh + hhh * 0.05), hw, hhh),
+        (0, ney + hl * 0.6, z(neh - hhh * 0.08), hw * 0.74, hhh * 0.82),
+        (0, ney + hl * 0.9, z(neh - hhh * 0.22), hw * 0.56, hhh * 0.6),
+        (0, ney + hl, z(neh - hhh * 0.26), hw * 0.46, hhh * 0.48),
+    ]
+    loft_bmesh(body, [(x, y, zz, rw, rh) for x, y, zz, rw, rh in chain], sides=8)
+    # Lower jaw, a little open from the skull.
+    jaw = [
+        (0, ney + hl * 0.12, z(neh - hhh * 0.95), hw * 0.74, hhh * 0.3),
+        (0, ney + hl * 0.55, z(neh - hhh * 0.82), hw * 0.55, hhh * 0.25),
+        (0, ney + hl * 0.92, z(neh - hhh * 0.66), hw * 0.4, hhh * 0.19),
+        (0, ney + hl * 1.0, z(neh - hhh * 0.6), hw * 0.28, hhh * 0.13),
+    ]
+    loft_bmesh(body, jaw, sides=6)
+    if teeth:
+        for step in range(6):
+            fraction = 0.42 + 0.1 * step
+            half = hw * (0.72 - 0.22 * step / 5)
+            for side in (-1, 1):
+                edge = neh - hhh * (0.5 - 0.06 * step)
+                cone_bmesh(body, (side * half, ney + hl * fraction, z(edge + 0.04)), (side * half, ney + hl * fraction + 0.03, z(edge - 0.3)), 0.07, sides=3)
+                low = neh - hhh * (0.72 - 0.05 * step)
+                cone_bmesh(body, (side * half * 0.8, ney + hl * (fraction + 0.04), z(low - 0.03)), (side * half * 0.8, ney + hl * (fraction + 0.04), z(low + 0.24)), 0.055, sides=3)
+    # Brow bumps over the eyes.
+    for side in (-1, 1):
+        sphere_bmesh(body, (side * hw * 0.62, ney + hl * 0.3, z(neh + hhh * 0.72)), (0.24, 0.32, 0.15))
+        sphere_bmesh(body, (side * hw * 0.2, ney + hl * 0.88, z(neh + hhh * 0.1)), (0.1, 0.12, 0.07))
+    # Tiny arms with two claws.
+    for side in (-1, 1):
+        ax = side * tw * 0.88
+        loft_bmesh(body, [(ax, tl * 0.72, z(hc - 0.2), at * 1.3, at * 1.3), (ax, tl * 0.82, z(hc - 0.2 - arm * 0.5), at * 1.1, at * 1.1), (ax, tl * 0.98, z(hc - 0.25 - arm), at * 0.9, at * 0.9)], sides=4, up=(0, 1, 0))
+        for spread in (-0.06, 0.06):
+            cone_bmesh(body, (ax + spread, tl * 0.98, z(hc - 0.25 - arm)), (ax + spread * 1.3, tl * 0.98 + 0.25, z(hc - 0.25 - arm - 0.2)), 0.045, sides=3)
+    # Tail.
+    tailbm = bmesh.new()
+    loft_bmesh(
+        tailbm,
+        [
+            (0, -tl + 0.2, z(hc), tw * 0.8, tr * 0.85),
+            (0, -tl - tail * 0.2, z(hc - 0.05), tw * 0.68, tr * 0.72),
+            (0, -tl - tail * 0.45, z(hc - 0.2), tw * 0.5, tr * 0.52),
+            (0, -tl - tail * 0.7, z(hc - 0.35), tw * 0.3, tr * 0.3),
+            (0, -tl - tail * 0.9, z(hc - 0.4), tw * 0.13, tr * 0.13),
+            (0, -tl - tail, z(hc - 0.4), 0.0, 0.0),
+        ],
+        sides=8,
+    )
+    objects = {"Body": make_object(f"{prefix}_Body", body, material), "Tail": make_object(f"{prefix}_Tail", tailbm, material)}
+    hy = -tl * 0.2
+    for name, side in (("LegL", -1), ("LegR", 1)):
+        leg = bmesh.new()
+        lx = side * tw * 0.9
+        loft_bmesh(
+            leg,
+            [
+                (lx, hy, z(hc - 0.1), lt, lt * 1.15),
+                (lx, hy + 0.55, z(hh * 0.72), lt * 0.85, lt * 0.9),
+                (lx, hy + 0.75, z(hh * 0.5), lt * 0.62, lt * 0.62),
+                (lx, hy + 0.1, z(hh * 0.28 + 0.2), lt * 0.42, lt * 0.42),
+                (lx, hy - 0.15, z(0.5), lt * 0.36, lt * 0.34),
+            ],
+            sides=6,
+            up=(0, 1, 0),
+        )
+        for offset, length in ((-lt * 0.4, 0.9), (0.0, 1.1), (lt * 0.4, 0.9)):
+            _add_toe(leg, (lx + offset * 0.4, hy - 0.2, z(0.3)), (lx + offset, hy - 0.2 + length, z(0.07)), lt * 0.2)
+        objects[name] = make_object(f"{prefix}_{name}", leg, material)
+    # Eyes and pupils.
+    eyes, dark = bmesh.new(), bmesh.new()
+    for side in (-1, 1):
+        sphere_bmesh(eyes, (side * hw * 0.88, ney + hl * 0.32, z(neh + hhh * 0.42)), (0.10, 0.17, 0.17))
+        sphere_bmesh(dark, (side * (hw * 0.88 + 0.08), ney + hl * 0.32 + 0.04, z(neh + hhh * 0.42)), (0.045, 0.09, 0.09))
+    objects["Eyes"] = make_object(f"{prefix}_Eyes", eyes)
+    objects["Dark"] = make_object(f"{prefix}_Dark", dark)
+    low = min(min(v.co.y for v in obj.data.vertices) for obj in objects.values())
+    high = max(max(v.co.y for v in obj.data.vertices) for obj in objects.values())
+    shift = -(low + high) / 2 - 0.8
+    for obj in objects.values():
+        obj.data.transform(Matrix.Translation((0, shift, 0)))
+    for suffix in ("Body", "Tail", "LegL", "LegR"):
+        paint(objects[suffix])
+    total = 0
+    for obj in objects.values():
+        obj.data.calc_loop_triangles()
+        total += len(obj.data.loop_triangles)
+    joints = {
+        "hip": [tw * 0.9, 0.0, round(-(hy + shift), 3)],
+        "tail": [0, round(z(hc), 3), round(-(-tl + 0.2 - tail * 0.2 + shift), 3)],
+    }
+    joints["hip"][1] = round(z(hc - 0.1) - 0.12, 3)
+    return {"objects": objects, "tris": total, "joints": joints, "shift": shift}
