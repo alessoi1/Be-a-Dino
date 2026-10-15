@@ -1,7 +1,7 @@
 --!strict
 -- The lobby beside the dome: builds the platform and the glowing circles, puts every new
 -- character into the lobby, lets players join the arena by standing in the play circle, and
--- lets them go back with a short wait. The client only gets the zone as a player attribute
+-- lets them go back after standing still for a few seconds. The client only gets the zone as a player attribute
 -- (to open the windows); everything is decided here. Only checkable in Roblox Studio.
 
 local Players = game:GetService("Players")
@@ -10,6 +10,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Log = require(Shared:WaitForChild("Log"))
+local LeaveWait = require(Shared:WaitForChild("LeaveWait"))
 local PlayMode = require(Shared:WaitForChild("PlayMode"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local Strings = require(Shared:WaitForChild("Strings"))
@@ -70,6 +71,8 @@ end
 
 local dwell: { [Player]: Zones.Dwell } = {}
 local leaveAt: { [Player]: number } = {}
+-- Who waits to go back, with the spot where they have to keep standing.
+local leaveWait: { [Player]: LeaveWait.State } = {}
 local lastLeaveCall: { [Player]: number } = {}
 local published: { [Player]: Published } = {}
 
@@ -269,7 +272,12 @@ local function enterArena(player: Player, startPoints: number?): boolean
 	return true
 end
 
+local function toPosition(position: Vector3): LeaveWait.Position
+	return { x = position.X, y = position.Y, z = position.Z }
+end
+
 local function leaveArena(player: Player)
+	leaveWait[player] = nil
 	leaveAt[player] = nil
 	PlayerState.endRound(player)
 	placeInLobby(player)
@@ -287,6 +295,7 @@ local function livingRoot(player: Player): BasePart?
 end
 
 local function checkLobbyPlayer(player: Player, root: BasePart, now: number)
+	leaveWait[player] = nil
 	leaveAt[player] = nil
 	if root.Position.Y < lobbyCenterY() - Lobby.fallTolerance then
 		log.warn("lobby player below the platform, placed back", { userId = player.UserId })
@@ -316,15 +325,38 @@ local function checkLobbyPlayer(player: Player, root: BasePart, now: number)
 	setPublished(player, if zone ~= nil then zone.id else "", zoneUntil, full or (wasFull and zone ~= nil), 0)
 end
 
-local function checkPlayingPlayer(player: Player, now: number)
-	dwell[player] = nil
-	local at = leaveAt[player] or 0
-	if at > 0 and now >= at then
-		leaveArena(player)
-		setPublished(player, "", 0, false, 0)
+local function cancelLeave(player: Player, reason: string)
+	if leaveWait[player] == nil then
 		return
 	end
-	setPublished(player, "", 0, false, at)
+	leaveWait[player] = nil
+	leaveAt[player] = nil
+	log.info("leave cancelled", { userId = player.UserId, reason = reason })
+end
+
+local function checkPlayingPlayer(player: Player, root: BasePart?, now: number)
+	dwell[player] = nil
+	local state = leaveWait[player]
+	if state ~= nil then
+		if root == nil then
+			cancelLeave(player, "no_character")
+		else
+			local position = root.Position
+			local next, status =
+				LeaveWait.step(state, toPosition(position), now, Lobby.leaveStillRadius, Lobby.leaveSeconds)
+			if status == "done" then
+				leaveWait[player] = nil
+				leaveArena(player)
+				setPublished(player, "", 0, false, 0)
+				return
+			elseif status == "moved" then
+				cancelLeave(player, "moved")
+			else
+				leaveWait[player] = next
+			end
+		end
+	end
+	setPublished(player, "", 0, false, leaveAt[player] or 0)
 end
 
 local function tick()
@@ -334,7 +366,7 @@ local function tick()
 			local mode = PlayerState.getMode(player)
 			local root = livingRoot(player)
 			if mode == "playing" then
-				checkPlayingPlayer(player, now)
+				checkPlayingPlayer(player, root, now)
 			elseif root ~= nil then
 				checkLobbyPlayer(player, root, now)
 			end
@@ -363,12 +395,18 @@ local function onLeaveRequest(player: Player, active: any, limiter: Limiter)
 		return
 	end
 	if active then
-		if leaveAt[player] == nil then
+		if leaveWait[player] == nil then
+			local root = livingRoot(player)
+			if root == nil then
+				limiter.reject(userId, "LeaveArena", "no_character")
+				return
+			end
+			leaveWait[player] = LeaveWait.start(toPosition(root.Position), now)
 			leaveAt[player] = now + Lobby.leaveSeconds
-			log.info("leave requested", { userId = userId })
+			log.info("leave requested", { userId = userId, seconds = Lobby.leaveSeconds })
 		end
 	else
-		leaveAt[player] = nil
+		cancelLeave(player, "player_cancelled")
 	end
 end
 
@@ -425,6 +463,7 @@ function LobbyService.start(limiter: Limiter)
 	Players.PlayerRemoving:Connect(function(player: Player)
 		dwell[player] = nil
 		leaveAt[player] = nil
+		leaveWait[player] = nil
 		lastLeaveCall[player] = nil
 		published[player] = nil
 	end)

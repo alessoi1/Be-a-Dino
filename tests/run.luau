@@ -80,6 +80,9 @@ local specs: { () -> () } = {
 		require("./specs/PlayMode.spec")
 	end,
 	function()
+		require("./specs/LeaveWait.spec")
+	end,
+	function()
 		require("./specs/NumberFormat.spec")
 	end,
 	function()

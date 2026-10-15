@@ -25,6 +25,8 @@ local HINT_BOTTOM = 24
 local LEAVE_ICON_SIZE = 30
 local LEAVE_ICON_GAP = 4
 local LEAVE_ICON_INSET = 8
+-- Space between the button text and the other edges.
+local LEAVE_TEXT_INSET = 6
 
 local LobbyHud = {}
 
@@ -55,6 +57,8 @@ function LobbyHud.start()
 	leave.Size = UDim2.fromOffset(UiTheme.lobbyButtonWidth, UiTheme.lobbyButtonHeight)
 	leave.FontFace = UiTheme.font
 	leave.TextSize = UiTheme.bodySize
+	-- The longer waiting text shrinks to fit instead of running out of the button.
+	leave.TextScaled = true
 	leave.TextColor3 = UiTheme.text
 	leave.TextStrokeTransparency = 0.2
 	leave.TextStrokeColor3 = UiTheme.outline
@@ -64,7 +68,13 @@ function LobbyHud.start()
 	-- The text starts right of the home icon.
 	local padding = Instance.new("UIPadding")
 	padding.PaddingLeft = UDim.new(0, LEAVE_ICON_SIZE + LEAVE_ICON_GAP)
+	padding.PaddingRight = UDim.new(0, LEAVE_TEXT_INSET)
+	padding.PaddingTop = UDim.new(0, LEAVE_TEXT_INSET)
+	padding.PaddingBottom = UDim.new(0, LEAVE_TEXT_INSET)
 	padding.Parent = leave
+	local sizeLimit = Instance.new("UITextSizeConstraint")
+	sizeLimit.MaxTextSize = UiTheme.bodySize
+	sizeLimit.Parent = leave
 	local homeIcon = UiKit.newIcon(leave, "lobby", UDim2.fromOffset(LEAVE_ICON_SIZE, LEAVE_ICON_SIZE))
 	homeIcon.AnchorPoint = Vector2.new(0, 0.5)
 	homeIcon.Position = UDim2.new(0, -(LEAVE_ICON_SIZE + LEAVE_ICON_GAP) + LEAVE_ICON_INSET, 0.5, 0)
@@ -112,10 +122,10 @@ function LobbyHud.start()
 			leave.Visible = true
 			local left = secondsLeft(player:GetAttribute("LeaveAt"))
 			if left > 0 then
-				-- Only the seconds; tapping again cancels.
-				leave.Text = tostring(math.ceil(left))
+				-- Tells to stand still and counts down; moving or tapping again cancels.
+				leave.Text = string.format(Strings.lobby.leaving, math.ceil(left))
 			else
-				leave.Text = ""
+				leave.Text = Strings.lobby.leave
 			end
 		else
 			hint.Visible = false
