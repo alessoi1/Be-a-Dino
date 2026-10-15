@@ -474,13 +474,54 @@ local templates: { [string]: Template } = {
 			},
 		},
 	},
+	-- The Compy shape (from Tripo, reduced to 771 triangles, assets/blender/compy.fbx). It has
+	-- no eyes or accent parts: head, crest and claws are part of the body and the legs.
+	compy = {
+		root = "Body",
+		parts = {
+			{
+				name = "Body",
+				meshId = 80325755941431,
+				role = "body",
+				size = { x = 1.9824, y = 4.2693, z = 5.3166 },
+				offset = { x = -0.0004, y = 0.4631, z = -1.2507 },
+			},
+			{
+				name = "Tail",
+				meshId = 77760662277846,
+				role = "body",
+				size = { x = 0.9393, y = 1.0114, z = 4.7669 },
+				offset = { x = -0.0008, y = -0.0044, z = 3.1442 },
+				limb = "tail",
+				joint = { x = 0, y = 0, z = 0.8 },
+			},
+			{
+				name = "LegLeft",
+				meshId = 83585372268398,
+				role = "body",
+				size = { x = 0.8205, y = 2.2191, z = 1.5684 },
+				offset = { x = -0.7275, y = -1.8923, z = -0.4992 },
+				limb = "legLeft",
+				joint = { x = -0.7275, y = -0.9, z = -0.5 },
+			},
+			{
+				name = "LegRight",
+				meshId = 85506662811459,
+				role = "body",
+				size = { x = 0.8231, y = 2.22, z = 1.5681 },
+				offset = { x = 0.7294, y = -1.8905, z = -0.4993 },
+				limb = "legRight",
+				joint = { x = 0.7294, y = -0.9, z = -0.5 },
+			},
+		},
+	},
 }
 
 -- Dinos with a hand-written look in Config/DinoLooks that already have a real shape. The dinos
 -- with a plan use the colors of their plan.
 local dinos: { [string]: Entry } = {
 	compy = {
-		template = "runner",
+		template = "compy",
 		body = { r = 153, g = 143, b = 87 },
 		accent = { r = 232, g = 222, b = 190 },
 	},
