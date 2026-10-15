@@ -48,7 +48,7 @@ local IDS = {
 -- Parameters.
 local SECOND_THRESHOLD = 1000 -- the second dino starts here (the first one starts at 0)
 local LAST_THRESHOLD = 1e12 -- the last dino starts here
-local PIECES_PER_STAGE = 60 -- food pieces a stage takes outside the oasis
+local PIECES_PER_STAGE = 180 -- food pieces a stage takes outside the oasis
 local AVERAGE_FOOD_VALUE = 1.51 -- average value of a piece outside the oasis (Config/Food)
 local SCALE_FIRST = 1
 local SCALE_LAST = 8
