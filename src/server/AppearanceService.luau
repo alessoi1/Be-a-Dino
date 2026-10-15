@@ -357,7 +357,9 @@ local function hideAvatar(character: Model)
 	end
 end
 
-local function weld(root: BasePart, part: BasePart)
+-- `body` is the fixed body part of a real shape (nil for a placeholder). The other fixed parts
+-- (eyes, details) are welded to it, so they follow when the body nods, bobs and leans.
+local function weld(root: BasePart, part: BasePart, body: BasePart?)
 	part.Anchored = false
 	part.CanCollide = false
 	part.CanTouch = false
@@ -380,7 +382,7 @@ local function weld(root: BasePart, part: BasePart)
 		return
 	end
 	local constraint = Instance.new("WeldConstraint")
-	constraint.Part0 = root
+	constraint.Part0 = body or root
 	constraint.Part1 = part
 	constraint.Parent = part
 end
@@ -413,9 +415,16 @@ local function mountLook(character: Model, root: BasePart, look: Model)
 	look:ScaleTo(character:GetScale())
 	look:PivotTo(root.CFrame)
 	look.Parent = character
+	local body: BasePart? = nil
+	for _, descendant in look:GetDescendants() do
+		if descendant:IsA("BasePart") and descendant:GetAttribute(BODY_ROOT_ATTRIBUTE) == true then
+			body = descendant
+			break
+		end
+	end
 	for _, descendant in look:GetDescendants() do
 		if descendant:IsA("BasePart") then
-			weld(root, descendant)
+			weld(root, descendant, body)
 		end
 	end
 end
