@@ -184,8 +184,8 @@ return {
 		full = "Arena full, please wait",
 		-- Button in the arena that goes back to the lobby.
 		leave = "Lobby",
-		-- %d = seconds left; tapping again cancels
-		leaving = "Leaving in %d (tap to cancel)",
+		-- While the wait runs (%d = seconds left); moving or tapping again cancels.
+		leaving = "Stand still %d",
 	},
 	potions = {
 		title = "Potions",

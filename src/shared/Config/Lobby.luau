@@ -46,6 +46,9 @@ return {
 	maxPlaying = 24,
 	-- Seconds the "back to lobby" button takes, so nobody escapes a fight at once.
 	leaveSeconds = 5,
+	-- The player has to stand still for that time: moving farther than this (studs) from the
+	-- start spot cancels the wait. A little room, so small slips of the physics do not cancel.
+	leaveStillRadius = 1.5,
 	-- Seconds between two server checks of the circles.
 	checkInterval = 0.1,
 	-- A lobby player this far below the floor is put back on the platform.
