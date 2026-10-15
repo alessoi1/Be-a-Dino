@@ -1040,7 +1040,7 @@ local templates: { [string]: Template } = {
 		parts = {
 			{
 				name = "Body",
-				meshId = 127599205323038,
+				meshId = 80963858626361,
 				role = "body",
 				size = { x = 1.9825, y = 3.6661, z = 6.3131 },
 				offset = { x = 0.0022, y = 0.0332, z = -0.7734 },
@@ -1074,17 +1074,17 @@ local templates: { [string]: Template } = {
 			},
 			{
 				name = "Eyes",
-				meshId = 91673646619247,
+				meshId = 112193382354775,
 				role = "eyes",
-				size = { x = 1.049, y = 0.34, z = 0.34 },
-				offset = { x = -0.0108, y = 1.3381, z = -2.33 },
+				size = { x = 1.0317, y = 0.34, z = 0.34 },
+				offset = { x = -0.0109, y = 1.4881, z = -2.53 },
 			},
 			{
 				name = "Dark",
-				meshId = 107173227729557,
+				meshId = 87597463961189,
 				role = "dark",
-				size = { x = 1.1137, y = 0.18, z = 0.18 },
-				offset = { x = -0.0108, y = 1.3381, z = -2.37 },
+				size = { x = 1.0965, y = 0.18, z = 0.18 },
+				offset = { x = -0.0109, y = 1.4881, z = -2.57 },
 			},
 		},
 	},
