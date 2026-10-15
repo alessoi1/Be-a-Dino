@@ -24,8 +24,8 @@ return {
 	-- scale 1 reach each other from 4.4 studs; the old 1.5 times the eater's scale (1.5 studs) meant a
 	-- dino could run right through another one without eating it.
 	eatReachFactor = 2.2,
-	-- Share of the victim's points the eater receives (0.5 = half).
-	eatPointsShare = 0.5,
+	-- Share of the victim's points the eater receives (0.17 = about a sixth).
+	eatPointsShare = 0.17,
 	-- Seconds after a respawn in which a player cannot be eaten.
 	spawnProtectionSeconds = 4,
 	-- Seconds between being eaten and the respawn.

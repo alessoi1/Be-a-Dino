@@ -4,5 +4,5 @@
 return {
 	-- Food pieces a player needs on one stage (outside the oasis) must stay between these.
 	minPiecesPerStage = 20,
-	maxPiecesPerStage = 80,
+	maxPiecesPerStage = 240,
 }
