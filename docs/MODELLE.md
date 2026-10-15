@@ -40,6 +40,10 @@ Alles ist reine Optik auf dem Client, der Server ändert nur die Verbindung (Mot
 
 Der `AppearanceService` lädt die Meshes beim Start mit `AssetService:CreateMeshPartAsync` und klont sie pro Dino. Alle Teile aller Formen laden gleichzeitig und jede Form ist einzeln freigegeben, sobald sie da ist (52 Meshes nacheinander dauerten länger als die Wartezeit und blockierten den Start). Wer in der Zwischenzeit einen Platzhalter bekam, bekommt danach die echte Form; Bots warten nicht auf ihr Aussehen. Schlägt das Laden fehl (falsche ID, keine Berechtigung), steht `mesh not loaded` im Log und die Dinos behalten ihren Platzhalter.
 
+## Modelle nach Bild (ohne Drittanbieter)
+
+Für die Dinos ab Deino baut Claude die Modelle selbst nach einem Bild (Seitenansicht oder schräg), mit `tools/blender/loft.py`: Ein Teil ist ein „Loft“, ein Schlauch durch Querschnitte (Position, halbe Breite, halbe Höhe). `theropod(...)` baut aus ein paar Maßen (Hüfthöhe, Rumpf, Hals, Kopf, Schwanz, Beine, Arme, Extras wie Hörner und Kragen) die Beschreibung eines Zweibeiners, `build_biped(name, spec)` daraus die Teile `<name>_Body`, `_Tail`, `_LegL`, `_LegR`, `_Eyes`, `_Dark` (Augen und Pupillen), `export(name, pfad)` die FBX-Datei und `preview(...)` ein Kontrollbild. Alles läuft in Blender über die MCP-Verbindung mit `exec(open(pfad).read())`. Die Modelle haben etwa 500 bis 600 Dreiecke, neutrale Vertex-Farben und die Farbe kommt wie bisher aus dem Spiel. Danach: Bulk Import in Studio, Mesh-IDs, Größen und Versatz in `Config/DinoMeshes`.
+
 ## So findet das Spiel ein Modell
 
 - Rojo legt den Inhalt von `assets/models/` nach `ServerStorage/Models`.
