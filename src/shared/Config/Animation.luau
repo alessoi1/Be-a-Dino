@@ -21,8 +21,9 @@ return {
 	-- Seconds per sway of the tail while standing.
 	tailIdleSeconds = 2.4,
 	-- Whole-body motion (the "body" joint at the middle of the figure). Lifts are in studs at scale 1,
-	-- angles in radians. Standing: the body rises and falls with the breath (same clock as the tail).
-	breathLift = 0.1,
+	-- angles in radians. Standing: the body could rise and fall with the breath (same clock as the tail);
+	-- 0 keeps it still, so a dino never sinks into the floor while it stands.
+	breathLift = 0,
 	-- Walking: the body bobs up and down twice per step cycle, and leans a little forward.
 	bobLift = 0.08,
 	walkLean = 0.03,
