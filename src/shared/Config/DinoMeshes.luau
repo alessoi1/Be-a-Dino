@@ -629,13 +629,6 @@ local templates: { [string]: Template } = {
 				size = { x = 0.7387, y = 0.34, z = 0.34 },
 				offset = { x = 0, y = 1.4038, z = -3.0299 },
 			},
-			{
-				name = "Dark",
-				meshId = 113684626596641,
-				role = "dark",
-				size = { x = 0.8034, y = 0.5284, z = 1.16 },
-				offset = { x = 0, y = 1.2296, z = -3.3599 },
-			},
 		},
 	},
 	-- The Troodon shape (from Tripo, reduced to about 780 triangles, assets/blender/troodon.fbx).
@@ -683,13 +676,6 @@ local templates: { [string]: Template } = {
 				size = { x = 0.8917, y = 0.34, z = 0.34 },
 				offset = { x = 0, y = 1.4956, z = -3.0553 },
 			},
-			{
-				name = "Dark",
-				meshId = 132941864440053,
-				role = "dark",
-				size = { x = 0.9565, y = 0.5521, z = 1.16 },
-				offset = { x = 0, y = 1.3095, z = -3.3853 },
-			},
 		},
 	},
 	-- The Oviraptor shape (from Tripo, reduced to about 780 triangles, assets/blender/oviraptor.fbx).
@@ -736,13 +722,6 @@ local templates: { [string]: Template } = {
 				role = "eyes",
 				size = { x = 0.8747, y = 0.34, z = 0.34 },
 				offset = { x = 0, y = 3.1793, z = -3.03 },
-			},
-			{
-				name = "Dark",
-				meshId = 83720170840342,
-				role = "dark",
-				size = { x = 0.9395, y = 0.8481, z = 1.16 },
-				offset = { x = 0, y = 2.8452, z = -3.36 },
 			},
 		},
 	},
