@@ -241,6 +241,8 @@ local function buildMeshLook(stageId: string, variantId: string?): Model?
 			continue
 		end
 		local part = source:Clone()
+		-- Tripo meshes are made of loose blocks; a face with the wrong direction would be a hole.
+		part.DoubleSided = true
 		part.Name = spec.name
 		if spec.limb ~= nil and spec.joint ~= nil then
 			part:SetAttribute(LIMB_ATTRIBUTE, spec.limb)
