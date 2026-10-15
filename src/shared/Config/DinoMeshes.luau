@@ -474,8 +474,9 @@ local templates: { [string]: Template } = {
 			},
 		},
 	},
-	-- The Compy shape (from Tripo, reduced to 771 triangles, assets/blender/compy.fbx). It has
-	-- no eyes or accent parts: head, crest and claws are part of the body and the legs.
+	-- The Compy shape (from Tripo, reduced to 771 triangles, assets/blender/compy.fbx; the face
+	-- is assets/blender/compy_face.fbx). It has no accent part: crest and claws are part of the
+	-- body and the legs.
 	compy = {
 		root = "Body",
 		parts = {
@@ -512,6 +513,20 @@ local templates: { [string]: Template } = {
 				offset = { x = 0.7294, y = -1.8905, z = -0.4993 },
 				limb = "legRight",
 				joint = { x = 0.7294, y = -0.9, z = -0.5 },
+			},
+			{
+				name = "Eyes",
+				meshId = 105803586345665,
+				role = "eyes",
+				size = { x = 0.8332, y = 0.34, z = 0.34 },
+				offset = { x = 0, y = 2.08, z = -3 },
+			},
+			{
+				name = "Dark",
+				meshId = 108033772431949,
+				role = "dark",
+				size = { x = 0.8979, y = 0.575, z = 1.17 },
+				offset = { x = 0, y = 1.8825, z = -3.335 },
 			},
 		},
 	},
