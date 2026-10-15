@@ -377,7 +377,27 @@ def import_raw(name, folder):
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 
-def process(name, zcut_frac=None, slivers=False, **face):
+def remove_head_bars(name, min_height=0.6, max_area=0.2, zone=0.9):
+    """Deletes thin upright plates at the very front of the head (a bar across an open mouth)."""
+    obj = bpy.data.objects[name + "_all"]
+    bm = bmesh.new()
+    bm.from_mesh(obj.data)
+    ymax = max(v.co.y for v in bm.verts)
+    bars = []
+    for face in bm.faces:
+        center = face.calc_center_median()
+        heights = [v.co.z for v in face.verts]
+        if center.y > ymax - zone and max(heights) - min(heights) > min_height and face.calc_area() < max_area:
+            bars.append(face)
+    if bars:
+        bmesh.ops.delete(bm, geom=bars, context="FACES")
+        bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    bm.to_mesh(obj.data)
+    bm.free()
+    print("remove_head_bars:", name, len(bars))
+
+
+def process(name, zcut_frac=None, slivers=False, bars=False, **face):
     """Everything for one dino after `import_raw`: prepare, split, face, skin pattern. Returns the
     result of `finish` plus the mode."""
     remove_parts(name)
@@ -385,6 +405,8 @@ def process(name, zcut_frac=None, slivers=False, **face):
     if FLIP_AFTER.get(name):
         obj.data.transform(Matrix.Rotation(math.pi, 4, "Z"))
         obj.data.transform(Matrix.Translation((0, -1.6, 0)))
+    if bars:
+        remove_head_bars(name)
     mode, objects = split(name, zcut_frac=zcut_frac)
     add_face(name, objects, **face)
     info = finish(name, objects)
