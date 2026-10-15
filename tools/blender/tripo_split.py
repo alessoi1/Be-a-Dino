@@ -264,7 +264,7 @@ def _sphere(bm, center, scale):
                               matrix=Matrix.Translation(center) @ Matrix.Diagonal((scale[0], scale[1], scale[2], 1)))
 
 
-def add_face(name, objects, half_cap=0.7, drop=0.45, back=1.1, eye_z=None):
+def add_face(name, objects, half_cap=0.7, drop=0.45, back=1.1, eye_z=None, right_extra=0.0):
     """Eyes and pupils on the head (the front end of the body). The eye sits `drop` studs below the
     top of the head and `back` studs behind the tip of the snout, centered on the head and as wide as
     the skull is there (at most `half_cap`)."""
@@ -281,8 +281,10 @@ def add_face(name, objects, half_cap=0.7, drop=0.45, back=1.1, eye_z=None):
     half = min(near[int(len(near) * 0.8)] if near else 0.35, half_cap)
     eyes, dark = bmesh.new(), bmesh.new()
     for side in (-1, 1):
-        _sphere(eyes, (cx + side * half * 0.92, ey, ez), (0.10, 0.17, 0.17))
-        _sphere(dark, (cx + side * (half * 0.92 + 0.08), ey + 0.04, ez), (0.045, 0.09, 0.09))
+        # `right_extra` moves only the right eye (+X, seen from behind) outwards (a turned head).
+        extra = right_extra if side > 0 else 0.0
+        _sphere(eyes, (cx + side * (half * 0.92 + extra), ey, ez), (0.10, 0.17, 0.17))
+        _sphere(dark, (cx + side * (half * 0.92 + extra + 0.08), ey + 0.04, ez), (0.045, 0.09, 0.09))
     for part, bm in (("Eyes", eyes), ("Dark", dark)):
         mesh = bpy.data.meshes.new(f"{low}_{part}")
         bm.to_mesh(mesh)
